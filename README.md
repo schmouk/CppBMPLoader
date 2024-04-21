@@ -1,5 +1,5 @@
 # CppBMPLoader
-An exhaustive BMP Loader, MIT-licensed, implemented for c++11 and c++20
+An exhaustive BMP Loader, MIT-licensed, implemented for c++14 and c++20
 
 
 ## Genesis of this project
@@ -32,9 +32,9 @@ sees the quantity of questions asked on this subject on the Internet and the
 number of BMPLoader libraries already existing but apparently incomplete that 
 can be found on *GitHub*, programmed in c++ or in other programming languages.
 
-## c++11 and c++20 versions
+## c++14 and c++20 versions
 Initially, two versions of the library are offered, one responding to standard 
-c++11 of the programming language and the other responding to standard c++20 
+c++14 of the programming language and the other responding to standard c++20 
 and offering more advanced programming concepts (e.g. programmed in the form 
 of c++ modules).
 
