@@ -36,6 +36,13 @@
 *.vcxproj
 *.vcxproj.*
 *.sln
+x84
+Release
+Debug
 
 # External Documentaion
 docs
+
+# This project specifics
+cpp-bmp-loader
+tests
