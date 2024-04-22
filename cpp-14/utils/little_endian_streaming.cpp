@@ -36,6 +36,16 @@ namespace bmpl
     namespace utils
     {
 
+        const LEInStream::pos_type LEInStream::get_size() noexcept
+        {
+            pos_type current_stream_pos{ tellg() };
+            seekg(end);
+            pos_type stream_size{ tellg() };
+            seekg(current_stream_pos);
+            return stream_size;
+        }
+
+
         constexpr bool LEInStream::_check_little_endianness() noexcept
         {
             std::uint16_t one{ 1 };

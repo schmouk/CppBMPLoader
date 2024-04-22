@@ -33,39 +33,38 @@ SOFTWARE.
 
 
 #include <cstdint>
-#include <fstream>
-#include <string>
 
-#include "errors.h"
+#include "../utils/errors.h"
+#include "../utils/little_endian_streaming.h"
 
 
 namespace bmpl
 {
-    namespace utils
+    namespace frmt
     {
-        //===========================================================================
-        class LEInStream : public std::ifstream
+        class BMPFileHeader
         {
         public:
 
-            using MyBaseClass = std::ifstream;
+            std::uint32_t size{ 0 };            // bfSize
+            std::uint32_t content_offset{ 0 };  // bfOffBits
+            std::uint32_t reserved{ 0 };        // bfReserved1 and bfReserved2
+            std::uint16_t type{ 0 };            // bfType "BM"
 
 
-            inline LEInStream(const char* filepath) noexcept
-                : MyBaseClass(filepath, std::ios::binary)
+            BMPFileHeader() noexcept = default;
+            BMPFileHeader(const BMPFileHeader&) noexcept = default;
+            BMPFileHeader(BMPFileHeader&&) noexcept = default;
+            virtual ~BMPFileHeader() noexcept = default;
+
+            inline BMPFileHeader& operator= (const BMPFileHeader&) noexcept = default;
+            inline BMPFileHeader& operator= (BMPFileHeader&&) noexcept = default;
+
+
+            inline BMPFileHeader(bmpl::utils::LEInStream& in_stream) noexcept
             {
-                _check_creation_ok();
+                load(in_stream);
             }
-
-
-            inline LEInStream(const std::string& filepath) noexcept
-                : MyBaseClass(filepath, std::ios::binary)
-            {
-                _check_creation_ok();
-            }
-
-
-            virtual inline ~LEInStream() noexcept = default;
 
 
             inline operator bool() const noexcept
@@ -80,48 +79,36 @@ namespace bmpl
             }
 
 
-            const pos_type get_size() noexcept;  // notice: pos_type is inherited from base class
-
-
             inline const bool is_ok() const noexcept
             {
                 return get_error() == bmpl::utils::ErrorStatus::NO_ERROR;
             }
 
 
-            LEInStream& operator>>(std::int8_t& value);
-            LEInStream& operator>>(std::int16_t& value);
-            LEInStream& operator>>(std::int32_t& value);
-            LEInStream& operator>>(std::int64_t& value);
-            LEInStream& operator>>(std::uint8_t& value);
-            LEInStream& operator>>(std::uint16_t& value);
-            LEInStream& operator>>(std::uint32_t& value);
-            LEInStream& operator>>(std::uint64_t& value);
-            
+            const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+
 
         private:
-
             bmpl::utils::ErrorStatus _current_error_status{ bmpl::utils::ErrorStatus::FILE_NOT_INITIALIZED };
 
-            static const bool PLATFORM_IS_LITTLE_ENDIAN;
-            
-            static constexpr bool _check_little_endianness() noexcept;
-
-            void _check_creation_ok() noexcept;
-
-            inline void _clr_err() noexcept
+            inline const bool _clr_err() noexcept
             {
                 _set_err(bmpl::utils::ErrorStatus::NO_ERROR);
+                return true;
             }
 
-            inline void _set_err(const bmpl::utils::ErrorStatus err_code) noexcept
+            inline const bool _set_err(const bmpl::utils::ErrorStatus err_code) noexcept
             {
                 _current_error_status = err_code;
+                return is_ok();
             }
 
-            void _set_err() noexcept;
+            inline const bool _set_err(bmpl::utils::LEInStream& in_stream) noexcept
+            {
+                _set_err(in_stream.get_error());
+                return in_stream.is_ok();
+            }
 
         };
-
     }
 }
