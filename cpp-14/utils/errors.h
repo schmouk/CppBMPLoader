@@ -40,17 +40,75 @@ namespace bmpl
 {
     namespace utils
     {
-        enum class ErrorStatus : std::uint8_t
+        enum class ErrorCode : std::uint8_t
         {
             NO_ERROR = 0,
             BMP_BAD_ENCODING,
             CORRUPTED_BMP_FILE,
             END_OF_FILE,
             FILE_NOT_FOUND,
-            FILE_NOT_INITIALIZED,
             INPUT_OPERATION_FAILED,
             IRRECOVERABLE_STREAM_ERROR,
             NOT_BMP_ENCODING,
+            NOT_INITIALIZED,
+        };
+
+
+        class ErrorStatus
+        {
+        public:
+
+            inline ErrorStatus() noexcept
+                : _current_error_code(ErrorCode::NOT_INITIALIZED)
+            {}
+
+
+            inline ErrorStatus(const ErrorCode err_code) noexcept
+                : _current_error_code(err_code)
+            {}
+
+            inline ErrorStatus(const ErrorStatus&) noexcept = default;
+            inline ErrorStatus(ErrorStatus&&) noexcept = default;
+
+            inline virtual ~ErrorStatus() noexcept = default;
+
+            inline ErrorStatus& operator= (const ErrorStatus&) noexcept = default;
+            inline ErrorStatus& operator= (ErrorStatus&&) noexcept = default;
+
+
+            inline operator bool() const noexcept
+            {
+                return is_ok();
+            }
+
+
+            inline const bmpl::utils::ErrorCode get_error() const noexcept
+            {
+                return _current_error_code;
+            }
+
+
+            inline const bool is_ok() const noexcept
+            {
+                return get_error() == ErrorCode::NO_ERROR;
+            }
+
+
+        protected:
+            ErrorCode _current_error_code;
+
+            inline const bool _clr_err() noexcept
+            {
+                _set_err(ErrorCode::NO_ERROR);
+                return true;
+            }
+
+            inline const bool _set_err(const ErrorCode err_code) noexcept
+            {
+                _current_error_code = err_code;
+                return is_ok();
+            }
+
         };
 
     }

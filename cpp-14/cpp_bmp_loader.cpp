@@ -33,12 +33,5 @@ SOFTWARE.
 
 namespace bmpl
 {
-    void BMPFile::_load() noexcept
-    {
-        if (!_file_header.load(*this)) {
-            _set_err(_file_header.get_error());
-            return;
-        }
 
-    }
 }

@@ -44,15 +44,20 @@ namespace bmpl
     namespace utils
     {
         //===========================================================================
-        class LEInStream : public std::ifstream
+        class LEInStream : public std::ifstream, public bmpl::utils::ErrorStatus
         {
         public:
 
             using MyBaseClass = std::ifstream;
+            using MyErrClass = bmpl::utils::ErrorStatus;
+
+
+            inline LEInStream() noexcept = default;
 
 
             inline LEInStream(const char* filepath) noexcept
                 : MyBaseClass(filepath, std::ios::binary)
+                , MyErrClass()
             {
                 _check_creation_ok();
             }
@@ -60,6 +65,7 @@ namespace bmpl
 
             inline LEInStream(const std::string& filepath) noexcept
                 : MyBaseClass(filepath, std::ios::binary)
+                , MyErrClass()
             {
                 _check_creation_ok();
             }
@@ -68,25 +74,7 @@ namespace bmpl
             virtual inline ~LEInStream() noexcept = default;
 
 
-            inline operator bool() const noexcept
-            {
-                return is_ok();
-            }
-
-
-            inline const bmpl::utils::ErrorStatus get_error() const noexcept
-            {
-                return _current_error_status;
-            }
-
-
-            const pos_type get_size() noexcept;  // notice: pos_type is inherited from base class
-
-
-            inline const bool is_ok() const noexcept
-            {
-                return get_error() == bmpl::utils::ErrorStatus::NO_ERROR;
-            }
+            const pos_type get_size() noexcept;  // notice: pos_type is inherited from base class std::ifstream
 
 
             LEInStream& operator>>(std::int8_t& value);
@@ -101,23 +89,11 @@ namespace bmpl
 
         private:
 
-            bmpl::utils::ErrorStatus _current_error_status{ bmpl::utils::ErrorStatus::FILE_NOT_INITIALIZED };
-
             static const bool PLATFORM_IS_LITTLE_ENDIAN;
             
             static constexpr bool _check_little_endianness() noexcept;
 
             void _check_creation_ok() noexcept;
-
-            inline void _clr_err() noexcept
-            {
-                _set_err(bmpl::utils::ErrorStatus::NO_ERROR);
-            }
-
-            inline void _set_err(const bmpl::utils::ErrorStatus err_code) noexcept
-            {
-                _current_error_status = err_code;
-            }
 
             void _set_err() noexcept;
 

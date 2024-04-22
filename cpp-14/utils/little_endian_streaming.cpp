@@ -58,7 +58,7 @@ namespace bmpl
             if (good())
                 _clr_err();
             else
-                _set_err(bmpl::utils::ErrorStatus::FILE_NOT_FOUND);
+                MyErrClass::_set_err(bmpl::utils::ErrorCode::FILE_NOT_FOUND);
         }
 
 
@@ -229,15 +229,15 @@ namespace bmpl
         void LEInStream::_set_err() noexcept
         {
             if (fail())
-                _set_err(bmpl::utils::ErrorStatus::INPUT_OPERATION_FAILED);
+                MyErrClass::_set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
             else if (bad())
-                _set_err(bmpl::utils::ErrorStatus::IRRECOVERABLE_STREAM_ERROR);
+                MyErrClass::_set_err(bmpl::utils::ErrorCode::IRRECOVERABLE_STREAM_ERROR);
             else if (eof())
-                _set_err(bmpl::utils::ErrorStatus::END_OF_FILE);
+                MyErrClass::_set_err(bmpl::utils::ErrorCode::END_OF_FILE);
             else if (good())
                 _clr_err();
             else
-                _set_err(bmpl::utils::ErrorStatus::CORRUPTED_BMP_FILE);
+                MyErrClass::_set_err(bmpl::utils::ErrorCode::CORRUPTED_BMP_FILE);
         }
 
 

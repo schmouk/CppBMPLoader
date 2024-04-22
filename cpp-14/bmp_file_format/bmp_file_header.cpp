@@ -42,10 +42,10 @@ namespace bmpl
                 return _set_err(in_stream);
 
             if (type != std::uint16_t('B' + ('M' << 8)))
-                return _set_err(bmpl::utils::ErrorStatus::NOT_BMP_ENCODING);
+                return MyBaseClass::_set_err(bmpl::utils::ErrorCode::NOT_BMP_ENCODING);
 
             if (in_stream.get_size() != size)
-                return _set_err(bmpl::utils::ErrorStatus::CORRUPTED_BMP_FILE);
+                return MyBaseClass::_set_err(bmpl::utils::ErrorCode::CORRUPTED_BMP_FILE);
 
             return _clr_err();
         }

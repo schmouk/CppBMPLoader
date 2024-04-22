@@ -42,9 +42,11 @@ namespace bmpl
 {
     namespace frmt
     {
-        class BMPFileHeader
+        class BMPFileHeader : public bmpl::utils::ErrorStatus
         {
         public:
+            using MyBaseClass = bmpl::utils::ErrorStatus;
+
 
             std::uint32_t size{ 0 };            // bfSize
             std::uint32_t content_offset{ 0 };  // bfOffBits
@@ -62,26 +64,9 @@ namespace bmpl
 
 
             inline BMPFileHeader(bmpl::utils::LEInStream& in_stream) noexcept
+                : MyBaseClass()
             {
                 load(in_stream);
-            }
-
-
-            inline operator bool() const noexcept
-            {
-                return is_ok();
-            }
-
-
-            inline const bmpl::utils::ErrorStatus get_error() const noexcept
-            {
-                return _current_error_status;
-            }
-
-
-            inline const bool is_ok() const noexcept
-            {
-                return get_error() == bmpl::utils::ErrorStatus::NO_ERROR;
             }
 
 
@@ -89,23 +74,10 @@ namespace bmpl
 
 
         private:
-            bmpl::utils::ErrorStatus _current_error_status{ bmpl::utils::ErrorStatus::FILE_NOT_INITIALIZED };
-
-            inline const bool _clr_err() noexcept
-            {
-                _set_err(bmpl::utils::ErrorStatus::NO_ERROR);
-                return true;
-            }
-
-            inline const bool _set_err(const bmpl::utils::ErrorStatus err_code) noexcept
-            {
-                _current_error_status = err_code;
-                return is_ok();
-            }
 
             inline const bool _set_err(bmpl::utils::LEInStream& in_stream) noexcept
             {
-                _set_err(in_stream.get_error());
+                MyBaseClass::_set_err(in_stream.get_error());
                 return in_stream.is_ok();
             }
 
