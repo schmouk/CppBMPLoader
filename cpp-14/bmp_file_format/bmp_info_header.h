@@ -42,28 +42,35 @@ namespace bmpl
 {
     namespace frmt
     {
-        class BMPFileHeader : public bmpl::utils::ErrorStatus
+        class BMPInfoHeader : public bmpl::utils::ErrorStatus
         {
         public:
             using MyBaseClass = bmpl::utils::ErrorStatus;
 
 
-            std::uint32_t size{ 0 };            // bfSize
-            std::uint32_t content_offset{ 0 };  // bfOffBits
-            std::uint32_t reserved{ 0 };        // bfReserved1 and bfReserved2
-            std::uint16_t type{ 0 };            // bfType "BM"
+            std::uint32_t size{ 0 };                    // biSize
+            std::int32_t width{ 0 };                    // biWidth
+            std::int32_t height{ 0 };                   // biHeight
+            std::uint16_t planes_count{ 0 };            // biPlanes
+            std::uint16_t bits_per_pixel{ 0 };          // biBitCount
+            std::uint32_t compression_mode{ 0 };        // biCompression
+            std::uint32_t image_size{ 0 };              // biSizeImage
+            std::int32_t device_x_resolution{ 0 };      // biXpelsPerMeter
+            std::int32_t device_y_resolution{ 0 };      // biYpelsPerMeter
+            std::uint32_t used_colors_count{ 0 };       // biClrUsed
+            std::uint32_t important_colors_count{ 0 };  // biClrImportant
 
 
-            BMPFileHeader() noexcept = default;
-            BMPFileHeader(const BMPFileHeader&) noexcept = default;
-            BMPFileHeader(BMPFileHeader&&) noexcept = default;
-            virtual ~BMPFileHeader() noexcept = default;
+            BMPInfoHeader() noexcept = default;
+            BMPInfoHeader(const BMPInfoHeader&) noexcept = default;
+            BMPInfoHeader(BMPInfoHeader&&) noexcept = default;
+            virtual ~BMPInfoHeader() noexcept = default;
 
-            inline BMPFileHeader& operator= (const BMPFileHeader&) noexcept = default;
-            inline BMPFileHeader& operator= (BMPFileHeader&&) noexcept = default;
+            inline BMPInfoHeader& operator= (const BMPInfoHeader&) noexcept = default;
+            inline BMPInfoHeader& operator= (BMPInfoHeader&&) noexcept = default;
 
 
-            inline BMPFileHeader(bmpl::utils::LEInStream& in_stream) noexcept
+            inline BMPInfoHeader(bmpl::utils::LEInStream& in_stream) noexcept
                 : MyBaseClass()
             {
                 load(in_stream);

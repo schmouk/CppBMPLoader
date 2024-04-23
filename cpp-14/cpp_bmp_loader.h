@@ -1,3 +1,5 @@
+#pragma once
+
 /*
 MIT License
 
@@ -24,31 +26,52 @@ SOFTWARE.
 
 
 /*
-* NOTICE: code here is implemented according to the c++14 standard.  It should
-* function  as  well  when  compiled  with  standard  c++11  because  no c++14
+* NOTICE: code here is implemented according to the c++14 standard.  It should 
+* function  as  well  when  compiled  with  standard  c++11  because  no c++14 
 * specificities have been used there, but it has not been tested as such.
 */
 
-#include "bmp_file_header.h"
+
+// Let's exclude rarely-used stuff from Windows headers
+// (gets no effect on non Windows platforms)
+#define WIN32_LEAN_AND_MEAN
+
+
+#include <fstream>
+#include <string>
+
+#include "bmp_file_format/bmp_file_header.h"
+#include "utils/errors.h"
+#include "utils/little_endian_streaming.h"
 
 
 namespace bmpl
 {
-    namespace frmt
+    class BMPLoader : public bmpl::utils::ErrorStatus
     {
-        const bool BMPFileHeader::load(bmpl::utils::LEInStream& in_stream) noexcept
-        {
-            if (!(in_stream >> type >> size >> reserved >> content_offset))
-                return _set_err(in_stream.get_error());
+    public:
+        using MyBaseClass = bmpl::utils::ErrorStatus;
 
-            if (type != 0x4d42)  // i.e. "BM", little-endian encoded on 16 bits-
-                return _set_err(bmpl::utils::ErrorCode::NOT_BMP_ENCODING);
 
-            if (in_stream.get_size() != size)
-                return _set_err(bmpl::utils::ErrorCode::CORRUPTED_BMP_FILE);
+        inline BMPLoader(const char* filepath) noexcept
+            : MyBaseClass()
+            , _in_stream(filepath)
+            , _file_header(_in_stream)
+        {}
 
-            return _clr_err();
-        }
 
-    }
+        inline BMPLoader(const std::string& filepath) noexcept
+            : MyBaseClass()
+            , _in_stream(filepath)
+            , _file_header(_in_stream)
+        {}
+
+
+    private:
+        bmpl::utils::LEInStream _in_stream;
+
+        // notice: do not modify the ordering of next declarations
+        bmpl::frmt::BMPFileHeader _file_header;
+
+    };
 }

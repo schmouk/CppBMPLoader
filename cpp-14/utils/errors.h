@@ -43,6 +43,7 @@ namespace bmpl
         enum class ErrorCode : std::uint8_t
         {
             NO_ERROR = 0,
+            BAD_DEFAULT_VALUE,
             BMP_BAD_ENCODING,
             CORRUPTED_BMP_FILE,
             END_OF_FILE,
@@ -51,6 +52,7 @@ namespace bmpl
             IRRECOVERABLE_STREAM_ERROR,
             NOT_BMP_ENCODING,
             NOT_INITIALIZED,
+            NOT_WINDOWS_BMP,
         };
 
 
