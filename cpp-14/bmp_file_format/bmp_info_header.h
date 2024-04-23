@@ -34,6 +34,7 @@ SOFTWARE.
 
 #include <cstdint>
 
+#include "../utils/colors.h"
 #include "../utils/errors.h"
 #include "../utils/little_endian_streaming.h"
 
