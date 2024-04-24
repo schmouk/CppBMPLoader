@@ -46,13 +46,6 @@ namespace bmpl
         }
 
 
-        constexpr bool LEInStream::_check_little_endianness() noexcept
-        {
-            std::uint16_t one{ 1 };
-            return (*(std::uint8_t*)(&one) == 1);
-        }
-
-
         void LEInStream::_check_creation_ok() noexcept
         {
             if (good())
@@ -239,9 +232,6 @@ namespace bmpl
             else
                 MyErrClass::_set_err(bmpl::utils::ErrorCode::CORRUPTED_BMP_FILE);
         }
-
-
-        const bool LEInStream::PLATFORM_IS_LITTLE_ENDIAN{ LEInStream::_check_little_endianness() };
 
     }
 }

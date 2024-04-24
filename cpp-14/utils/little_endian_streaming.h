@@ -44,6 +44,17 @@ namespace bmpl
     namespace utils
     {
         //===========================================================================
+        static inline constexpr bool check_little_endianness() noexcept
+        {
+            std::uint16_t one{ 1 };
+            return (*(std::uint8_t*)(&one) == 1);
+        }
+
+
+        static const bool PLATFORM_IS_LITTLE_ENDIAN{ check_little_endianness() };
+
+
+        //===========================================================================
         class LEInStream : public std::ifstream, public bmpl::utils::ErrorStatus
         {
         public:
@@ -88,16 +99,13 @@ namespace bmpl
             
 
         private:
-
-            static const bool PLATFORM_IS_LITTLE_ENDIAN;
             
-            static constexpr bool _check_little_endianness() noexcept;
-
             void _check_creation_ok() noexcept;
 
             void _set_err() noexcept;
 
         };
+
 
     }
 }
