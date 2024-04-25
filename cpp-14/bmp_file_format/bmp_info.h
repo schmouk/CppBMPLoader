@@ -1,3 +1,5 @@
+#pragma once
+
 /*
 MIT License
 
@@ -29,54 +31,41 @@ SOFTWARE.
 * specificities have been used there, but it has not been tested as such.
 */
 
-
-#include <array>
-
 #include "bmp_color_pallett.h"
+#include "bmp_info_header.h"
+#include "../utils/errors.h"
+#include "../utils/little_endian_streaming.h"
 
 
 namespace bmpl
 {
     namespace frmt
     {
-        const bool BMPColorPallett::load(bmpl::utils::LEInStream& in_stream, const std::uint32_t colors_count_) noexcept
+        //===========================================================================
+        struct BMPInfo : public bmpl::utils::ErrorStatus
         {
-            this->colors_count = colors_count_;
+            using MyBaseClass = bmpl::utils::ErrorStatus;
 
-            if (!in_stream.is_ok())
-                return _set_err(in_stream.get_error());
-
-            if (colors_count_ > 0) {
-
-                if (bmpl::utils::PLATFORM_IS_LITTLE_ENDIAN) {
-                    if (!in_stream.read(reinterpret_cast<char*>(MyContainerBaseClass::data()), std::streamsize(4 * colors_count_)))
-                        _set_err(bmpl::utils::ErrorCode::BAD_PALLETT_ENCODING);
-                }
-                else {
-                    for (std::uint32_t i = 0; i < this->colors_count; ++i) {
-                        in_stream >> MyContainerBaseClass::operator[](i);
-                        if (!in_stream.is_ok()) {
-                            _set_err(bmpl::utils::ErrorCode::BAD_PALLETT_ENCODING);
-                            break;
-                        }
-                    }
-                }
-            }
-
-            return is_ok();
-        }
+            BMPInfoHeader info_header;
+            BMPColorPallett color_pallett;
 
 
-        const bmpl::clr::RGBA& BMPColorPallett::operator[] (const std::uint32_t index) noexcept
-        {
-            if (index >= this->colors_count) {
-                _set_err(bmpl::utils::ErrorCode::OUT_OF_PALLETT_INDEX);
-                return (*this)[0];
-            }
-            else {
-                return MyContainerBaseClass::operator[](index);
-            }
-        }
+            inline BMPInfo() noexcept = default;
+            inline BMPInfo(const BMPInfo&) noexcept = default;
+            inline BMPInfo(BMPInfo&&) noexcept = default;
 
+            virtual inline ~BMPInfo() noexcept = default;
+
+            inline BMPInfo& operator= (const BMPInfo&) noexcept = default;
+            inline BMPInfo& operator= (BMPInfo&&) noexcept = default;
+
+
+            inline BMPInfo(bmpl::utils::LEInStream& in_stream) noexcept
+                : MyBaseClass()
+                , info_header(in_stream)
+                , color_pallett(in_stream, info_header.used_colors_count)
+            {}
+
+        };
     }
 }

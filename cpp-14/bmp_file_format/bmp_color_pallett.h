@@ -33,6 +33,7 @@ SOFTWARE.
 
 
 #include <array>
+#include <cstdint>
 
 #include "../utils/colors.h"
 #include "../utils/errors.h"
@@ -49,7 +50,7 @@ namespace bmpl
             using MyErrorBaseClass = bmpl::utils::ErrorStatus;
 
 
-            const int colors_count{ 0 };
+            std::uint32_t colors_count{ 0 };
 
 
             inline BMPColorPallett() noexcept = default;
@@ -62,20 +63,19 @@ namespace bmpl
             inline BMPColorPallett& operator= (BMPColorPallett&&) noexcept = default;
 
 
-            inline BMPColorPallett(bmpl::utils::LEInStream& in_stream, const int colors_count_) noexcept
+            inline BMPColorPallett(bmpl::utils::LEInStream& in_stream, const std::uint32_t colors_count_) noexcept
                 : MyContainerBaseClass()
                 , MyErrorBaseClass()
-                , colors_count(colors_count_)
+                , colors_count(0)
             {
-                load(in_stream);
+                load(in_stream, colors_count_);
             }
 
 
-            const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+            const bool load(bmpl::utils::LEInStream& in_stream, const std::uint32_t colors_count) noexcept;
 
 
-            const bmpl::clr::RGBA& operator[] (const unsigned int index) noexcept;
-
+            const bmpl::clr::RGBA& operator[] (const std::uint32_t index) noexcept;
 
         };
 

@@ -38,6 +38,9 @@ namespace bmpl
     {
         const bool BMPInfoHeader::load(bmpl::utils::LEInStream& in_stream) noexcept
         {
+            if (!in_stream.is_ok())
+                return _set_err(in_stream.get_error());
+
             if (!(in_stream >> size))
                 return _set_err(in_stream.get_error());
 
