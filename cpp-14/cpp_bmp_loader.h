@@ -41,6 +41,7 @@ SOFTWARE.
 #include <string>
 
 #include "bmp_file_format/bmp_file_header.h"
+#include "bmp_file_format/bmp_info.h"
 #include "utils/errors.h"
 #include "utils/little_endian_streaming.h"
 
@@ -57,6 +58,7 @@ namespace bmpl
             : MyBaseClass()
             , _in_stream(filepath)
             , _file_header(_in_stream)
+            , _info(_in_stream)
         {}
 
 
@@ -64,6 +66,7 @@ namespace bmpl
             : MyBaseClass()
             , _in_stream(filepath)
             , _file_header(_in_stream)
+            , _info(_in_stream)
         {}
 
 
@@ -72,6 +75,7 @@ namespace bmpl
 
         // notice: do not modify the ordering of next declarations
         bmpl::frmt::BMPFileHeader _file_header;
+        bmpl::frmt::BMPInfo _info;
 
     };
 }
