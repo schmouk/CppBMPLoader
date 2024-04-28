@@ -48,13 +48,26 @@ namespace bmpl
 
             if (colors_count_ > 0) {
 
+                auto pallett_it = MyContainerBaseClass::begin();
+
                 if (bmpl::utils::PLATFORM_IS_LITTLE_ENDIAN) {
+                    /*
                     if (!in_stream.read(reinterpret_cast<char*>(MyContainerBaseClass::data()), std::streamsize(4 * colors_count_)))
                         _set_err(bmpl::utils::ErrorCode::BAD_PALLETT_ENCODING);
+                    */
+                    for (std::uint32_t i = 0; i < this->colors_count; ++i) {
+                        in_stream >> *pallett_it++;  // .comps.value;
+                        if (!in_stream.is_ok()) {
+                            _set_err(bmpl::utils::ErrorCode::BAD_PALLETT_ENCODING);
+                            break;
+                        }
+                    }
                 }
                 else {
+                    bmpl::clr::BGRA bgra;
                     for (std::uint32_t i = 0; i < this->colors_count; ++i) {
-                        in_stream >> MyContainerBaseClass::operator[](i);
+                        in_stream >> bgra;  // .comps.value;
+                        *pallett_it++ = bgra;
                         if (!in_stream.is_ok()) {
                             _set_err(bmpl::utils::ErrorCode::BAD_PALLETT_ENCODING);
                             break;

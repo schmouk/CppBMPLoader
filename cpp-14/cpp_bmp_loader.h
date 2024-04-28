@@ -42,6 +42,7 @@ SOFTWARE.
 
 #include "bmp_file_format/bmp_file_header.h"
 #include "bmp_file_format/bmp_info.h"
+#include "utils/colors.h"
 #include "utils/errors.h"
 #include "utils/little_endian_streaming.h"
 
@@ -52,6 +53,9 @@ namespace bmpl
     {
     public:
         using MyBaseClass = bmpl::utils::ErrorStatus;
+
+
+        bmpl::clr::RGB::Components* image_content_ptr{ nullptr };
 
 
         inline BMPLoader(const char* filepath) noexcept
@@ -71,9 +75,8 @@ namespace bmpl
 
 
     private:
-        bmpl::utils::LEInStream _in_stream;
-
         // notice: do not modify the ordering of next declarations
+        bmpl::utils::LEInStream _in_stream;
         bmpl::frmt::BMPFileHeader _file_header;
         bmpl::frmt::BMPInfo _info;
 

@@ -34,30 +34,101 @@ SOFTWARE.
 
 #include <cstdint>
 
+#include "../utils/little_endian_streaming.h"
+
 
 namespace bmpl
 {
     namespace clr
     {
-        using BGRA = std::uint32_t;
-
-        using RGBA = std::uint32_t;
-
-
-        inline const RGBA bgra_to_rgba(const BGRA bgra) noexcept
+        struct BGRA
         {
-            const std::uint32_t b{ (bgra & 0xff'00'00'00) >> 24 };
-            const std::uint32_t g{ (bgra & 0x00'ff'00'00) >> 8 };
-            const std::uint32_t r{ (bgra & 0x00'00'ff'00) << 8 };
-            return r | g | b;
-        }
+            using Components = std::uint32_t;
+
+            union {
+                Components value{ 0 };
+                struct {
+                    std::uint8_t b;
+                    std::uint8_t g;
+                    std::uint8_t r;
+                    std::uint8_t a;
+                };
+            } comps;
+
+            inline BGRA() noexcept = default;
+            inline BGRA(const BGRA&) noexcept = default;
+            inline BGRA(BGRA&&) noexcept = default;
+            inline virtual ~BGRA() noexcept = default;
+
+            inline BGRA& operator= (const BGRA&) noexcept = default;
+            inline BGRA& operator= (BGRA&&) noexcept = default;
+
+            inline friend bmpl::utils::LEInStream& operator>> (bmpl::utils::LEInStream& in_stream, BGRA& bgra) noexcept
+            {
+                return in_stream >> bgra.comps.value;
+            }
+        };
+
+
+        struct RGBA
+        {
+            using Components = std::uint32_t;
+
+            union {
+                Components value{ 0 };
+                struct {
+                    std::uint8_t r;
+                    std::uint8_t g;
+                    std::uint8_t b;
+                    std::uint8_t a;
+                };
+            } comps;
+
+            inline RGBA() noexcept = default;
+            inline RGBA(const RGBA&) noexcept = default;
+            inline RGBA(RGBA&&) noexcept = default;
+            inline virtual ~RGBA() noexcept = default;
+
+            inline RGBA& operator= (const RGBA&) noexcept = default;
+            inline RGBA& operator= (RGBA&&) noexcept = default;
+
+            inline RGBA(const BGRA& bgra) noexcept
+            {
+                set(bgra);
+            }
+
+            inline RGBA& operator= (const BGRA& bgra) noexcept
+            {
+                return set(bgra);
+            }
+
+            inline RGBA& set(const BGRA& bgra) noexcept
+            {
+                this->comps.value = bgra.comps.value;
+                this->comps.r = bgra.comps.b;
+                this->comps.b = bgra.comps.r;
+                return *this;
+            }
+
+            inline friend bmpl::utils::LEInStream& operator>> (bmpl::utils::LEInStream& in_stream, RGBA& bgra) noexcept
+            {
+                return in_stream >> bgra.comps.value;
+            }
+
+        };
 
 
         struct RGB
         {
-            std::uint8_t r{ 0 };
-            std::uint8_t g{ 0 };
-            std::uint8_t b{ 0 };
+            
+            struct Components
+            {
+                std::uint8_t r{ 0 };
+                std::uint8_t g{ 0 };
+                std::uint8_t b{ 0 };
+            };
+            
+            Components comps;
 
             inline RGB() noexcept = default;
             inline RGB(const RGB&) noexcept = default;
@@ -72,15 +143,46 @@ namespace bmpl
                 (void) set(bgra);
             }
 
-            [[nodiscard]]
-            inline const RGB& set(const RGBA bgra) noexcept
+            inline const RGB& set(const BGRA bgra) noexcept
             {
-                r = (bgra & 0x00'00'ff'00) << 8;
-                g = (bgra & 0x00'ff'00'00) >> 8;
-                b = (bgra & 0xff'00'00'00) >> 24;
+                comps.r = bgra.comps.r;
+                comps.g = bgra.comps.g;
+                comps.b = bgra.comps.b;
                 return *this;
             }
 
         };
+
+
+        template<typename ClrT>
+        struct is_color
+        {
+            static constexpr bool value{ false };
+        };
+
+        template<typename ClrT>
+        inline constexpr bool is_color_v()
+        {
+            return is_color<ClrT>::value;
+        }
+
+        template<>
+        struct is_color<BGRA>
+        {
+            static constexpr bool value{ true };
+        };
+
+        template<>
+        struct is_color<RGBA>
+        {
+            static constexpr bool value{ true };
+        };
+
+        template<>
+        struct is_color<RGB>
+        {
+            static constexpr bool value{ true };
+        };
+
     }
 }
