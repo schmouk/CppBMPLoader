@@ -44,5 +44,6 @@ Debug
 docs
 
 # This project specifics
+archive
 cpp-bmp-loader
 tests

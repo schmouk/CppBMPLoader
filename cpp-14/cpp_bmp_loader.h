@@ -39,6 +39,7 @@ SOFTWARE.
 
 #include <fstream>
 #include <string>
+#include <vector>
 
 #include "bmp_file_format/bmp_file_header.h"
 #include "bmp_file_format/bmp_info.h"
@@ -55,7 +56,7 @@ namespace bmpl
         using MyBaseClass = bmpl::utils::ErrorStatus;
 
 
-        bmpl::clr::RGB::Components* image_content_ptr{ nullptr };
+        std::vector<bmpl::clr::RGB> image_content;
 
 
         inline BMPLoader(const char* filepath) noexcept
@@ -72,6 +73,13 @@ namespace bmpl
             , _file_header(_in_stream)
             , _info(_in_stream)
         {}
+
+
+        [[nodiscard]]
+        inline bmpl::clr::RGB* image_content_ptr() noexcept
+        {
+            return image_content.data();
+        }
 
 
     private:

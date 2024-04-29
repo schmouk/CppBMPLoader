@@ -33,6 +33,7 @@ SOFTWARE.
 
 
 #include <cstdint>
+#include <utility>
 
 #include "../utils/little_endian_streaming.h"
 
@@ -41,119 +42,78 @@ namespace bmpl
 {
     namespace clr
     {
-        struct BGRA
-        {
-            using Components = std::uint32_t;
-
-            union {
-                Components value{ 0 };
-                struct {
-                    std::uint8_t b;
-                    std::uint8_t g;
-                    std::uint8_t r;
-                    std::uint8_t a;
-                };
-            } comps;
-
-            inline BGRA() noexcept = default;
-            inline BGRA(const BGRA&) noexcept = default;
-            inline BGRA(BGRA&&) noexcept = default;
-            inline virtual ~BGRA() noexcept = default;
-
-            inline BGRA& operator= (const BGRA&) noexcept = default;
-            inline BGRA& operator= (BGRA&&) noexcept = default;
-
-            inline friend bmpl::utils::LEInStream& operator>> (bmpl::utils::LEInStream& in_stream, BGRA& bgra) noexcept
-            {
-                return in_stream >> bgra.comps.value;
-            }
-        };
-
-
-        struct RGBA
-        {
-            using Components = std::uint32_t;
-
-            union {
-                Components value{ 0 };
-                struct {
-                    std::uint8_t r;
-                    std::uint8_t g;
-                    std::uint8_t b;
-                    std::uint8_t a;
-                };
-            } comps;
-
-            inline RGBA() noexcept = default;
-            inline RGBA(const RGBA&) noexcept = default;
-            inline RGBA(RGBA&&) noexcept = default;
-            inline virtual ~RGBA() noexcept = default;
-
-            inline RGBA& operator= (const RGBA&) noexcept = default;
-            inline RGBA& operator= (RGBA&&) noexcept = default;
-
-            inline RGBA(const BGRA& bgra) noexcept
-            {
-                set(bgra);
-            }
-
-            inline RGBA& operator= (const BGRA& bgra) noexcept
-            {
-                return set(bgra);
-            }
-
-            inline RGBA& set(const BGRA& bgra) noexcept
-            {
-                this->comps.value = bgra.comps.value;
-                this->comps.r = bgra.comps.b;
-                this->comps.b = bgra.comps.r;
-                return *this;
-            }
-
-            inline friend bmpl::utils::LEInStream& operator>> (bmpl::utils::LEInStream& in_stream, RGBA& bgra) noexcept
-            {
-                return in_stream >> bgra.comps.value;
-            }
-
-        };
-
-
-        struct RGB
-        {
-            
-            struct Components
-            {
-                std::uint8_t r{ 0 };
-                std::uint8_t g{ 0 };
-                std::uint8_t b{ 0 };
+        //===========================================================================
+        using BGRA = union uBGRA {
+            std::uint32_t value{ 0 };
+            struct {
+                std::uint8_t b;
+                std::uint8_t g;
+                std::uint8_t r;
+                std::uint8_t a;
             };
-            
-            Components comps;
-
-            inline RGB() noexcept = default;
-            inline RGB(const RGB&) noexcept = default;
-            inline RGB(RGB&&) noexcept = default;
-            inline virtual ~RGB() noexcept = default;
-
-            inline RGB& operator= (const RGB&) noexcept = default;
-            inline RGB& operator= (RGB&&) noexcept = default;
-
-            inline RGB(const BGRA bgra) noexcept
-            {
-                (void) set(bgra);
-            }
-
-            inline const RGB& set(const BGRA bgra) noexcept
-            {
-                comps.r = bgra.comps.r;
-                comps.g = bgra.comps.g;
-                comps.b = bgra.comps.b;
-                return *this;
-            }
-
         };
 
+        inline bmpl::utils::LEInStream& operator>> (bmpl::utils::LEInStream& in_stream, BGRA& bgra) noexcept
+        {
+            return in_stream >> bgra.value;
+        }
 
+
+        //===========================================================================
+        using RGBA = union uRGBA {
+            std::uint32_t value{ 0 };
+            struct {
+                std::uint8_t r;
+                std::uint8_t g;
+                std::uint8_t b;
+                std::uint8_t a;
+            };
+        };
+
+        inline bmpl::utils::LEInStream& operator>> (bmpl::utils::LEInStream& in_stream, RGBA& rgba) noexcept
+        {
+            return in_stream >> rgba.value;
+        }
+
+
+        //===========================================================================
+        using RGB = struct sRGB {
+            std::uint8_t b{ 0 };
+            std::uint8_t g{ 0 };
+            std::uint8_t r{ 0 };
+        };
+            
+
+        //===========================================================================
+        inline void set(RGBA& rgba, const BGRA& bgra) noexcept
+        {
+            rgba.value = bgra.value;
+            /*
+            rgba.r = bgra.b;
+            rgba.b = bgra.r;
+            */
+            std::swap(rgba.r, rgba.b);
+        }
+
+        inline void set(BGRA& bgra, const RGBA& rgba) noexcept
+        {
+            bgra.value = rgba.value;
+            /*
+            bgra.r = rgba.b;
+            bgra.b = rgba.r;
+            */
+            std::swap(bgra.b, bgra.r);
+        }
+
+        inline void set(RGB& rgb, const BGRA& bgra) noexcept
+        {
+            rgb.r = bgra.r;
+            rgb.g = bgra.g;
+            rgb.b = bgra.b;
+        }
+
+
+        //===========================================================================
         template<typename ClrT>
         struct is_color
         {
@@ -165,6 +125,7 @@ namespace bmpl
         {
             return is_color<ClrT>::value;
         }
+
 
         template<>
         struct is_color<BGRA>
