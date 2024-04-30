@@ -51,7 +51,7 @@ namespace bmpl
                 std::uint8_t r;
                 std::uint8_t a;
             };
-            char comps[4];
+            std::uint8_t comps[4];
         };
 
         inline bmpl::utils::LEInStream& operator>> (bmpl::utils::LEInStream& in_stream, BGRA& bgra) noexcept
@@ -69,7 +69,7 @@ namespace bmpl
                 std::uint8_t b;
                 std::uint8_t a;
             };
-            char comps[4];
+            std::uint8_t comps[4];
         };
 
         inline bmpl::utils::LEInStream& operator>> (bmpl::utils::LEInStream& in_stream, RGBA& rgba) noexcept
@@ -79,12 +79,14 @@ namespace bmpl
 
 
         //===========================================================================
-        using RGB = struct sRGB {
+        using RGB = union uRGB {
             // notice: belowing order of components is only valid for BMP format (little-endian coding of triplets)
-            std::uint8_t b{ 0 };
-            std::uint8_t g{ 0 };
-            std::uint8_t r{ 0 };
-            char comps[3];
+            struct {
+                std::uint8_t b;
+                std::uint8_t g;
+                std::uint8_t r;
+            };
+            std::uint8_t comps[3]{ 0, 0, 0 };
         };
 
 

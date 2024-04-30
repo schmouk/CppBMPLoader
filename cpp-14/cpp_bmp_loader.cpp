@@ -103,7 +103,6 @@ namespace bmpl
         // reserves final image content space
         const std::size_t width{ std::size_t(_info.info_header.width) };
         const std::size_t height{ std::size_t(_info.info_header.height) };
-        this->image_content.reserve(width * height);
         this->image_content.assign(width * height, bmpl::clr::RGB());
 
         // loads image content from file
@@ -115,11 +114,12 @@ namespace bmpl
         }
         else {
             // let's load the image content line per line
-            const std::size_t padding_size{ 4 - (width * sizeof bmpl::clr::RGB) % 4 };
+            const std::size_t line_width{ width * sizeof(bmpl::clr::RGB) };
+            const std::size_t padding_size{ 4 - line_width % 4 };
 
             char* current_line_ptr{ reinterpret_cast<char*>(this->image_content_ptr()) };
             for (int line = 0; line < height; ++line) {
-                if (this->_in_stream.read(current_line_ptr, width * sizeof(bmpl::clr::RGB)).fail()) {
+                if (this->_in_stream.read(current_line_ptr, line_width).fail()) {
                     _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
                     return;
                 }
@@ -128,27 +128,26 @@ namespace bmpl
                     _set_err(bmpl::utils::ErrorCode::CORRUPTED_BMP_FILE);
                     return;
                 }
+
+                current_line_ptr += line_width;
             }
         }
-
-        // reverse lines ordering
-        _reverse_lines_ordering(width, height);
 
     }
 
 
-    void BMPLoader::_reverse_lines_ordering(const std::size_t width, const std::size_t height) noexcept
+    void BMPLoader::_reverse_lines_ordering() noexcept
     {
-        const std::size_t line_width{ width * sizeof bmpl::clr::RGB };
+        const std::size_t line_width{ this->_image_width * sizeof bmpl::clr::RGB };
 
-        std::vector<char> tmp_line;
+        std::vector<std::uint8_t> tmp_line;
         tmp_line.assign(line_width, '\0');
 
-        char* upline_ptr{ reinterpret_cast<char*>(this->image_content_ptr()) };
-        char* botline_ptr{ reinterpret_cast<char*>(this->image_content_ptr() + (height - 1) * width) };
-        char* tmpline_ptr{ tmp_line.data() };
+        std::uint8_t* upline_ptr{ reinterpret_cast<std::uint8_t*>(this->image_content_ptr()) };
+        std::uint8_t* botline_ptr{ reinterpret_cast<std::uint8_t*>(this->image_content_ptr() + (this->_image_height - 1) * this->_image_width) };
+        std::uint8_t* tmpline_ptr{ tmp_line.data() };
 
-        for (std::size_t i = 0; i < height / 2; ++i) {
+        for (std::size_t i = 0; i < this->_image_height / 2; ++i) {
             std::memcpy(tmpline_ptr, upline_ptr, line_width);
             std::memcpy(upline_ptr, botline_ptr, line_width);
             std::memcpy(botline_ptr, tmpline_ptr, line_width);

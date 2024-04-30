@@ -39,7 +39,7 @@ namespace bmpl
         const LEInStream::pos_type LEInStream::get_size() noexcept
         {
             pos_type current_stream_pos{ tellg() };
-            seekg(end);
+            seekg(0, end);
             pos_type stream_size{ tellg() };
             seekg(current_stream_pos);
             return stream_size;

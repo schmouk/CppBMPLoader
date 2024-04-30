@@ -72,6 +72,8 @@ namespace bmpl
             , _in_stream(filepath)
             , _file_header(_in_stream)
             , _info(_in_stream)
+            , _image_width(_info.info_header.width)
+            , _image_height(_info.info_header.height)
         {
             _load_image();
         }
@@ -82,6 +84,8 @@ namespace bmpl
             , _in_stream(filepath)
             , _file_header(_in_stream)
             , _info(_in_stream)
+            , _image_width(_info.info_header.width)
+            , _image_height(_info.info_header.height)
         {
             _load_image();
         }
@@ -97,11 +101,6 @@ namespace bmpl
         }
 
 
-    protected:
-        virtual inline void _reverse_lines_ordering(const std::size_t width, const std::size_t height) noexcept
-        {}
-
-
     private:
         // notice: do not modify the ordering of next declarations
         bmpl::utils::LEInStream _in_stream;
@@ -114,6 +113,11 @@ namespace bmpl
         void _load_4b() noexcept;
         void _load_8b() noexcept;
         void _load_24b() noexcept;
+
+
+    protected:
+        const std::uint32_t _image_width{ 0 };
+        const std::uint32_t _image_height{ 0 };
 
     };
 
@@ -130,19 +134,23 @@ namespace bmpl
 
         inline BMPLoader(const char* filepath) noexcept
             : BMPBottomUpLoader(filepath)
-        {}
+        {
+            _reverse_lines_ordering();
+        }
 
 
         inline BMPLoader(const std::string& filepath) noexcept
             : BMPBottomUpLoader(filepath)
-        {}
+        {
+            _reverse_lines_ordering();
+        }
 
 
         virtual inline ~BMPLoader() noexcept = default;
 
 
     protected:
-        virtual inline void _reverse_lines_ordering(const std::size_t width, const std::size_t height) noexcept override;
+        void _reverse_lines_ordering() noexcept;
 
     };
 
