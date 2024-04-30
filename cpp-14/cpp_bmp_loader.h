@@ -50,7 +50,15 @@ SOFTWARE.
 
 namespace bmpl
 {
-    class BMPLoader : public bmpl::utils::ErrorStatus
+    //===========================================================================
+    // Forward declarations
+    //
+    class BMPLoader;
+    class BMPBottomUpLoader;
+    
+
+    //===========================================================================
+    class BMPBottomUpLoader : public bmpl::utils::ErrorStatus
     {
     public:
         using MyBaseClass = bmpl::utils::ErrorStatus;
@@ -59,20 +67,27 @@ namespace bmpl
         std::vector<bmpl::clr::RGB> image_content;
 
 
-        inline BMPLoader(const char* filepath) noexcept
+        inline BMPBottomUpLoader(const char* filepath) noexcept
             : MyBaseClass()
             , _in_stream(filepath)
             , _file_header(_in_stream)
             , _info(_in_stream)
-        {}
+        {
+            _load_image();
+        }
 
 
-        inline BMPLoader(const std::string& filepath) noexcept
+        inline BMPBottomUpLoader(const std::string& filepath) noexcept
             : MyBaseClass()
             , _in_stream(filepath)
             , _file_header(_in_stream)
             , _info(_in_stream)
-        {}
+        {
+            _load_image();
+        }
+
+
+        virtual inline ~BMPBottomUpLoader() noexcept = default;
 
 
         [[nodiscard]]
@@ -82,11 +97,53 @@ namespace bmpl
         }
 
 
+    protected:
+        virtual inline void _reverse_lines_ordering(const std::size_t width, const std::size_t height) noexcept
+        {}
+
+
     private:
         // notice: do not modify the ordering of next declarations
         bmpl::utils::LEInStream _in_stream;
         bmpl::frmt::BMPFileHeader _file_header;
         bmpl::frmt::BMPInfo _info;
 
+        void _load_image() noexcept;
+
+        void _load_1b() noexcept;
+        void _load_4b() noexcept;
+        void _load_8b() noexcept;
+        void _load_24b() noexcept;
+
     };
+
+
+    //===========================================================================
+    class BMPLoader : public BMPBottomUpLoader
+    {
+    public:
+        using MyBaseClass = bmpl::utils::ErrorStatus;
+
+
+        std::vector<bmpl::clr::RGB> image_content;
+
+
+        inline BMPLoader(const char* filepath) noexcept
+            : BMPBottomUpLoader(filepath)
+        {}
+
+
+        inline BMPLoader(const std::string& filepath) noexcept
+            : BMPBottomUpLoader(filepath)
+        {}
+
+
+        virtual inline ~BMPLoader() noexcept = default;
+
+
+    protected:
+        virtual inline void _reverse_lines_ordering(const std::size_t width, const std::size_t height) noexcept override;
+
+    };
+
 }

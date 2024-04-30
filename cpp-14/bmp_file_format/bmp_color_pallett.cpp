@@ -58,7 +58,7 @@ namespace bmpl
                     bmpl::clr::BGRA bgra;
                     for (std::uint32_t i = 0; i < this->colors_count; ++i) {
                         in_stream >> bgra;
-                        bmpl::clr::set(*pallett_it++, bgra);
+                        bmpl::clr::convert(*pallett_it++, bgra);
                     }
                     if (!in_stream.is_ok())
                         _set_err(bmpl::utils::ErrorCode::BAD_PALLETT_ENCODING);

@@ -51,6 +51,7 @@ namespace bmpl
                 std::uint8_t r;
                 std::uint8_t a;
             };
+            char comps[4];
         };
 
         inline bmpl::utils::LEInStream& operator>> (bmpl::utils::LEInStream& in_stream, BGRA& bgra) noexcept
@@ -68,6 +69,7 @@ namespace bmpl
                 std::uint8_t b;
                 std::uint8_t a;
             };
+            char comps[4];
         };
 
         inline bmpl::utils::LEInStream& operator>> (bmpl::utils::LEInStream& in_stream, RGBA& rgba) noexcept
@@ -78,14 +80,16 @@ namespace bmpl
 
         //===========================================================================
         using RGB = struct sRGB {
+            // notice: belowing order of components is only valid for BMP format (little-endian coding of triplets)
             std::uint8_t b{ 0 };
             std::uint8_t g{ 0 };
             std::uint8_t r{ 0 };
+            char comps[3];
         };
-            
+
 
         //===========================================================================
-        inline void set(RGBA& rgba, const BGRA& bgra) noexcept
+        inline void convert(RGBA& rgba, const BGRA& bgra) noexcept
         {
             rgba.value = bgra.value;
             /*
@@ -95,7 +99,7 @@ namespace bmpl
             std::swap(rgba.r, rgba.b);
         }
 
-        inline void set(BGRA& bgra, const RGBA& rgba) noexcept
+        inline void convert(BGRA& bgra, const RGBA& rgba) noexcept
         {
             bgra.value = rgba.value;
             /*
@@ -105,7 +109,7 @@ namespace bmpl
             std::swap(bgra.b, bgra.r);
         }
 
-        inline void set(RGB& rgb, const BGRA& bgra) noexcept
+        inline void convert(RGB& rgb, const BGRA& bgra) noexcept
         {
             rgb.r = bgra.r;
             rgb.g = bgra.g;

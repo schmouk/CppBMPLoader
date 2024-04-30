@@ -29,9 +29,133 @@ SOFTWARE.
 * specificities have been used there, but it has not been tested as such.
 */
 
+
+#include <cstring>
+#include <vector>
+
 #include "cpp_bmp_loader.h"
+
 
 namespace bmpl
 {
+    void BMPBottomUpLoader::_load_image() noexcept
+    {
+        if (_in_stream.is_ok()) {
+            // let's set the file cursor position to the starting point of the image coding
+            if (_in_stream.seekg(_file_header.content_offset).fail()) {
+                _set_err(bmpl::utils::ErrorCode::IRRECOVERABLE_STREAM_ERROR);
+                return;
+            }
+
+            switch (_info.info_header.bits_per_pixel)
+            {
+            case 1:
+                _load_1b();
+                break;
+
+            case 4:
+                _load_4b();
+                break;
+
+            case  8:
+                _load_8b();
+                break;
+
+            case 24:
+                _load_24b();
+                break;
+
+            default:
+                _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
+                return;
+            }
+        }
+
+    }
+
+
+    void BMPBottomUpLoader::_load_1b() noexcept
+    {
+
+    }
+
+
+    void BMPBottomUpLoader::_load_4b() noexcept
+    {
+
+    }
+
+
+    void BMPBottomUpLoader::_load_8b() noexcept
+    {
+
+    }
+
+
+    void BMPBottomUpLoader::_load_24b() noexcept
+    {
+        // checks correctness of headers values
+        if (_info.info_header.bits_per_pixel != 24) {
+            _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
+            return;
+        }
+
+        // reserves final image content space
+        const std::size_t width{ std::size_t(_info.info_header.width) };
+        const std::size_t height{ std::size_t(_info.info_header.height) };
+        this->image_content.reserve(width * height);
+        this->image_content.assign(width * height, bmpl::clr::RGB());
+
+        // loads image content from file
+        if (width % 4 == 0) {
+            // cool, no padding by end of each line
+            // let's load the whole image content at once
+            if (this->_in_stream.read(reinterpret_cast<char*>(this->image_content.data()), width * height * sizeof bmpl::clr::RGB).fail())
+                _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
+        }
+        else {
+            // let's load the image content line per line
+            const std::size_t padding_size{ 4 - (width * sizeof bmpl::clr::RGB) % 4 };
+
+            char* current_line_ptr{ reinterpret_cast<char*>(this->image_content_ptr()) };
+            for (int line = 0; line < height; ++line) {
+                if (this->_in_stream.read(current_line_ptr, width * sizeof(bmpl::clr::RGB)).fail()) {
+                    _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
+                    return;
+                }
+
+                if (this->_in_stream.seekg(padding_size, std::ios_base::cur).fail()) {
+                    _set_err(bmpl::utils::ErrorCode::CORRUPTED_BMP_FILE);
+                    return;
+                }
+            }
+        }
+
+        // reverse lines ordering
+        _reverse_lines_ordering(width, height);
+
+    }
+
+
+    void BMPLoader::_reverse_lines_ordering(const std::size_t width, const std::size_t height) noexcept
+    {
+        const std::size_t line_width{ width * sizeof bmpl::clr::RGB };
+
+        std::vector<char> tmp_line;
+        tmp_line.assign(line_width, '\0');
+
+        char* upline_ptr{ reinterpret_cast<char*>(this->image_content_ptr()) };
+        char* botline_ptr{ reinterpret_cast<char*>(this->image_content_ptr() + (height - 1) * width) };
+        char* tmpline_ptr{ tmp_line.data() };
+
+        for (std::size_t i = 0; i < height / 2; ++i) {
+            std::memcpy(tmpline_ptr, upline_ptr, line_width);
+            std::memcpy(upline_ptr, botline_ptr, line_width);
+            std::memcpy(botline_ptr, tmpline_ptr, line_width);
+
+            upline_ptr += line_width;
+            botline_ptr -= line_width;
+        }
+    }
 
 }

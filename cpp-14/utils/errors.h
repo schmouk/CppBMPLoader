@@ -43,6 +43,7 @@ namespace bmpl
         enum class ErrorCode : std::uint8_t
         {
             NO_ERROR = 0,
+            BAD_BITS_PER_PIXEL_VALUE,
             BAD_DEFAULT_VALUE,
             BAD_PALLETT_ENCODING,
             BMP_BAD_ENCODING,

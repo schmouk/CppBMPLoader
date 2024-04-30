@@ -42,6 +42,7 @@ namespace bmpl
 {
     namespace frmt
     {
+        //===========================================================================
         class BMPFileHeader : public bmpl::utils::ErrorStatus
         {
         public:
