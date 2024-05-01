@@ -72,8 +72,6 @@ namespace bmpl
             , _in_stream(filepath)
             , _file_header(_in_stream)
             , _info(_in_stream)
-            , _image_width(_info.info_header.width)
-            , _image_height(_info.info_header.height)
         {
             _load_image();
         }
@@ -84,8 +82,6 @@ namespace bmpl
             , _in_stream(filepath)
             , _file_header(_in_stream)
             , _info(_in_stream)
-            , _image_width(_info.info_header.width)
-            , _image_height(_info.info_header.height)
         {
             _load_image();
         }
@@ -104,14 +100,14 @@ namespace bmpl
         [[nodiscard]]
         inline const std::uint32_t height() const noexcept
         {
-            return _image_height;
+            return _info.info_header.height;
         }
 
 
         [[nodiscard]]
         inline const std::uint32_t width() const noexcept
         {
-            return _image_width;
+            return _info.info_header.width;
         }
 
 
@@ -127,11 +123,6 @@ namespace bmpl
         void _load_4b() noexcept;
         void _load_8b() noexcept;
         void _load_24b() noexcept;
-
-
-    protected:
-        const std::uint32_t _image_width{ 0 };
-        const std::uint32_t _image_height{ 0 };
 
     };
 

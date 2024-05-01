@@ -43,7 +43,7 @@ namespace bmpl
         {
             this->colors_count = colors_count_;
 
-            if (!in_stream.is_ok())
+            if (in_stream.failed())
                 return _set_err(in_stream.get_error());
 
             if (colors_count_ > 0) {
@@ -60,7 +60,7 @@ namespace bmpl
                         in_stream >> bgra;
                         bmpl::clr::convert(*pallett_it++, bgra);
                     }
-                    if (!in_stream.is_ok())
+                    if (in_stream.failed())
                         _set_err(bmpl::utils::ErrorCode::BAD_PALLETT_ENCODING);
                 }
             }

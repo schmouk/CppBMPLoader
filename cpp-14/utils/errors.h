@@ -33,7 +33,8 @@ SOFTWARE.
 
 
 #include <cstdint>
-
+#include <string>
+#include <strstream>
 
 
 namespace bmpl
@@ -57,6 +58,11 @@ namespace bmpl
             NOT_WINDOWS_BMP,
             OUT_OF_PALLETT_INDEX,
         };
+
+
+        const std::string error_msg(const ErrorCode err_code) noexcept;
+
+        const std::string error_msg(const std::string& file_path, const ErrorCode err_code) noexcept;
 
 
         class ErrorStatus
@@ -96,6 +102,12 @@ namespace bmpl
             inline const bool is_ok() const noexcept
             {
                 return get_error() == ErrorCode::NO_ERROR;
+            }
+
+
+            inline const bool failed() const noexcept
+            {
+                return !is_ok();
             }
 
 

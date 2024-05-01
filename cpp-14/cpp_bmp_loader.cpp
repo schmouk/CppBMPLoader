@@ -40,37 +40,39 @@ namespace bmpl
 {
     void BMPBottomUpLoader::_load_image() noexcept
     {
-        if (_in_stream.is_ok()) {
-            // let's set the file cursor position to the starting point of the image coding
-            if (_in_stream.seekg(_file_header.content_offset).fail()) {
-                _set_err(bmpl::utils::ErrorCode::IRRECOVERABLE_STREAM_ERROR);
-                return;
-            }
-
-            switch (_info.info_header.bits_per_pixel)
-            {
-            case 1:
-                _load_1b();
-                break;
-
-            case 4:
-                _load_4b();
-                break;
-
-            case  8:
-                _load_8b();
-                break;
-
-            case 24:
-                _load_24b();
-                break;
-
-            default:
-                _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
-                return;
-            }
+        if (_in_stream.failed()) {
+            _set_err(_in_stream.get_error());
+            return;
         }
 
+        // let's set the file cursor position to the starting point of the image coding
+        if (_in_stream.seekg(_file_header.content_offset).fail()) {
+            _set_err(bmpl::utils::ErrorCode::IRRECOVERABLE_STREAM_ERROR);
+            return;
+        }
+
+        switch (_info.info_header.bits_per_pixel)
+        {
+        case 1:
+            _load_1b();
+            break;
+
+        case 4:
+            _load_4b();
+            break;
+
+        case  8:
+            _load_8b();
+            break;
+
+        case 24:
+            _load_24b();
+            break;
+
+        default:
+            _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
+            break;
+        }
     }
 
 
@@ -138,22 +140,24 @@ namespace bmpl
 
     void BMPLoader::_reverse_lines_ordering() noexcept
     {
-        const std::size_t line_width{ this->_image_width * sizeof bmpl::clr::RGB };
+        if (this->is_ok()) {
+            const std::size_t line_width{ this->width() * sizeof bmpl::clr::RGB };
 
-        std::vector<std::uint8_t> tmp_line;
-        tmp_line.assign(line_width, '\0');
+            std::vector<std::uint8_t> tmp_line;
+            tmp_line.assign(line_width, '\0');
 
-        std::uint8_t* upline_ptr{ reinterpret_cast<std::uint8_t*>(this->image_content_ptr()) };
-        std::uint8_t* botline_ptr{ reinterpret_cast<std::uint8_t*>(this->image_content_ptr() + (this->_image_height - 1) * this->_image_width) };
-        std::uint8_t* tmpline_ptr{ tmp_line.data() };
+            std::uint8_t* upline_ptr{ reinterpret_cast<std::uint8_t*>(this->image_content_ptr()) };
+            std::uint8_t* botline_ptr{ reinterpret_cast<std::uint8_t*>(this->image_content_ptr() + (this->height() - 1) * this->width()) };
+            std::uint8_t* tmpline_ptr{ tmp_line.data() };
 
-        for (std::size_t i = 0; i < this->_image_height / 2; ++i) {
-            std::memcpy(tmpline_ptr, upline_ptr, line_width);
-            std::memcpy(upline_ptr, botline_ptr, line_width);
-            std::memcpy(botline_ptr, tmpline_ptr, line_width);
+            for (std::size_t i = 0; i < this->height() / 2; ++i) {
+                std::memcpy(tmpline_ptr, upline_ptr, line_width);
+                std::memcpy(upline_ptr, botline_ptr, line_width);
+                std::memcpy(botline_ptr, tmpline_ptr, line_width);
 
-            upline_ptr += line_width;
-            botline_ptr -= line_width;
+                upline_ptr += line_width;
+                botline_ptr -= line_width;
+            }
         }
     }
 
