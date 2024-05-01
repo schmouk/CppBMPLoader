@@ -101,6 +101,20 @@ namespace bmpl
         }
 
 
+        [[nodiscard]]
+        inline const std::uint32_t height() const noexcept
+        {
+            return _image_height;
+        }
+
+
+        [[nodiscard]]
+        inline const std::uint32_t width() const noexcept
+        {
+            return _image_width;
+        }
+
+
     private:
         // notice: do not modify the ordering of next declarations
         bmpl::utils::LEInStream _in_stream;
