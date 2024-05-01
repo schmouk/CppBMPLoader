@@ -51,6 +51,10 @@ namespace bmpl
             return;
         }
 
+        // reserves final image content space
+        _allocate_image_space();
+
+        // finally, loads the BMP image content and decodes it
         switch (_info.info_header.bits_per_pixel)
         {
         case 1:
@@ -96,18 +100,9 @@ namespace bmpl
 
     void BMPBottomUpLoader::_load_24b() noexcept
     {
-        // checks correctness of headers values
-        if (_info.info_header.bits_per_pixel != 24) {
-            _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
-            return;
-        }
-
-        // reserves final image content space
-        const std::size_t width{ std::size_t(_info.info_header.width) };
-        const std::size_t height{ std::size_t(_info.info_header.height) };
-        this->image_content.assign(width * height, bmpl::clr::RGB());
-
         // loads image content from file
+        const std::size_t width{ std::size_t(this->width()) };
+        const std::size_t height{ std::size_t(this->height()) };
         if (width % 4 == 0) {
             // cool, no padding by end of each line
             // let's load the whole image content at once
@@ -135,6 +130,8 @@ namespace bmpl
             }
         }
 
+        // once here, everything was fine!
+        _clr_err();
     }
 
 

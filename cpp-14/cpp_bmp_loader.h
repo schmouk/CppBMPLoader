@@ -117,6 +117,13 @@ namespace bmpl
         bmpl::frmt::BMPFileHeader _file_header;
         bmpl::frmt::BMPInfo _info;
 
+
+        inline void _allocate_image_space() noexcept
+        {
+            this->image_content.assign(std::size_t(width()) * std::size_t(height()), bmpl::clr::RGB());
+        }
+
+
         void _load_image() noexcept;
 
         void _load_1b() noexcept;
