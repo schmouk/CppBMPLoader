@@ -72,7 +72,12 @@ namespace bmpl
                 return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
 
             if (bits_per_pixel != 24) {
-                if (used_colors_count != (1 << bits_per_pixel))
+                if (used_colors_count == 0)
+                    used_colors_count = 1 << bits_per_pixel;
+                else if (used_colors_count > (1 << bits_per_pixel))
+                    return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
+
+                if (important_colors_count > used_colors_count)
                     return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
             }
             else {

@@ -35,6 +35,7 @@ SOFTWARE.
 #include <array>
 #include <cstdint>
 
+#include "bmp_info_header.h"
 #include "../utils/colors.h"
 #include "../utils/errors.h"
 #include "../utils/little_endian_streaming.h"
@@ -63,16 +64,16 @@ namespace bmpl
             inline BMPColorPallett& operator= (BMPColorPallett&&) noexcept = default;
 
 
-            inline BMPColorPallett(bmpl::utils::LEInStream& in_stream, const std::uint32_t colors_count_) noexcept
+            inline BMPColorPallett(bmpl::utils::LEInStream& in_stream, const BMPInfoHeader& info_header) noexcept
                 : MyContainerBaseClass()
                 , MyErrorBaseClass()
-                , colors_count(0)
+                , colors_count(info_header.used_colors_count)
             {
-                load(in_stream, colors_count_);
+                load(in_stream, info_header);
             }
 
 
-            const bool load(bmpl::utils::LEInStream& in_stream, const std::uint32_t colors_count) noexcept;
+            const bool load(bmpl::utils::LEInStream& in_stream, const BMPInfoHeader& info_header) noexcept;
 
 
             const bmpl::clr::RGBA& operator[] (const std::uint32_t index) noexcept;

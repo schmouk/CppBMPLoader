@@ -63,8 +63,17 @@ namespace bmpl
             inline BMPInfo(bmpl::utils::LEInStream& in_stream) noexcept
                 : MyBaseClass()
                 , info_header(in_stream)
-                , color_pallett(in_stream, info_header.used_colors_count)
-            {}
+                , color_pallett(in_stream, info_header)
+            {
+                if (in_stream.failed())
+                    _set_err(in_stream.get_error());
+                else if (info_header.failed())
+                    _set_err(info_header.get_error());
+                else if (color_pallett.failed())
+                    _set_err(color_pallett.get_error());
+                else
+                    _clr_err();
+            }
 
         };
     }

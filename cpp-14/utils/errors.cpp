@@ -58,6 +58,8 @@ namespace bmpl
                 return "encountered unexpected end-of-file.";
             case ErrorCode::FILE_NOT_FOUND:
                 return "file not found.";
+            case ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING:
+                return "incoherent Run Length Encoding control value.";
             case ErrorCode::INPUT_OPERATION_FAILED:
                 return "some imput operation failed.";
             case ErrorCode::IRRECOVERABLE_STREAM_ERROR:

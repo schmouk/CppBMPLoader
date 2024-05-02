@@ -51,6 +51,7 @@ namespace bmpl
             CORRUPTED_BMP_FILE,
             END_OF_FILE,
             FILE_NOT_FOUND,
+            INCOHERENT_RUN_LENGTH_ENCODING,
             INPUT_OPERATION_FAILED,
             IRRECOVERABLE_STREAM_ERROR,
             NOT_BMP_ENCODING,

@@ -34,6 +34,7 @@ SOFTWARE.
 #include <vector>
 
 #include "cpp_bmp_loader.h"
+#include "utils/colors.h"
 
 
 namespace bmpl
@@ -94,15 +95,67 @@ namespace bmpl
 
     void BMPBottomUpLoader::_load_8b() noexcept
     {
+        const std::size_t width{ std::size_t(this->width()) };
+        const std::size_t height{ std::size_t(this->height()) };
 
+        if (this->_info.info_header.compression_mode == 0) {
+            //-- no Run Length Encoding --//
+            std::vector<std::uint8_t> indexed_content;
+            indexed_content.assign(width * height, 0);
+
+            // loads the indexed content
+            if (width % 4 == 0) {
+                // cool, no padding at end of each line
+                // let's load the whole image content at once
+                if (this->_in_stream.read(reinterpret_cast<char*>(indexed_content.data()), width * height).fail())
+                    _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
+            }
+            else {
+                // let's load the image content line per line
+                const std::size_t padding_size{ 4 - width % 4 };
+
+                char* current_line_ptr{ reinterpret_cast<char*>(indexed_content.data()) };
+                for (int line = 0; line < height; ++line) {
+                    if (this->_in_stream.read(current_line_ptr, width).fail()) {
+                        _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
+                        return;
+                    }
+
+                    if (this->_in_stream.seekg(padding_size, std::ios_base::cur).fail()) {
+                        _set_err(bmpl::utils::ErrorCode::END_OF_FILE);
+                        return;
+                    }
+
+                    current_line_ptr += width;
+                }
+            }
+
+            // evaluates the final image content
+            auto img_it{ this->image_content.begin() };
+            for (auto ndx_it = indexed_content.cbegin(); ndx_it != indexed_content.cend(); )
+                bmpl::clr::convert(*img_it++, this->_info.color_pallett[*ndx_it++]);
+        }
+        else {
+            //-- Run Length encoding --//
+            if (this->_info.info_header.compression_mode != 1) {
+                _set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
+                return;
+            }
+
+            // TODO: implement RLE8
+            // ...
+        }
+
+        // once here, everything was fine!
+        _clr_err();
     }
 
 
     void BMPBottomUpLoader::_load_24b() noexcept
     {
-        // loads image content from file
         const std::size_t width{ std::size_t(this->width()) };
         const std::size_t height{ std::size_t(this->height()) };
+
         if (width % 4 == 0) {
             // cool, no padding at end of each line
             // let's load the whole image content at once
