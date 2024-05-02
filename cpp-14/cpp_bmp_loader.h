@@ -63,12 +63,15 @@ namespace bmpl
     public:
         using MyBaseClass = bmpl::utils::ErrorStatus;
 
+        using pixel_type = bmpl::clr::RGB;
 
-        std::vector<bmpl::clr::RGB> image_content;
+
+        std::vector<pixel_type> image_content;
 
 
         inline BMPBottomUpLoader(const char* filepath) noexcept
             : MyBaseClass()
+            , _filepath(filepath)
             , _in_stream(filepath)
             , _file_header(_in_stream)
             , _info(_in_stream)
@@ -79,6 +82,7 @@ namespace bmpl
 
         inline BMPBottomUpLoader(const std::string& filepath) noexcept
             : MyBaseClass()
+            , _filepath(filepath)
             , _in_stream(filepath)
             , _file_header(_in_stream)
             , _info(_in_stream)
@@ -91,9 +95,9 @@ namespace bmpl
 
 
         [[nodiscard]]
-        inline bmpl::clr::RGB* image_content_ptr() noexcept
+        inline const std::string err_msg() const noexcept
         {
-            return image_content.data();
+            return bmpl::utils::error_msg(_filepath, get_error());
         }
 
 
@@ -105,10 +109,21 @@ namespace bmpl
 
 
         [[nodiscard]]
+        inline pixel_type* image_content_ptr() noexcept
+        {
+            return image_content.data();
+        }
+
+
+        [[nodiscard]]
         inline const std::uint32_t width() const noexcept
         {
             return _info.info_header.width;
         }
+
+
+    protected:
+        std::string _filepath{};
 
 
     private:
@@ -120,7 +135,7 @@ namespace bmpl
 
         inline void _allocate_image_space() noexcept
         {
-            this->image_content.assign(std::size_t(width()) * std::size_t(height()), bmpl::clr::RGB());
+            this->image_content.assign(std::size_t(width()) * std::size_t(height()), pixel_type());
         }
 
 
@@ -138,21 +153,18 @@ namespace bmpl
     class BMPLoader : public BMPBottomUpLoader
     {
     public:
-        using MyBaseClass = bmpl::utils::ErrorStatus;
-
-
-        std::vector<bmpl::clr::RGB> image_content;
+        using MyBaseClass = BMPBottomUpLoader;
 
 
         inline BMPLoader(const char* filepath) noexcept
-            : BMPBottomUpLoader(filepath)
+            : MyBaseClass(filepath)
         {
             _reverse_lines_ordering();
         }
 
 
         inline BMPLoader(const std::string& filepath) noexcept
-            : BMPBottomUpLoader(filepath)
+            : MyBaseClass(filepath)
         {
             _reverse_lines_ordering();
         }

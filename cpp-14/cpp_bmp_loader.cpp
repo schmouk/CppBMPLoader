@@ -104,14 +104,14 @@ namespace bmpl
         const std::size_t width{ std::size_t(this->width()) };
         const std::size_t height{ std::size_t(this->height()) };
         if (width % 4 == 0) {
-            // cool, no padding by end of each line
+            // cool, no padding at end of each line
             // let's load the whole image content at once
-            if (this->_in_stream.read(reinterpret_cast<char*>(this->image_content.data()), width * height * sizeof bmpl::clr::RGB).fail())
+            if (this->_in_stream.read(reinterpret_cast<char*>(this->image_content.data()), width * height * sizeof pixel_type).fail())
                 _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
         }
         else {
             // let's load the image content line per line
-            const std::size_t line_width{ width * sizeof(bmpl::clr::RGB) };
+            const std::size_t line_width{ width * sizeof pixel_type };
             const std::size_t padding_size{ 4 - line_width % 4 };
 
             char* current_line_ptr{ reinterpret_cast<char*>(this->image_content_ptr()) };
@@ -122,7 +122,7 @@ namespace bmpl
                 }
 
                 if (this->_in_stream.seekg(padding_size, std::ios_base::cur).fail()) {
-                    _set_err(bmpl::utils::ErrorCode::CORRUPTED_BMP_FILE);
+                    _set_err(bmpl::utils::ErrorCode::END_OF_FILE);
                     return;
                 }
 
@@ -138,7 +138,7 @@ namespace bmpl
     void BMPLoader::_reverse_lines_ordering() noexcept
     {
         if (this->is_ok()) {
-            const std::size_t line_width{ this->width() * sizeof bmpl::clr::RGB };
+            const std::size_t line_width{ this->width() * sizeof MyBaseClass::pixel_type };
 
             std::vector<std::uint8_t> tmp_line;
             tmp_line.assign(line_width, '\0');
