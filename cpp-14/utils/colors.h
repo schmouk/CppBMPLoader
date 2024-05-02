@@ -52,6 +52,11 @@ namespace bmpl
                 std::uint8_t a;
             };
             std::uint8_t comps[4];
+
+            static constexpr int R{ 2 };
+            static constexpr int G{ 1 };
+            static constexpr int B{ 0 };
+            static constexpr int A{ 3 };
         };
 
         inline bmpl::utils::LEInStream& operator>> (bmpl::utils::LEInStream& in_stream, BGRA& bgra) noexcept
@@ -70,6 +75,11 @@ namespace bmpl
                 std::uint8_t a;
             };
             std::uint8_t comps[4];
+
+            static constexpr int R{ 0 };
+            static constexpr int G{ 1 };
+            static constexpr int B{ 2 };
+            static constexpr int A{ 3 };
         };
 
         inline bmpl::utils::LEInStream& operator>> (bmpl::utils::LEInStream& in_stream, RGBA& rgba) noexcept
@@ -82,11 +92,31 @@ namespace bmpl
         using RGB = union uRGB {
             // notice: belowing order of components is only valid for BMP format (little-endian coding of triplets)
             struct {
+                std::uint8_t r;
+                std::uint8_t g;
+                std::uint8_t b;
+            };
+            std::uint8_t comps[3]{ 0, 0, 0 };
+
+            static constexpr int R{ 0 };
+            static constexpr int G{ 1 };
+            static constexpr int B{ 2 };
+        };
+
+
+        //===========================================================================
+        using BGR = union uBGR {
+            // notice: belowing order of components is only valid for BMP format (little-endian coding of triplets)
+            struct {
                 std::uint8_t b;
                 std::uint8_t g;
                 std::uint8_t r;
             };
             std::uint8_t comps[3]{ 0, 0, 0 };
+
+            static constexpr int R{ 2 };
+            static constexpr int G{ 1 };
+            static constexpr int B{ 0 };
         };
 
 
@@ -111,11 +141,64 @@ namespace bmpl
             std::swap(bgra.b, bgra.r);
         }
 
+        inline void convert(BGRA& bgra, const RGB& rgb) noexcept
+        {
+            bgra.r = rgb.r;
+            bgra.g = rgb.b;
+            bgra.b = rgb.g;
+            bgra.a = 0;
+        }
+
+        inline void convert(BGRA& bgra, const BGR& bgr) noexcept
+        {
+            bgra.r = bgr.r;
+            bgra.g = bgr.b;
+            bgra.b = bgr.g;
+            bgra.a = 0;
+        }
+
+        inline void convert(RGBA& rgba, const RGB& rgb) noexcept
+        {
+            rgba.r = rgb.r;
+            rgba.g = rgb.b;
+            rgba.b = rgb.g;
+            rgba.a = 0;
+        }
+
+        inline void convert(RGBA& rgba, const BGR& bgr) noexcept
+        {
+            rgba.r = bgr.r;
+            rgba.g = bgr.b;
+            rgba.b = bgr.g;
+            rgba.a = 0;
+        }
+
         inline void convert(RGB& rgb, const BGRA& bgra) noexcept
         {
             rgb.r = bgra.r;
             rgb.g = bgra.g;
             rgb.b = bgra.b;
+        }
+
+        inline void convert(RGB& rgb, const RGBA& rgba) noexcept
+        {
+            rgb.r = rgba.r;
+            rgb.g = rgba.g;
+            rgb.b = rgba.b;
+        }
+
+        inline void convert(RGB& rgb, const BGR& brg) noexcept
+        {
+            rgb.r = brg.r;
+            rgb.g = brg.g;
+            rgb.b = brg.b;
+        }
+
+        inline void convert(BGR& brg, const RGB& rgb) noexcept
+        {
+            brg.r = rgb.r;
+            brg.g = rgb.g;
+            brg.b = rgb.b;
         }
 
 
@@ -147,6 +230,12 @@ namespace bmpl
 
         template<>
         struct is_color<RGB>
+        {
+            static constexpr bool value{ true };
+        };
+
+        template<>
+        struct is_color<BGR>
         {
             static constexpr bool value{ true };
         };
