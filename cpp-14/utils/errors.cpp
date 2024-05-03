@@ -72,6 +72,8 @@ namespace bmpl
                 return "file is not a Windows BMP file.";
             case ErrorCode::OUT_OF_PALLETT_INDEX:
                 return "encountered a color index not contained in pallett.";
+            case ErrorCode::RLE_INPUT_OPERATION_FAILED:
+                return "input operation on Run Length Encoded bitmap has failed.";
             default:
                 return "unkown error...";
             }

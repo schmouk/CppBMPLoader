@@ -50,6 +50,9 @@ namespace bmpl
             if (in_stream.get_size() != size)
                 return _set_err(bmpl::utils::ErrorCode::CORRUPTED_BMP_FILE);
 
+            if (content_offset >= size - 14)
+                return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
+
             return _clr_err();
         }
 

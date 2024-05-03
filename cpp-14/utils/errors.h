@@ -58,6 +58,7 @@ namespace bmpl
             NOT_INITIALIZED,
             NOT_WINDOWS_BMP,
             OUT_OF_PALLETT_INDEX,
+            RLE_INPUT_OPERATION_FAILED,
         };
 
 
