@@ -211,8 +211,94 @@ namespace bmpl
                 return;
             }
 
-            // TODO: implement RLE-4
-            // ...
+
+            // loads the RLE bitmap
+            const std::uint32_t bitmap_size{ this->_file_header.size - this->_file_header.content_offset };
+            std::vector<std::uint8_t> bitmap;
+            bitmap.assign(bitmap_size, std::uint8_t(0));
+            if (this->_in_stream.read(reinterpret_cast<char*>(bitmap.data()), width).fail()) {
+                _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
+                return;
+            }
+
+            // parses then the RLE-4 bitmap
+            std::uint32_t num_line{ 0 };
+            bool encountered_eof{ false };
+
+            auto img_it{ this->image_content.begin() };
+            auto bmp_it = bitmap.cbegin();
+
+            try {
+                while (bmp_it != bitmap.cend()) {
+                    if (*bmp_it > 0) {
+                        // encoded mode, repetition of same pixel value n-times
+                        std::uint8_t n_rep{ *bmp_it++ };
+                        pixel_type pxl_value_0, pxl_value_1;
+                        bmpl::clr::convert(pxl_value_0, this->_info.color_pallett[*bmp_it >> 4]);
+                        bmpl::clr::convert(pxl_value_1, this->_info.color_pallett[*bmp_it & 0x0f]);
+                        bmp_it++;
+                        while (n_rep--) {
+                            *img_it++ = pxl_value_0;
+                            if (n_rep--)
+                                *img_it++ = pxl_value_1;
+                        }
+                    }
+                    else {
+                        bmp_it++;
+                        switch (*bmp_it++)
+                        {
+                        case 0:
+                            // end of line
+                            ++num_line;
+                            img_it = this->image_content.begin() + std::size_t(num_line * this->width());
+                            break;
+
+                        case 1:
+                            // end of bitmap
+                            encountered_eof = true;
+                            if (bmp_it != bitmap.cend()) {
+                                _set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
+                                return;
+                            }
+                            break;
+
+                        case 2:
+                            // delta-mode
+                            img_it += std::size_t(*bmp_it++) + this->width() * std::size_t(*bmp_it++);
+                            break;
+
+                        default:
+                            // absolute mode
+                            std::uint8_t absolute_pixels_count{ *(bmp_it - 1) };
+                            const bool padding{ absolute_pixels_count % 4 != 0 };
+                            pixel_type pxl_value;
+
+                            while (absolute_pixels_count--) {
+                                bmpl::clr::convert(pxl_value, this->_info.color_pallett[*bmp_it >> 4]);
+                                bmp_it++;
+                                *img_it++ = pxl_value;
+                                if (absolute_pixels_count--) {
+                                    bmpl::clr::convert(pxl_value, this->_info.color_pallett[*bmp_it & 0x0f]);
+                                    *img_it++ = pxl_value;
+                                }
+                            }
+
+                            if (padding)
+                                bmp_it++;
+                            break;
+                        }
+                    }
+                }
+                if (!encountered_eof) {
+                    _set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
+                    return;
+                }
+            }
+            catch (...) {
+                _set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
+                return;
+            }
+
         }
 
         // once here, everything was fine!
@@ -269,7 +355,7 @@ namespace bmpl
                 return;
             }
 
-            // loads the RLE bitmap
+            // loads the RLE-8 bitmap
             const std::uint32_t bitmap_size{ this->_file_header.size - this->_file_header.content_offset };
             std::vector<std::uint8_t> bitmap;
             bitmap.assign(bitmap_size, std::uint8_t(0));
