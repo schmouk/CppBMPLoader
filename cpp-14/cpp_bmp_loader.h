@@ -127,12 +127,6 @@ namespace bmpl
 
 
     private:
-        static constexpr int _NO_RLE{ 0 };
-        static constexpr int _RLE_8{ 1 };
-        static constexpr int _RLE_4{ 2 };
-        static constexpr int _RLE_1{ 3 };
-
-
         // notice: do not modify the ordering of next declarations
         bmpl::utils::LEInStream _in_stream;
         bmpl::frmt::BMPFileHeader _file_header;

@@ -44,9 +44,6 @@ namespace bmpl
             if (!(in_stream >> size))
                 return _set_err(in_stream.get_error());
 
-            if (size != 0x28)
-                return _set_err(bmpl::utils::ErrorCode::NOT_WINDOWS_BMP);
-
             if (!(in_stream >> width
                             >> height
                             >> planes_count
@@ -62,14 +59,52 @@ namespace bmpl
             if (planes_count != 1)
                 return _set_err(bmpl::utils::ErrorCode::BAD_DEFAULT_VALUE);
 
-            if (bits_per_pixel != 1 && bits_per_pixel != 4 && bits_per_pixel != 8 && bits_per_pixel != 24)
-                return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
-
             if (compression_mode > 3)
                 return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
 
             if (image_size == 0 && compression_mode != 0)
                 return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
+
+            if (size == 0x28) {
+                // BMP 3 format - Windows 3.x or NT
+                if (compression_mode == this->RLE_COLOR_BITMASKS) {
+                    // color bitmasks are provided - Windows NT format
+                    if (bits_per_pixel != 16 && bits_per_pixel != 32)
+                        return _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
+                    if (!(in_stream >> red_mask >> green_mask >> blue_mask))
+                        return _set_err(in_stream.get_error());
+                }
+                else {
+                    // checks pixels depth in bits count
+                    if (bits_per_pixel != 1 && bits_per_pixel != 4 && bits_per_pixel != 8 && bits_per_pixel != 24)
+                        return _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
+                }
+            }
+            else if (size == 0x6c) {
+                // BMP 4 format - Windows 95 and above
+                if (!(in_stream >> red_mask
+                                >> green_mask
+                                >> blue_mask
+                                >> alpha_mask
+                                >> cs_type
+                                >> red_endX
+                                >> red_endY
+                                >> red_endZ
+                                >> green_endX
+                                >> green_endY
+                                >> green_endZ
+                                >> blue_endX
+                                >> blue_endY
+                                >> blue_endZ
+                                >> gamma_red
+                                >> gamma_green
+                                >> gamma_blue))
+                    return _set_err(in_stream.get_error());
+            }
+            else {
+                return _set_err(bmpl::utils::ErrorCode::NOT_WINDOWS_BMP);
+            }
+
 
             if (bits_per_pixel != 24) {
                 if (used_colors_count == 0)

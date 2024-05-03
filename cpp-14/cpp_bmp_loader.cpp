@@ -89,7 +89,7 @@ namespace bmpl
         const std::size_t index_width{ std::size_t(std::ceil(width / 8.0f)) };
         const std::size_t index_height{ std::size_t(this->height()) };
 
-        if (this->_info.info_header.compression_mode == this->_NO_RLE) {
+        if (this->_info.info_header.compression_mode == this->_info.info_header.NO_RLE) {
             //-- no Run Length Encoding --//
             std::vector<std::uint8_t> indexed_content;
             indexed_content.assign(index_width * index_height, 0);
@@ -136,15 +136,9 @@ namespace bmpl
             }
         }
         else {
-            //-- Run Length encoding --//
-            if (this->_info.info_header.compression_mode != this->_RLE_1) {
-                _set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
-                return;
-            }
-
-            // TODO: implement RLE-1
-            // ...
-
+            // No Run Length Encoding is defined by Windows for 2 colors palletted bitmaps
+            _set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
+            return;
         }
 
         // once here, everything was fine!
@@ -158,7 +152,7 @@ namespace bmpl
         const std::size_t index_width{ std::size_t(std::ceil(width / 2.0f)) };
         const std::size_t index_height{ std::size_t(this->height()) };
 
-        if (this->_info.info_header.compression_mode == this->_NO_RLE) {
+        if (this->_info.info_header.compression_mode == this->_info.info_header.NO_RLE) {
             //-- no Run Length Encoding --//
             std::vector<std::uint8_t> indexed_content;
             indexed_content.assign(index_width * index_height, 0);
@@ -206,7 +200,7 @@ namespace bmpl
         }
         else {
             //-- Run Length encoding --//
-            if (this->_info.info_header.compression_mode != this->_RLE_4) {
+            if (this->_info.info_header.compression_mode != this->_info.info_header.RLE_4) {
                 _set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
                 return;
             }
@@ -311,7 +305,7 @@ namespace bmpl
         const std::size_t width{ std::size_t(this->width()) };
         const std::size_t height{ std::size_t(this->height()) };
 
-        if (this->_info.info_header.compression_mode == this->_NO_RLE) {
+        if (this->_info.info_header.compression_mode == this->_info.info_header.NO_RLE) {
             //-- no Run Length Encoding --//
             std::vector<std::uint8_t> indexed_content;
             indexed_content.assign(width * height, 0);
@@ -350,7 +344,7 @@ namespace bmpl
         }
         else {
             //-- Run Length encoding --//
-            if (this->_info.info_header.compression_mode != this->_RLE_8) {
+            if (this->_info.info_header.compression_mode != this->_info.info_header.RLE_8) {
                 _set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
                 return;
             }
@@ -371,74 +365,63 @@ namespace bmpl
             auto img_it{ this->image_content.begin() };
             auto bmp_it = bitmap.cbegin();
 
-            while (bmp_it != bitmap.cend()) {
-                if (*bmp_it > 0) {
-                    // encoded mode, repetition of same pixel value n-times
-                    std::uint8_t n_rep{ *bmp_it++ };
-                    pixel_type pxl_value;
-                    bmpl::clr::convert(pxl_value, this->_info.color_pallett[*bmp_it++]);
-                    try {
+            try {
+                while (bmp_it != bitmap.cend()) {
+                    if (*bmp_it > 0) {
+                        // encoded mode, repetition of same pixel value n-times
+                        std::uint8_t n_rep{ *bmp_it++ };
+                        pixel_type pxl_value;
+                        bmpl::clr::convert(pxl_value, this->_info.color_pallett[*bmp_it++]);
                         while (n_rep--)
                             *img_it++ = pxl_value;
                     }
-                    catch (...) {
-                        _set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
-                        return;
-                    }
-                }
-                else {
-                    bmp_it++;
-                    switch (*bmp_it++)
-                    {
-                    case 0:
-                        // end of line
-                        ++num_line;
-                        img_it = this->image_content.begin() + std::size_t(num_line * this->width());
-                        break;
+                    else {
+                        bmp_it++;
+                        switch (*bmp_it++)
+                        {
+                        case 0:
+                            // end of line
+                            ++num_line;
+                            img_it = this->image_content.begin() + std::size_t(num_line * this->width());
+                            break;
 
-                    case 1:
-                        // end of bitmap
-                        encountered_eof = true;
-                        if (bmp_it != bitmap.cend()) {
-                            _set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
-                            return;
-                        }
-                        break;
+                        case 1:
+                            // end of bitmap
+                            encountered_eof = true;
+                            if (bmp_it != bitmap.cend()) {
+                                _set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
+                                return;
+                            }
+                            break;
 
-                    case 2:
-                        // delta-mode
-                        try {
-                            const std::size_t offset{ std::size_t(*bmp_it++) + this->width() * std::size_t(*bmp_it++) };
-                            img_it += offset;
-                        }
-                        catch (...) {
-                            _set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
-                            return;
-                        }
-                        break;
+                        case 2:
+                            // delta-mode
+                            img_it += std::size_t(*bmp_it++) + this->width() * std::size_t(*bmp_it++);
+                            break;
 
-                    default:
-                        // absolute mode
-                        std::uint8_t absolute_pixels_count{ *(bmp_it - 1) };
-                        const bool padding{ absolute_pixels_count % 2 != 0 };
-                        try {
+                        default:
+                            // absolute mode
+                            std::uint8_t absolute_pixels_count{ *(bmp_it - 1) };
+                            const bool padding{ absolute_pixels_count % 2 != 0 };
                             while (absolute_pixels_count--)
                                 bmpl::clr::convert(*img_it++, this->_info.color_pallett[*bmp_it++]);
                             if (padding)
                                 bmp_it++;
+                            break;
                         }
-                        catch (...) {
-                            _set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
-                            return;
-                        }
-                        break;
                     }
                 }
             }
+            catch (...) {
+                _set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
+                return;
+            }
+
             if (!encountered_eof) {
                 _set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
                 return;
             }
+
         }
 
         // once here, everything was fine!
