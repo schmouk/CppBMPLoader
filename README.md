@@ -1,9 +1,10 @@
 # CppBMPLoader
 An exhaustive BMP Loader, MIT-licensed, implemented for c++14 and c++20
 
-Caution: This BMP loader library only decodes **Windows** BMP files. The 
-specific *OS/1.x* and *OS/2.x* BMP file formats are currently not dealed 
-with by **CppBMPLoader**.
+Caution: This BMP loader library only decodes **Windows** BMP files encoded 
+according to **BMP format versions 3 and above**. Versions 1. and 2 are not
+decoded. The specific *OS/1.x* and *OS/2.x* BMP file formats are currently 
+not dealed with by **CppBMPLoader** either.
 
 
 ## Genesis of this project
