@@ -45,28 +45,28 @@ namespace bmpl
 {
     namespace frmt
     {
-        struct BMPColorPallett : std::array<bmpl::clr::RGBA, 256>, bmpl::utils::ErrorStatus
+        struct BMPColorMap : std::array<bmpl::clr::RGBA, 256>, bmpl::utils::ErrorStatus
         {
             using MyContainerBaseClass = std::array<bmpl::clr::RGBA, 256>;
-            using MyErrorBaseClass = bmpl::utils::ErrorStatus;
+            using MyErrBaseClass = bmpl::utils::ErrorStatus;
 
 
             std::uint32_t colors_count{ 0 };
 
 
-            inline BMPColorPallett() noexcept = default;
-            inline BMPColorPallett(const BMPColorPallett&) noexcept = default;
-            inline BMPColorPallett(BMPColorPallett&&) noexcept = default;
+            inline BMPColorMap() noexcept = default;
+            inline BMPColorMap(const BMPColorMap&) noexcept = default;
+            inline BMPColorMap(BMPColorMap&&) noexcept = default;
 
-            virtual inline ~BMPColorPallett() noexcept = default;
+            virtual inline ~BMPColorMap() noexcept = default;
 
-            inline BMPColorPallett& operator= (const BMPColorPallett&) noexcept = default;
-            inline BMPColorPallett& operator= (BMPColorPallett&&) noexcept = default;
+            inline BMPColorMap& operator= (const BMPColorMap&) noexcept = default;
+            inline BMPColorMap& operator= (BMPColorMap&&) noexcept = default;
 
 
-            inline BMPColorPallett(bmpl::utils::LEInStream& in_stream, const BMPInfoHeader& info_header) noexcept
+            inline BMPColorMap(bmpl::utils::LEInStream& in_stream, const BMPInfoHeader& info_header) noexcept
                 : MyContainerBaseClass()
-                , MyErrorBaseClass()
+                , MyErrBaseClass()
                 , colors_count(info_header.used_colors_count)
             {
                 load(in_stream, info_header);

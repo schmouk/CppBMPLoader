@@ -46,7 +46,7 @@ namespace bmpl
         class BMPInfoHeader : public bmpl::utils::ErrorStatus
         {
         public:
-            using MyBaseClass = bmpl::utils::ErrorStatus;
+            using MyErrBaseClass = bmpl::utils::ErrorStatus;
 
 
             static constexpr int NO_RLE{ 0 };
@@ -98,7 +98,7 @@ namespace bmpl
 
 
             inline BMPInfoHeader(bmpl::utils::LEInStream& in_stream) noexcept
-                : MyBaseClass()
+                : MyErrBaseClass()
             {
                 load(in_stream);
             }

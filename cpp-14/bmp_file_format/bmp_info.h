@@ -31,7 +31,7 @@ SOFTWARE.
 * specificities have been used there, but it has not been tested as such.
 */
 
-#include "bmp_color_pallett.h"
+#include "bmp_colormap.h"
 #include "bmp_info_header.h"
 #include "../utils/errors.h"
 #include "../utils/little_endian_streaming.h"
@@ -44,10 +44,10 @@ namespace bmpl
         //===========================================================================
         struct BMPInfo : public bmpl::utils::ErrorStatus
         {
-            using MyBaseClass = bmpl::utils::ErrorStatus;
+            using MyErrBaseClass = bmpl::utils::ErrorStatus;
 
             BMPInfoHeader info_header;
-            BMPColorPallett color_pallett;
+            BMPColorMap color_map;
 
 
             inline BMPInfo() noexcept = default;
@@ -61,16 +61,16 @@ namespace bmpl
 
 
             inline BMPInfo(bmpl::utils::LEInStream& in_stream) noexcept
-                : MyBaseClass()
+                : MyErrBaseClass()
                 , info_header(in_stream)
-                , color_pallett(in_stream, info_header)
+                , color_map(in_stream, info_header)
             {
                 if (in_stream.failed())
                     _set_err(in_stream.get_error());
                 else if (info_header.failed())
                     _set_err(info_header.get_error());
-                else if (color_pallett.failed())
-                    _set_err(color_pallett.get_error());
+                else if (color_map.failed())
+                    _set_err(color_map.get_error());
                 else
                     _clr_err();
             }

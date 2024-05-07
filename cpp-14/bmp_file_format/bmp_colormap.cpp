@@ -32,14 +32,14 @@ SOFTWARE.
 
 #include <array>
 
-#include "bmp_color_pallett.h"
+#include "bmp_colormap.h"
 
 
 namespace bmpl
 {
     namespace frmt
     {
-        const bool BMPColorPallett::load(bmpl::utils::LEInStream& in_stream, const BMPInfoHeader& info_header) noexcept
+        const bool BMPColorMap::load(bmpl::utils::LEInStream& in_stream, const BMPInfoHeader& info_header) noexcept
         {
             if (in_stream.failed())
                 return _set_err(in_stream.get_error());
@@ -52,17 +52,17 @@ namespace bmpl
             if (this->colors_count > 0) {
                 if (bmpl::utils::PLATFORM_IS_LITTLE_ENDIAN) {
                     if (!in_stream.read(reinterpret_cast<char*>(MyContainerBaseClass::data()), std::streamsize(4 * this->colors_count)))
-                        return _set_err(bmpl::utils::ErrorCode::BAD_PALLETT_ENCODING);
+                        return _set_err(bmpl::utils::ErrorCode::BAD_COLORMAP_ENCODING);
                 }
                 else {
                     bmpl::clr::BGRA bgra;
-                    auto pallett_it = MyContainerBaseClass::begin();
+                    auto cmap_it = MyContainerBaseClass::begin();
                     for (std::uint32_t i = 0; i < this->colors_count; ++i) {
                         in_stream >> bgra;
-                        bmpl::clr::convert(*pallett_it++, bgra);
+                        bmpl::clr::convert(*cmap_it++, bgra);
                     }
                     if (in_stream.failed())
-                        return _set_err(bmpl::utils::ErrorCode::BAD_PALLETT_ENCODING);
+                        return _set_err(bmpl::utils::ErrorCode::BAD_COLORMAP_ENCODING);
                 }
             }
 
@@ -71,10 +71,10 @@ namespace bmpl
         }
 
 
-        const bmpl::clr::RGBA& BMPColorPallett::operator[] (const std::uint32_t index) noexcept
+        const bmpl::clr::RGBA& BMPColorMap::operator[] (const std::uint32_t index) noexcept
         {
             if (index >= this->colors_count) {
-                _set_err(bmpl::utils::ErrorCode::OUT_OF_PALLETT_INDEX);
+                _set_err(bmpl::utils::ErrorCode::OUT_OF_COLORMAP_INDEX);
                 return MyContainerBaseClass::operator[](0);
             }
             else {

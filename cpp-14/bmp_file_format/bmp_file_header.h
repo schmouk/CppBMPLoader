@@ -46,7 +46,7 @@ namespace bmpl
         class BMPFileHeader : public bmpl::utils::ErrorStatus
         {
         public:
-            using MyBaseClass = bmpl::utils::ErrorStatus;
+            using MyErrBaseClass = bmpl::utils::ErrorStatus;
 
 
             std::uint32_t size{ 0 };            // bfSize
@@ -65,7 +65,7 @@ namespace bmpl
 
 
             inline BMPFileHeader(bmpl::utils::LEInStream& in_stream) noexcept
-                : MyBaseClass()
+                : MyErrBaseClass()
             {
                 load(in_stream);
             }

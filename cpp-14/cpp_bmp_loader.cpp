@@ -72,9 +72,16 @@ namespace bmpl
             _load_8b();
             break;
 
+        case 16:
+            _load_16b();
+            break;
+
         case 24:
             _load_24b();
             break;
+
+        case 32:
+            _load_32b();
 
         default:
             _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
@@ -127,7 +134,7 @@ namespace bmpl
             auto img_it{ this->image_content.begin() };
             for (auto ndx_it = indexed_content.cbegin(); ndx_it != indexed_content.cend(); ++ndx_it) {
                 for (std::uint8_t mask = 0x80; remaining_pixels > 0 && mask > 0; mask >>= 1) {
-                    bmpl::clr::convert(*img_it++, this->_info.color_pallett[(*ndx_it & mask) != 0]);
+                    bmpl::clr::convert(*img_it++, this->_info.color_map[(*ndx_it & mask) != 0]);
                     --remaining_pixels;
                 }
 
@@ -136,7 +143,7 @@ namespace bmpl
             }
         }
         else {
-            // No Run Length Encoding is defined by Windows for 2 colors palletted bitmaps
+            // No Run Length Encoding is defined by Windows for 2 colors mapped bitmaps
             _set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
             return;
         }
@@ -189,9 +196,9 @@ namespace bmpl
 
             auto img_it{ this->image_content.begin() };
             for (auto ndx_it = indexed_content.cbegin(); ndx_it != indexed_content.cend(); ++ndx_it) {
-                bmpl::clr::convert(*img_it++, this->_info.color_pallett[*ndx_it >> 4]);
+                bmpl::clr::convert(*img_it++, this->_info.color_map[*ndx_it >> 4]);
                 if (--remaining_pixels > 0) {
-                    bmpl::clr::convert(*img_it++, this->_info.color_pallett[*ndx_it & 0x0f]);
+                    bmpl::clr::convert(*img_it++, this->_info.color_map[*ndx_it & 0x0f]);
                     --remaining_pixels;
                 }
                 if (remaining_pixels == 0)
@@ -228,8 +235,8 @@ namespace bmpl
                         // encoded mode, repetition of same pixel value n-times
                         std::uint8_t n_rep{ *bmp_it++ };
                         pixel_type pxl_value_0, pxl_value_1;
-                        bmpl::clr::convert(pxl_value_0, this->_info.color_pallett[*bmp_it >> 4]);
-                        bmpl::clr::convert(pxl_value_1, this->_info.color_pallett[*bmp_it & 0x0f]);
+                        bmpl::clr::convert(pxl_value_0, this->_info.color_map[*bmp_it >> 4]);
+                        bmpl::clr::convert(pxl_value_1, this->_info.color_map[*bmp_it & 0x0f]);
                         bmp_it++;
                         while (n_rep--) {
                             *img_it++ = pxl_value_0;
@@ -268,11 +275,11 @@ namespace bmpl
                             pixel_type pxl_value;
 
                             while (absolute_pixels_count--) {
-                                bmpl::clr::convert(pxl_value, this->_info.color_pallett[*bmp_it >> 4]);
+                                bmpl::clr::convert(pxl_value, this->_info.color_map[*bmp_it >> 4]);
                                 bmp_it++;
                                 *img_it++ = pxl_value;
                                 if (absolute_pixels_count--) {
-                                    bmpl::clr::convert(pxl_value, this->_info.color_pallett[*bmp_it & 0x0f]);
+                                    bmpl::clr::convert(pxl_value, this->_info.color_map[*bmp_it & 0x0f]);
                                     *img_it++ = pxl_value;
                                 }
                             }
@@ -340,7 +347,7 @@ namespace bmpl
             // evaluates the final image content
             auto img_it{ this->image_content.begin() };
             for (auto ndx_it = indexed_content.cbegin(); ndx_it != indexed_content.cend(); )
-                bmpl::clr::convert(*img_it++, this->_info.color_pallett[*ndx_it++]);
+                bmpl::clr::convert(*img_it++, this->_info.color_map[*ndx_it++]);
         }
         else {
             //-- Run Length encoding --//
@@ -371,7 +378,7 @@ namespace bmpl
                         // encoded mode, repetition of same pixel value n-times
                         std::uint8_t n_rep{ *bmp_it++ };
                         pixel_type pxl_value;
-                        bmpl::clr::convert(pxl_value, this->_info.color_pallett[*bmp_it++]);
+                        bmpl::clr::convert(pxl_value, this->_info.color_map[*bmp_it++]);
                         while (n_rep--)
                             *img_it++ = pxl_value;
                     }
@@ -404,7 +411,7 @@ namespace bmpl
                             std::uint8_t absolute_pixels_count{ *(bmp_it - 1) };
                             const bool padding{ absolute_pixels_count % 2 != 0 };
                             while (absolute_pixels_count--)
-                                bmpl::clr::convert(*img_it++, this->_info.color_pallett[*bmp_it++]);
+                                bmpl::clr::convert(*img_it++, this->_info.color_map[*bmp_it++]);
                             if (padding)
                                 bmp_it++;
                             break;
@@ -426,6 +433,12 @@ namespace bmpl
 
         // once here, everything was fine!
         _clr_err();
+    }
+
+
+    void BMPBottomUpLoader::_load_16b() noexcept
+    {
+
     }
 
 
@@ -463,6 +476,12 @@ namespace bmpl
 
         // once here, everything was fine!
         _clr_err();
+    }
+
+
+    void BMPBottomUpLoader::_load_32b() noexcept
+    {
+
     }
 
 
