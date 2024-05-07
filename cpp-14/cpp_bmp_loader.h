@@ -102,6 +102,20 @@ namespace bmpl
 
 
         [[nodiscard]]
+        inline const std::int32_t get_device_x_resolution() const noexcept
+        {
+            return this->_info.info_header.device_x_resolution;
+        }
+
+
+        [[nodiscard]]
+        inline const std::int32_t get_device_y_resolution() const noexcept
+        {
+            return this->_info.info_header.device_y_resolution;
+        }
+
+
+        [[nodiscard]]
         inline const std::uint32_t height() const noexcept
         {
             return _info.info_header.height;
