@@ -37,7 +37,6 @@ namespace bmpl
     namespace utils
     {
 
-
         const std::string warning_msg(const WarningCode warn_code) noexcept
         {
             switch (warn_code)
@@ -47,9 +46,9 @@ namespace bmpl
             case WarningCode::BAD_BITMAP_SIZE_IN_HEADER:
                 return "header indicates a bad bitmap size.";
             case WarningCode::BAD_FILE_SIZE_IN_HEADER:
-                return "header indicates a bad BMP file size.";
+                return "the file size indicated in header is not the actual size of this file.";
             case WarningCode::BAD_PALETT_INDICES:
-                return "one or many palett indices used for pixels are not present in color palett.";
+                return "one or many palett indices used for pixels are not present in color palett - index 0 used instead.";
             case WarningCode::BAD_PALETT_SIZE_IN_HEADER:
                 return "header indicates a bad color palett size.";
             case WarningCode::BAD_PLANES_VALUE:

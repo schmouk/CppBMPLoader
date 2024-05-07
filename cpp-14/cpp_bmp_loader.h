@@ -58,10 +58,11 @@ namespace bmpl
     
 
     //===========================================================================
-    class BMPBottomUpLoader : public bmpl::utils::ErrorStatus
+    class BMPBottomUpLoader : public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
     {
     public:
         using MyErrBaseClass = bmpl::utils::ErrorStatus;
+        using MyWarnBaseClass = bmpl::utils::WarningStatus;
 
         using pixel_type = bmpl::clr::RGB;
 
@@ -71,6 +72,7 @@ namespace bmpl
 
         inline BMPBottomUpLoader(const char* filepath) noexcept
             : MyErrBaseClass()
+            , MyWarnBaseClass()
             , _filepath(filepath)
             , _in_stream(filepath)
             , _file_header(_in_stream)
@@ -82,6 +84,7 @@ namespace bmpl
 
         inline BMPBottomUpLoader(const std::string& filepath) noexcept
             : MyErrBaseClass()
+            , MyWarnBaseClass()
             , _filepath(filepath)
             , _in_stream(filepath)
             , _file_header(_in_stream)
@@ -99,6 +102,10 @@ namespace bmpl
         {
             return bmpl::utils::error_msg(_filepath, get_error());
         }
+
+
+        [[nodiscard]]
+        const std::vector<std::string> get_warnings_msg() const noexcept;
 
 
         [[nodiscard]]

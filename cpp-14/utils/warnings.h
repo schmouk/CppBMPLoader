@@ -83,13 +83,14 @@ namespace bmpl
 
             inline void append_warnings(const WarningStatus& other) noexcept
             {
-                this->_warnings_list.insert(this->_warnings_list.end(), other._warnings_list.begin(), other._warnings_list.end());
+                if (has_warnings())
+                    this->_warnings_list.insert(this->_warnings_list.end(), other._warnings_list.begin(), other._warnings_list.end());
             }
 
 
             inline operator bool() const noexcept
             {
-                return is_ok();
+                return has_warnings();
             }
 
 
@@ -99,16 +100,11 @@ namespace bmpl
             }
 
 
-            inline const bool is_ok() const noexcept
+            inline const bool has_warnings() const noexcept
             {
-                return this->_warnings_list.empty();
+                return !this->_warnings_list.empty();
             }
 
-
-            inline const bool failed() const noexcept
-            {
-                return !is_ok();
-            }
 
 
         protected:

@@ -36,11 +36,20 @@ SOFTWARE.
 #include <vector>
 
 #include "cpp_bmp_loader.h"
-#include "utils/colors.h"
 
 
 namespace bmpl
 {
+
+    const std::vector<std::string> BMPBottomUpLoader::get_warnings_msg() const noexcept
+    {
+        std::vector<std::string> msg_res;
+        for (const bmpl::utils::WarningCode warning_code : this->get_warnings())
+            msg_res.push_back(bmpl::utils::warning_msg(this->_filepath, warning_code));
+        return msg_res;
+    }
+
+
     void BMPBottomUpLoader::_load_image() noexcept
     {
         if (_in_stream.failed()) {
@@ -87,6 +96,11 @@ namespace bmpl
             _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
             break;
         }
+
+        // let's finally append any maybe warning formerly detected during processing
+        this->append_warnings(this->_file_header);
+        this->append_warnings(this->_info.info_header);
+        this->append_warnings(this->_info.color_map);
     }
 
 

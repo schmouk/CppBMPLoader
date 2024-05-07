@@ -39,16 +39,19 @@ SOFTWARE.
 #include "../utils/colors.h"
 #include "../utils/errors.h"
 #include "../utils/little_endian_streaming.h"
+#include "../utils/warnings.h"
 
 
 namespace bmpl
 {
     namespace frmt
     {
-        struct BMPColorMap : std::array<bmpl::clr::RGBA, 256>, bmpl::utils::ErrorStatus
+        class BMPColorMap : public std::array<bmpl::clr::RGBA, 256>, public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
         {
+        public:
             using MyContainerBaseClass = std::array<bmpl::clr::RGBA, 256>;
             using MyErrBaseClass = bmpl::utils::ErrorStatus;
+            using MyWarnBaseClass = bmpl::utils::WarningStatus;
 
 
             std::uint32_t colors_count{ 0 };
@@ -67,6 +70,7 @@ namespace bmpl
             inline BMPColorMap(bmpl::utils::LEInStream& in_stream, const BMPInfoHeader& info_header) noexcept
                 : MyContainerBaseClass()
                 , MyErrBaseClass()
+                , MyWarnBaseClass()
                 , colors_count(info_header.used_colors_count)
             {
                 load(in_stream, info_header);
@@ -77,6 +81,10 @@ namespace bmpl
 
 
             const bmpl::clr::RGBA& operator[] (const std::uint32_t index) noexcept;
+
+
+        private:
+            bool _bad_index_warn_already_set{ false };
 
         };
 

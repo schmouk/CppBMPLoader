@@ -74,7 +74,11 @@ namespace bmpl
         const bmpl::clr::RGBA& BMPColorMap::operator[] (const std::uint32_t index) noexcept
         {
             if (index >= this->colors_count) {
-                _set_err(bmpl::utils::ErrorCode::OUT_OF_COLORMAP_INDEX);
+                if (!_bad_index_warn_already_set) {
+                    _set_warning(bmpl::utils::WarningCode::BAD_PALETT_INDICES);
+                    _bad_index_warn_already_set = true;
+                }
+                // notice: we use entry 0 as the default color for bad indices
                 return MyContainerBaseClass::operator[](0);
             }
             else {

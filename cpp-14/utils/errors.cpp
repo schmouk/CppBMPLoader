@@ -48,8 +48,8 @@ namespace bmpl
                 return "bad bits count per pixel value.";
             case ErrorCode::BAD_DEFAULT_VALUE:
                 return "bad default value.";
-            case ErrorCode::BAD_PALLETT_ENCODING:
-                return "bad encoding for colors pallett.";
+            case ErrorCode::BAD_COLORMAP_ENCODING:
+                return "bad encoding for colors map.";
             case ErrorCode::BMP_BAD_ENCODING:
                 return "bad BMP format encoding.";
             case ErrorCode::CORRUPTED_BMP_FILE:
@@ -58,10 +58,16 @@ namespace bmpl
                 return "encountered unexpected end-of-file.";
             case ErrorCode::FILE_NOT_FOUND:
                 return "file not found.";
+            case ErrorCode::INCOHERENT_IMAGE_DIMENSIONS:
+                return "some image dimension as indicated in header is incoherent with image size.";
             case ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING:
                 return "incoherent Run Length Encoding control value.";
             case ErrorCode::INPUT_OPERATION_FAILED:
                 return "some imput operation failed.";
+            case ErrorCode::INVALID_DEVICE_RESOLUTION:
+                return "some device resolution is invalid (maybe negative, for instance).";
+            case ErrorCode::INVALID_IMAGE_DIMENSIONS:
+                return "some dimension of image is invalid (maybe negative, for instance).";
             case ErrorCode::IRRECOVERABLE_STREAM_ERROR:
                 return "encountered some irrecoverable file streaming error.";
             case ErrorCode::NOT_BMP_ENCODING:
@@ -70,8 +76,8 @@ namespace bmpl
                 return "file is currently not initialized.";
             case ErrorCode::NOT_WINDOWS_BMP:
                 return "file is not a Windows BMP file.";
-            case ErrorCode::OUT_OF_PALLETT_INDEX:
-                return "encountered a color index not contained in pallett.";
+            case ErrorCode::OUT_OF_COLORMAP_INDEX:
+                return "encountered a color index not contained in color map.";
             case ErrorCode::RLE_INPUT_OPERATION_FAILED:
                 return "input operation on Run Length Encoded bitmap has failed.";
             default:

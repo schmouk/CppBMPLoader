@@ -57,13 +57,16 @@ namespace bmpl
                 return _set_err(in_stream.get_error());
 
             if (planes_count != 1)
-                return _set_err(bmpl::utils::ErrorCode::BAD_DEFAULT_VALUE);
+                _set_warning(bmpl::utils::WarningCode::BAD_PLANES_VALUE);
 
             if (compression_mode > 3)
                 return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
 
             if (image_size == 0 && compression_mode != 0)
                 return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
+
+            if (size != 0 && in_stream.get_size() != size)
+                _set_warning(bmpl::utils::WarningCode::BAD_FILE_SIZE_IN_HEADER);
 
             if (size == 0x28) {
                 // BMP 3 format - Windows 3.x or NT

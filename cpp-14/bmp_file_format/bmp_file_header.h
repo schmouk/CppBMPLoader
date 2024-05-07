@@ -36,6 +36,7 @@ SOFTWARE.
 
 #include "../utils/errors.h"
 #include "../utils/little_endian_streaming.h"
+#include "../utils//warnings.h"
 
 
 namespace bmpl
@@ -43,10 +44,11 @@ namespace bmpl
     namespace frmt
     {
         //===========================================================================
-        class BMPFileHeader : public bmpl::utils::ErrorStatus
+        class BMPFileHeader : public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
         {
         public:
             using MyErrBaseClass = bmpl::utils::ErrorStatus;
+            using MyWarnBaseClass = bmpl::utils::WarningStatus;
 
 
             std::uint32_t size{ 0 };            // bfSize
@@ -66,6 +68,7 @@ namespace bmpl
 
             inline BMPFileHeader(bmpl::utils::LEInStream& in_stream) noexcept
                 : MyErrBaseClass()
+                , MyWarnBaseClass()
             {
                 load(in_stream);
             }

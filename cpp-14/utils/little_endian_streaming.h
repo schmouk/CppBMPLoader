@@ -85,7 +85,7 @@ namespace bmpl
             virtual inline ~LEInStream() noexcept = default;
 
 
-            const pos_type get_size() noexcept;  // notice: pos_type is inherited from base class std::ifstream
+            const pos_type get_size() noexcept;  // notice: type 'pos_type' is inherited from base class std::ifstream
 
 
             LEInStream& operator>>(std::int8_t& value);

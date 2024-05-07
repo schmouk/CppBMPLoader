@@ -37,16 +37,18 @@ SOFTWARE.
 #include "../utils/colors.h"
 #include "../utils/errors.h"
 #include "../utils/little_endian_streaming.h"
+#include "../utils/warnings.h"
 
 
 namespace bmpl
 {
     namespace frmt
     {
-        class BMPInfoHeader : public bmpl::utils::ErrorStatus
+        class BMPInfoHeader : public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
         {
         public:
             using MyErrBaseClass = bmpl::utils::ErrorStatus;
+            using MyWarnBaseClass = bmpl::utils::WarningStatus;
 
 
             static constexpr int NO_RLE{ 0 };
@@ -99,6 +101,7 @@ namespace bmpl
 
             inline BMPInfoHeader(bmpl::utils::LEInStream& in_stream) noexcept
                 : MyErrBaseClass()
+                , MyWarnBaseClass()
             {
                 load(in_stream);
             }
