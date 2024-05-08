@@ -46,6 +46,7 @@ namespace bmpl
 {
     namespace frmt
     {
+        //===========================================================================
         class BMPColorMap : public std::array<bmpl::clr::RGBA, 256>, public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
         {
         public:

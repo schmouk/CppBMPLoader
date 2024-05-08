@@ -42,6 +42,7 @@ namespace bmpl
 {
     namespace utils
     {
+        //===========================================================================
         enum class WarningCode : std::uint8_t
         {
             NO_WARNING = 0,
@@ -60,14 +61,17 @@ namespace bmpl
         };
 
 
+        //===========================================================================
         using WarningsList = std::vector<WarningCode>;
 
 
+        //===========================================================================
         const std::string warning_msg(const WarningCode err_code) noexcept;
 
         const std::string warning_msg(const std::string& file_path, const WarningCode err_code) noexcept;
 
 
+        //===========================================================================
         class WarningStatus
         {
         public:

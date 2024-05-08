@@ -78,6 +78,8 @@ namespace bmpl
                 return "file is not a Windows BMP file.";
             case ErrorCode::OUT_OF_COLORMAP_INDEX:
                 return "encountered a color index not contained in color map.";
+            case ErrorCode::OVERLAPPING_BITFIELD_MASKS:
+                return "some bitfield masks are overlapping.";
             case ErrorCode::RLE_INPUT_OPERATION_FAILED:
                 return "input operation on Run Length Encoded bitmap has failed.";
             default:

@@ -41,6 +41,7 @@ namespace bmpl
 {
     namespace utils
     {
+        //===========================================================================
         enum class ErrorCode : std::uint8_t
         {
             NO_ERROR = 0,
@@ -61,15 +62,18 @@ namespace bmpl
             NOT_INITIALIZED,
             NOT_WINDOWS_BMP,
             OUT_OF_COLORMAP_INDEX,
+            OVERLAPPING_BITFIELD_MASKS,
             RLE_INPUT_OPERATION_FAILED,
         };
 
 
+        //===========================================================================
         const std::string error_msg(const ErrorCode err_code) noexcept;
 
         const std::string error_msg(const std::string& file_path, const ErrorCode err_code) noexcept;
 
 
+        //===========================================================================
         class ErrorStatus
         {
         public:

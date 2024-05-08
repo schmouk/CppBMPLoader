@@ -44,6 +44,7 @@ namespace bmpl
 {
     namespace frmt
     {
+        //===========================================================================
         class BMPInfoHeader : public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
         {
         public:

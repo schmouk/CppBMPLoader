@@ -103,6 +103,9 @@ namespace bmpl
                                 >> gamma_green
                                 >> gamma_blue))
                     return _set_err(in_stream.get_error());
+
+                if ((red_mask & green_mask & blue_mask & alpha_mask) != 0)
+                    return _set_err(bmpl::utils::ErrorCode::OVERLAPPING_BITFIELD_MASKS);
             }
             else {
                 return _set_err(bmpl::utils::ErrorCode::NOT_WINDOWS_BMP);
