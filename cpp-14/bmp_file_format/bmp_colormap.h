@@ -47,12 +47,14 @@ namespace bmpl
     namespace frmt
     {
         //===========================================================================
-        class BMPColorMap : public std::array<bmpl::clr::RGBA, 256>, public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
+        class BMPColorMap : public std::array<bmpl::clr::BGRA, 256>, public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
         {
         public:
-            using MyContainerBaseClass = std::array<bmpl::clr::RGBA, 256>;
+            using MyContainerBaseClass = std::array<bmpl::clr::BGRA, 256>;
             using MyErrBaseClass = bmpl::utils::ErrorStatus;
             using MyWarnBaseClass = bmpl::utils::WarningStatus;
+
+            using pixel_type = bmpl::clr::BGRA;
 
 
             std::uint32_t colors_count{ 0 };
@@ -81,7 +83,7 @@ namespace bmpl
             const bool load(bmpl::utils::LEInStream& in_stream, const BMPInfoHeader& info_header) noexcept;
 
 
-            const bmpl::clr::RGBA& operator[] (const std::uint32_t index) noexcept;
+            const pixel_type& operator[] (const std::uint32_t index) noexcept;
 
 
         private:

@@ -33,7 +33,6 @@ SOFTWARE.
 
 
 #include <cstdint>
-#include <utility>
 
 #include "../utils/little_endian_streaming.h"
 
@@ -121,55 +120,61 @@ namespace bmpl
 
 
         //===========================================================================
-        inline void convert(RGBA& rgba, const BGRA& bgra) noexcept
+        inline void convert(BGRA& bgra, const BGRA& other) noexcept
         {
-            rgba.value = bgra.value;
-            /*
-            rgba.r = bgra.b;
-            rgba.b = bgra.r;
-            */
-            std::swap(rgba.r, rgba.b);
+            bgra = other;
         }
 
         inline void convert(BGRA& bgra, const RGBA& rgba) noexcept
         {
-            bgra.value = rgba.value;
-            /*
-            bgra.r = rgba.b;
-            bgra.b = rgba.r;
-            */
-            std::swap(bgra.b, bgra.r);
-        }
-
-        inline void convert(BGRA& bgra, const RGB& rgb) noexcept
-        {
-            bgra.r = rgb.r;
-            bgra.g = rgb.b;
-            bgra.b = rgb.g;
-            bgra.a = 0;
+            bgra.r = rgba.r;
+            bgra.g = rgba.g;
+            bgra.b = rgba.b;
+            bgra.a = rgba.a;
         }
 
         inline void convert(BGRA& bgra, const BGR& bgr) noexcept
         {
             bgra.r = bgr.r;
-            bgra.g = bgr.b;
-            bgra.b = bgr.g;
+            bgra.g = bgr.g;
+            bgra.b = bgr.b;
             bgra.a = 0;
+        }
+
+        inline void convert(BGRA& bgra, const RGB& rgb) noexcept
+        {
+            bgra.r = rgb.r;
+            bgra.g = rgb.g;
+            bgra.b = rgb.b;
+            bgra.a = 0;
+        }
+
+        inline void convert(RGBA& rgba, const BGRA& bgra) noexcept
+        {
+            rgba.r = bgra.r;
+            rgba.g = bgra.g;
+            rgba.b = bgra.b;
+            rgba.a = bgra.a;
+        }
+
+        inline void convert(RGBA& rgba, const RGBA& other) noexcept
+        {
+            rgba = other;
         }
 
         inline void convert(RGBA& rgba, const RGB& rgb) noexcept
         {
             rgba.r = rgb.r;
-            rgba.g = rgb.b;
-            rgba.b = rgb.g;
+            rgba.g = rgb.g;
+            rgba.b = rgb.b;
             rgba.a = 0;
         }
 
         inline void convert(RGBA& rgba, const BGR& bgr) noexcept
         {
             rgba.r = bgr.r;
-            rgba.g = bgr.b;
-            rgba.b = bgr.g;
+            rgba.g = bgr.g;
+            rgba.b = bgr.b;
             rgba.a = 0;
         }
 
@@ -194,6 +199,25 @@ namespace bmpl
             rgb.b = brg.b;
         }
 
+        inline void convert(RGB& rgb, const RGB& other) noexcept
+        {
+            rgb = other;
+        }
+
+        inline void convert(BGR& brg, const BGRA& bgra) noexcept
+        {
+            brg.r = bgra.r;
+            brg.g = bgra.g;
+            brg.b = bgra.b;
+        }
+
+        inline void convert(BGR& brg, const RGBA& rgba) noexcept
+        {
+            brg.r = rgba.r;
+            brg.g = rgba.g;
+            brg.b = rgba.b;
+        }
+
         inline void convert(BGR& brg, const RGB& rgb) noexcept
         {
             brg.r = rgb.r;
@@ -201,44 +225,69 @@ namespace bmpl
             brg.b = rgb.b;
         }
 
-
-        //===========================================================================
-        template<typename ClrT>
-        struct is_color
+        inline void convert(BGR& brg, const BGR& other) noexcept
         {
-            static constexpr bool value{ false };
-        };
-
-        template<typename ClrT>
-        inline constexpr bool is_color_v()
-        {
-            return is_color<ClrT>::value;
+            brg = other;
         }
 
 
-        template<>
-        struct is_color<BGRA>
+        //===========================================================================
+        inline void set_pixel(RGBA& rgba, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b, const std::uint32_t a)
         {
-            static constexpr bool value{ true };
-        };
+            rgba.r = r;
+            rgba.g = g;
+            rgba.b = b;
+            rgba.a = a;
+        }
 
-        template<>
-        struct is_color<RGBA>
-        {
-            static constexpr bool value{ true };
-        };
 
-        template<>
-        struct is_color<RGB>
+        inline void set_pixel(RGBA& rgba, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b)
         {
-            static constexpr bool value{ true };
-        };
+            set_pixel(rgba, r, g, b, 0);
+        }
 
-        template<>
-        struct is_color<BGR>
+
+        inline void set_pixel(BGRA& bgra, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b, const std::uint32_t a)
         {
-            static constexpr bool value{ true };
-        };
+            bgra.r = r;
+            bgra.g = g;
+            bgra.b = b;
+            bgra.a = a;
+        }
+
+
+        inline void set_pixel(BGRA& bgra, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b)
+        {
+            set_pixel(bgra, r, g, b, 0);
+        }
+
+
+        inline void set_pixel(RGB& rgb, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b)
+        {
+            rgb.r = r;
+            rgb.g = g;
+            rgb.b = b;
+        }
+
+
+        inline void set_pixel(RGB& rgb, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b, const std::uint32_t a)
+        {
+            set_pixel(rgb, r, g, b);
+        }
+
+
+        inline void set_pixel(BGR& bgr, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b)
+        {
+            bgr.r = r;
+            bgr.g = g;
+            bgr.b = b;
+        }
+
+
+        inline void set_pixel(BGR& bgr, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b, const std::uint32_t a)
+        {
+            set_pixel(bgr, r, g, b);
+        }
 
     }
 }

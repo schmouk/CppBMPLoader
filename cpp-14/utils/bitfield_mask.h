@@ -110,10 +110,6 @@ namespace bmpl
             {}
 
 
-            [[nodiscard]]
-            virtual const std::uint32_t get_component_value(const std::uint32_t pixel_value) const noexcept;
-
-
         protected:
             [[nodiscard]]
             virtual inline const std::uint32_t _evaluate_component(const std::uint32_t pixel_value) const noexcept
