@@ -75,8 +75,8 @@ namespace bmpl
         {
             std::uint32_t color_component{ 0 };
 
-            // notice: this algorithm is ok since bits indexes are ordered from greatest to smallest values
-            for (int index : this->_bits_indexes) {
+            // notice: this algorithm is ok since bits indexes are ordered from greatest to smallest value
+            for (auto index : this->_bits_indexes) {
                 color_component <<= 1;
                 color_component &= (pixel_value & (1 << index)) != 0;
             }
@@ -98,7 +98,7 @@ namespace bmpl
             std::uint32_t _mask{ mask };
             std::uint32_t bits_count{ 0 };
             std::vector<std::uint8_t> bits_indexes;
-            for (int index = 31; _mask && index >= 0; --index) {
+            for (int index = 31; _mask != 0 && index >= 0; --index) {
                 if (_mask & 0x8000'0000) {
                     bits_indexes.push_back(index);
                     ++bits_count;
@@ -107,7 +107,7 @@ namespace bmpl
             }
 
             // are the set bits contiguous?
-            for (auto ndx_it = bits_indexes.cbegin(), ndx1_it = bits_indexes.cbegin() + 1;
+            for (auto ndx_it = bits_indexes.cbegin(), ndx1_it = ndx_it + 1;
                 ndx1_it != bits_indexes.cend();
                 ++ndx_it, ++ndx1_it)
             {

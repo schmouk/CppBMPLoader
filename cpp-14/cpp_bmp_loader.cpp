@@ -35,6 +35,7 @@ SOFTWARE.
 #include <iostream>
 #include <vector>
 
+#include "utils/bitfield_mask.h"
 #include "cpp_bmp_loader.h"
 
 
@@ -452,7 +453,38 @@ namespace bmpl
 
     void BMPBottomUpLoader::_load_16b() noexcept
     {
+        const std::size_t width{ std::size_t(this->width()) };
+        const std::size_t height{ std::size_t(this->height()) };
+        const std::size_t padding{ (width % 2) != 0 ? std::size_t(1) : std::size_t(0) };
+        const std::size_t line_width{ width + padding };
+        const std::size_t mask_size{ line_width * height };
 
+        const bmpl::utils::BitfieldMaskBase* red_mask_ptr{ bmpl::utils::create_bitfield_mask(this->_info.info_header.red_mask) };
+        const bmpl::utils::BitfieldMaskBase* green_mask_ptr{ bmpl::utils::create_bitfield_mask(this->_info.info_header.green_mask) };
+        const bmpl::utils::BitfieldMaskBase* blue_mask_ptr{ bmpl::utils::create_bitfield_mask(this->_info.info_header.blue_mask) };
+        const bmpl::utils::BitfieldMaskBase* alpha_mask_ptr{ bmpl::utils::create_bitfield_mask(this->_info.info_header.alpha_mask) };
+
+        std::vector<std::uint16_t> masked_content;
+        masked_content.reserve(mask_size);
+        if (this->_in_stream.read(reinterpret_cast<char*>(this->image_content.data()), mask_size * sizeof std::uint16_t).fail()) {
+            _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
+            return;
+        }
+
+        auto mask_it{ masked_content.cbegin() };
+        auto pixel_it{ this->image_content.begin() };
+        for (int line = 0; line < height; ++line) {
+            for (int pxl = 0; pxl < width; ++pxl, ++pixel_it) {
+                const std::uint32_t mask_value{ *mask_it++ };
+                pixel_it->r = red_mask_ptr->get_component_value(mask_value);
+                pixel_it->g = green_mask_ptr->get_component_value(mask_value);
+                pixel_it->b = blue_mask_ptr->get_component_value(mask_value);
+            }
+            mask_it += padding;
+        }
+
+        // once here, everything was fine!
+        _clr_err();
     }
 
 
@@ -464,8 +496,10 @@ namespace bmpl
         if (width % 4 == 0) {
             // cool, no padding at end of each line
             // let's load the whole image content at once
-            if (this->_in_stream.read(reinterpret_cast<char*>(this->image_content.data()), width * height * sizeof pixel_type).fail())
+            if (this->_in_stream.read(reinterpret_cast<char*>(this->image_content.data()), width * height * sizeof pixel_type).fail()) {
                 _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
+                return;
+            }
         }
         else {
             // let's load the image content line per line
@@ -496,6 +530,35 @@ namespace bmpl
     void BMPBottomUpLoader::_load_32b() noexcept
     {
 
+        const std::size_t width{ std::size_t(this->width()) };
+        const std::size_t height{ std::size_t(this->height()) };
+        const std::size_t mask_size{ width * height };
+
+        const bmpl::utils::BitfieldMaskBase* red_mask_ptr{ bmpl::utils::create_bitfield_mask(this->_info.info_header.red_mask) };
+        const bmpl::utils::BitfieldMaskBase* green_mask_ptr{ bmpl::utils::create_bitfield_mask(this->_info.info_header.green_mask) };
+        const bmpl::utils::BitfieldMaskBase* blue_mask_ptr{ bmpl::utils::create_bitfield_mask(this->_info.info_header.blue_mask) };
+        const bmpl::utils::BitfieldMaskBase* alpha_mask_ptr{ bmpl::utils::create_bitfield_mask(this->_info.info_header.alpha_mask) };
+
+        std::vector<std::uint16_t> masked_content;
+        masked_content.reserve(mask_size);
+        if (this->_in_stream.read(reinterpret_cast<char*>(this->image_content.data()), mask_size * sizeof std::uint32_t).fail()) {
+            _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
+            return;
+        }
+
+        auto mask_it{ masked_content.cbegin() };
+        auto pixel_it{ this->image_content.begin() };
+        for (int line = 0; line < height; ++line) {
+            for (int pxl = 0; pxl < width; ++pxl, ++pixel_it) {
+                const std::uint32_t mask_value{ *mask_it++ };
+                pixel_it->r = red_mask_ptr->get_component_value(mask_value);
+                pixel_it->g = green_mask_ptr->get_component_value(mask_value);
+                pixel_it->b = blue_mask_ptr->get_component_value(mask_value);
+            }
+        }
+
+        // once here, everything was fine!
+        _clr_err();
     }
 
 
