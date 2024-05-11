@@ -40,7 +40,7 @@ namespace bmpl
 
         const std::uint32_t BitfieldMaskBase::get_component_value(const std::uint32_t pixel_value) const noexcept
         {
-            std::uint32_t color_component{ _evaluate_component(pixel_value) };
+            std::uint32_t color_component{ this->_evaluate_component(pixel_value) };
 
             if (color_component == 0)
                 return 0;
@@ -58,16 +58,17 @@ namespace bmpl
             case 4:
                 return color_component * 0b1000'1000;
             case 5:
-                return (color_component << 3) & (color_component >> 2);
+                return (color_component << 3) | (color_component >> 2);
             case 6:
-                return (color_component << 2) & (color_component >> 4);
+                return (color_component << 2) | (color_component >> 4);
             case 7:
-                return (color_component << 1) & (color_component >> 6);
+                return (color_component << 1) | (color_component >> 6);
             case 8:
                 return color_component;
             default:
                 return color_component >> (_bits_count - 8);
             }
+
         }
 
 

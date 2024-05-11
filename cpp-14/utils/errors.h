@@ -52,6 +52,7 @@ namespace bmpl
             CORRUPTED_BMP_FILE,
             END_OF_FILE,
             FILE_NOT_FOUND,
+            INCOHERENT_COMPRESSION_MODE,
             INCOHERENT_IMAGE_DIMENSIONS,
             INCOHERENT_RUN_LENGTH_ENCODING,
             INPUT_OPERATION_FAILED,

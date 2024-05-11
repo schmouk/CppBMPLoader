@@ -58,6 +58,8 @@ namespace bmpl
                 return "encountered unexpected end-of-file.";
             case ErrorCode::FILE_NOT_FOUND:
                 return "file not found.";
+            case ErrorCode::INCOHERENT_COMPRESSION_MODE:
+                return "forbidden compression mode (1 or 2) associated with bitfield masks encoding";
             case ErrorCode::INCOHERENT_IMAGE_DIMENSIONS:
                 return "some image dimension as indicated in header is incoherent with image size.";
             case ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING:

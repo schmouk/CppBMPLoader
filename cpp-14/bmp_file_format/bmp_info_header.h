@@ -58,7 +58,7 @@ namespace bmpl
             static constexpr int RLE_COLOR_BITMASKS{ 3 };
 
 
-            std::uint32_t size{ 0 };                    // biSize
+            std::uint32_t header_size{ 0 };                    // biSize
             std::int32_t width{ 0 };                    // biWidth
             std::int32_t height{ 0 };                   // biHeight
             std::uint16_t planes_count{ 0 };            // biPlanes

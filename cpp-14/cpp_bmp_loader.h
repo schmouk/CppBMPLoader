@@ -365,12 +365,11 @@ namespace bmpl
                     return;
                 }
 
-
-                // loads the RLE bitmap
+                // loads the RLE-4 bitmap
                 const std::uint32_t bitmap_size{ this->_file_header.size - this->_file_header.content_offset };
                 std::vector<std::uint8_t> bitmap;
                 bitmap.assign(bitmap_size, std::uint8_t(0));
-                if (this->_in_stream.read(reinterpret_cast<char*>(bitmap.data()), width).fail()) {
+                if (this->_in_stream.read(reinterpret_cast<char*>(bitmap.data()), bitmap_size).fail()) {
                     _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
                     return;
                 }
@@ -393,8 +392,12 @@ namespace bmpl
                             bmp_it++;
                             while (n_rep--) {
                                 *img_it++ = pxl_value_0;
-                                if (n_rep--)
+                                if (n_rep) {
                                     *img_it++ = pxl_value_1;
+                                    --n_rep;
+                                }
+                                else
+                                    break;  // shortcut, don't test twice!
                             }
                         }
                         else {
@@ -424,17 +427,19 @@ namespace bmpl
                             default:
                                 // absolute mode
                                 std::uint8_t absolute_pixels_count{ *(bmp_it - 1) };
-                                const bool padding{ absolute_pixels_count % 4 != 0 };
+                                const int mod4{ absolute_pixels_count % 4 };
+                                const bool padding{ mod4 == 1 || mod4 == 2 };
                                 pixel_type pxl_value;
 
                                 while (absolute_pixels_count--) {
                                     bmpl::clr::convert(pxl_value, this->_info.color_map[*bmp_it >> 4]);
-                                    bmp_it++;
                                     *img_it++ = pxl_value;
-                                    if (absolute_pixels_count--) {
+                                    if (absolute_pixels_count) {
                                         bmpl::clr::convert(pxl_value, this->_info.color_map[*bmp_it & 0x0f]);
                                         *img_it++ = pxl_value;
+                                        --absolute_pixels_count;
                                     }
+                                    bmp_it++;
                                 }
 
                                 if (padding)
@@ -513,7 +518,7 @@ namespace bmpl
                 const std::uint32_t bitmap_size{ this->_file_header.size - this->_file_header.content_offset };
                 std::vector<std::uint8_t> bitmap;
                 bitmap.assign(bitmap_size, std::uint8_t(0));
-                if (this->_in_stream.read(reinterpret_cast<char*>(bitmap.data()), width).fail()) {
+                if (this->_in_stream.read(reinterpret_cast<char*>(bitmap.data()), bitmap_size).fail()) {
                     _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
                     return;
                 }
@@ -603,24 +608,28 @@ namespace bmpl
             const bmpl::utils::BitfieldMaskBase* alpha_mask_ptr{ bmpl::utils::create_bitfield_mask(this->_info.info_header.alpha_mask) };
 
             std::vector<std::uint16_t> masked_content;
-            masked_content.reserve(mask_size);
-            if (this->_in_stream.read(reinterpret_cast<char*>(this->image_content.data()), mask_size * sizeof std::uint16_t).fail()) {
+            masked_content.assign(mask_size, std::uint16_t(0));
+            if (this->_in_stream.read(reinterpret_cast<char*>(masked_content.data()), mask_size * sizeof std::uint16_t).fail()) {
                 _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
                 return;
             }
 
+            int pixel_count{ 0 };
             auto mask_it{ masked_content.cbegin() };
             for (auto pixel_it = this->image_content.begin(); pixel_it != this->image_content.end(); ++pixel_it) {
                 const std::uint32_t mask_pxl_value{ *mask_it++ };
 
-                bmpl::clr::set_pixel(
-                    *pixel_it++,
-                    red_mask_ptr->get_component_value(mask_pxl_value),
-                    green_mask_ptr->get_component_value(mask_pxl_value),
-                    blue_mask_ptr->get_component_value(mask_pxl_value),
-                    alpha_mask_ptr->get_component_value(mask_pxl_value)
-                );
-                mask_it += padding;
+                const std::uint32_t r{ red_mask_ptr->get_component_value(mask_pxl_value) };
+                const std::uint32_t g{ green_mask_ptr->get_component_value(mask_pxl_value) };
+                const std::uint32_t b{ blue_mask_ptr->get_component_value(mask_pxl_value) };
+                const std::uint32_t a{ alpha_mask_ptr->get_component_value(mask_pxl_value) };
+
+                bmpl::clr::set_pixel(*pixel_it, r, g, b, a);
+
+                if (++pixel_count == width) {
+                    mask_it += padding;
+                    pixel_count = 0;
+                }
             }
 
             // once here, everything was fine!
@@ -674,9 +683,9 @@ namespace bmpl
             const bmpl::utils::BitfieldMaskBase* blue_mask_ptr{ bmpl::utils::create_bitfield_mask(this->_info.info_header.blue_mask) };
             const bmpl::utils::BitfieldMaskBase* alpha_mask_ptr{ bmpl::utils::create_bitfield_mask(this->_info.info_header.alpha_mask) };
 
-            std::vector<std::uint16_t> masked_content;
-            masked_content.reserve(mask_size);
-            if (this->_in_stream.read(reinterpret_cast<char*>(this->image_content.data()), mask_size * sizeof std::uint32_t).fail()) {
+            std::vector<std::uint32_t> masked_content;
+            masked_content.assign(mask_size, std::uint32_t(0));
+            if (this->_in_stream.read(reinterpret_cast<char*>(masked_content.data()), mask_size * sizeof std::uint32_t).fail()) {
                 _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
                 return;
             }
@@ -686,7 +695,7 @@ namespace bmpl
                 const std::uint32_t mask_pxl_value{ *mask_it++ };
 
                 bmpl::clr::set_pixel(
-                    *pixel_it++,
+                    *pixel_it,
                     red_mask_ptr->get_component_value(mask_pxl_value),
                     green_mask_ptr->get_component_value(mask_pxl_value),
                     blue_mask_ptr->get_component_value(mask_pxl_value),
