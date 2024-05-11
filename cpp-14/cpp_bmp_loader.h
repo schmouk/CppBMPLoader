@@ -609,9 +609,21 @@ namespace bmpl
 
             std::vector<std::uint16_t> masked_content;
             masked_content.assign(mask_size, std::uint16_t(0));
-            if (this->_in_stream.read(reinterpret_cast<char*>(masked_content.data()), mask_size * sizeof std::uint16_t).fail()) {
-                _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
-                return;
+
+            if (bmpl::utils::PLATFORM_IS_LITTLE_ENDIAN) {
+                if (this->_in_stream.read(reinterpret_cast<char*>(masked_content.data()), mask_size * sizeof std::uint16_t).fail()) {
+                    _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
+                    return;
+                }
+            }
+            else {
+                // big-endian underlying platform
+                for (auto mask_it = masked_content.begin(); mask_it != masked_content.end(); ++mask_it) {
+                    if ((this->_in_stream >> *mask_it).failed()) {
+                        _set_err(this->_in_stream.get_error());
+                        return;
+                    }
+                }
             }
 
             int pixel_count{ 0 };
@@ -685,9 +697,21 @@ namespace bmpl
 
             std::vector<std::uint32_t> masked_content;
             masked_content.assign(mask_size, std::uint32_t(0));
-            if (this->_in_stream.read(reinterpret_cast<char*>(masked_content.data()), mask_size * sizeof std::uint32_t).fail()) {
-                _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
-                return;
+
+            if (bmpl::utils::PLATFORM_IS_LITTLE_ENDIAN) {
+                if (this->_in_stream.read(reinterpret_cast<char*>(masked_content.data()), mask_size * sizeof std::uint32_t).fail()) {
+                    _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
+                    return;
+                }
+            }
+            else {
+                // big-endian underlying platform
+                for (auto mask_it = masked_content.begin(); mask_it != masked_content.end(); ++mask_it) {
+                    if ((this->_in_stream >> *mask_it).failed()) {
+                        _set_err(this->_in_stream.get_error());
+                        return;
+                    }
+                }
             }
 
             auto mask_it{ masked_content.cbegin() };
