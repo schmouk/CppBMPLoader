@@ -404,7 +404,8 @@ namespace bmpl
                         pixel_type pxl_value_0, pxl_value_1;
                         bmpl::clr::convert(pxl_value_0, this->_info.color_map[*bmp_it >> 4]);
                         bmpl::clr::convert(pxl_value_1, this->_info.color_map[*bmp_it & 0x0f]);
-                        bmp_it++;
+                        if (bmp_it != bitmap.cend())
+                            bmp_it++;
                         while (n_rep--) {
                             if (img_it == this->image_content.end()) {
                                 _set_err(bmpl::utils::ErrorCode::BUFFER_OVERFLOW);
@@ -449,8 +450,12 @@ namespace bmpl
                         case 2:
                             // delta-mode
                             {
-                                const auto delta_pxls{ *bmp_it++ };
-                                const auto delta_lines{ *bmp_it++ };
+                                std::uint8_t delta_pxls;
+                                std::uint8_t delta_lines;
+                                if (bmp_it != bitmap.cend())
+                                    delta_pxls = *bmp_it++;
+                                if (bmp_it != bitmap.cend())
+                                    delta_lines = *bmp_it++;
                                 const std::size_t offset{ std::size_t(delta_pxls) + this->width() * std::size_t(delta_lines) };
                                 if ((img_it - this->image_content.begin()) + offset > this->image_size()) {
                                     _set_err(bmpl::utils::ErrorCode::INCOHERENT_DELTA_MODE_VALUES);
@@ -600,7 +605,20 @@ namespace bmpl
 
                             case 2:
                                 // delta-mode
-                                img_it += std::size_t(*bmp_it++) + this->width() * std::size_t(*bmp_it++);
+                                {
+                                    std::uint8_t delta_pxls;
+                                    std::uint8_t delta_lines;
+                                    if (bmp_it != bitmap.cend())
+                                        delta_pxls = *bmp_it++;
+                                    if (bmp_it != bitmap.cend())
+                                        delta_lines = *bmp_it++;
+                                    const std::size_t offset{ std::size_t(delta_pxls) + this->width() * std::size_t(delta_lines) };
+                                    if ((img_it - this->image_content.begin()) + offset > this->image_size()) {
+                                        _set_err(bmpl::utils::ErrorCode::INCOHERENT_DELTA_MODE_VALUES);
+                                        return;
+                                    }
+                                    img_it += offset;
+                                }
                                 break;
 
                             default:
