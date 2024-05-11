@@ -52,6 +52,8 @@ namespace bmpl
                 return "bad encoding for colors map.";
             case ErrorCode::BMP_BAD_ENCODING:
                 return "bad BMP format encoding.";
+            case ErrorCode::BUFFER_OVERFLOW:
+                return "incoherent run length encoding creates a buffer overflow";
             case ErrorCode::CORRUPTED_BMP_FILE:
                 return "corrupted BMP file.";
             case ErrorCode::END_OF_FILE:
@@ -60,6 +62,8 @@ namespace bmpl
                 return "file not found.";
             case ErrorCode::INCOHERENT_COMPRESSION_MODE:
                 return "forbidden compression mode (1 or 2) associated with bitfield masks encoding";
+            case ErrorCode::INCOHERENT_DELTA_MODE_VALUES:
+                return "incoherent delta mode values - creates buffers overflow.";
             case ErrorCode::INCOHERENT_IMAGE_DIMENSIONS:
                 return "some image dimension as indicated in header is incoherent with image size.";
             case ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING:
