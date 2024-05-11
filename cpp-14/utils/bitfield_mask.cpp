@@ -54,7 +54,7 @@ namespace bmpl
             case 2:
                 return color_component * 0b0101'0101;
             case 3:
-                return (color_component * 0b0010'0100) & (color_component >> 1);
+                return (color_component * 0b0010'0100) | (color_component >> 1);
             case 4:
                 return color_component * 0b1000'1000;
             case 5:
@@ -79,7 +79,7 @@ namespace bmpl
             // notice: this algorithm is ok since bits indexes are ordered from greatest to smallest value
             for (auto index : this->_bits_indexes) {
                 color_component <<= 1;
-                color_component &= (pixel_value & (1 << index)) != 0;
+                color_component |= (pixel_value & (1 << index)) != 0;
             }
 
             return color_component;
