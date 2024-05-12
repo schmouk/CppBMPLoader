@@ -61,6 +61,7 @@ namespace bmpl
             INVALID_DEVICE_RESOLUTION,
             INVALID_IMAGE_DIMENSIONS,
             IRRECOVERABLE_STREAM_ERROR,
+            NEGATIVE_WIDTH,
             NOT_BMP_ENCODING,
             NOT_INITIALIZED,
             NOT_WINDOWS_BMP,

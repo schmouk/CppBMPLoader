@@ -56,6 +56,16 @@ namespace bmpl
                             >> important_colors_count))
                 return _set_err(in_stream.get_error());
 
+            if (width < 0)
+                return _set_err(bmpl::utils::ErrorCode::NEGATIVE_WIDTH);
+
+            if (width == 0 || height == 0)
+                return _set_err(bmpl::utils::ErrorCode::INVALID_IMAGE_DIMENSIONS);
+
+            if (height < 0)
+                // top-down encoding
+                height = -height;
+
             if (planes_count != 1)
                 _set_warning(bmpl::utils::WarningCode::BAD_PLANES_VALUE);
 

@@ -181,14 +181,37 @@ namespace bmpl
     protected:
         std::string _filepath{};
 
-
-    private:
         // notice: do not modify the ordering of next declarations
         bmpl::utils::LEInStream _in_stream;
         bmpl::frmt::BMPFileHeader _file_header;
         bmpl::frmt::BMPInfo _info;
 
 
+        void _reverse_lines_ordering() noexcept
+        {
+            if (this->is_ok()) {
+                const std::size_t line_width{ this->width() * sizeof pixel_type };
+
+                std::vector<std::uint8_t> tmp_line;
+                tmp_line.assign(line_width, '\0');
+
+                std::uint8_t* upline_ptr{ reinterpret_cast<std::uint8_t*>(this->image_content_ptr()) };
+                std::uint8_t* botline_ptr{ reinterpret_cast<std::uint8_t*>(this->image_content_ptr() + (this->height() - 1) * this->width()) };
+                std::uint8_t* tmpline_ptr{ tmp_line.data() };
+
+                for (std::size_t i = 0; i < this->height() / 2; ++i) {
+                    std::memcpy(tmpline_ptr, upline_ptr, line_width);
+                    std::memcpy(upline_ptr, botline_ptr, line_width);
+                    std::memcpy(botline_ptr, tmpline_ptr, line_width);
+
+                    upline_ptr += line_width;
+                    botline_ptr -= line_width;
+                }
+            }
+        }
+
+
+    private:
         inline void _allocate_image_space() noexcept
         {
             this->image_content.assign(std::size_t(width()) * std::size_t(height()), pixel_type());
@@ -243,7 +266,7 @@ namespace bmpl
                 break;
             }
 
-            // let's finally append any maybe warning formerly detected during processing
+            // let's finally append any maybe warning detected during processing
             this->append_warnings(this->_file_header);
             this->append_warnings(this->_info.info_header);
             this->append_warnings(this->_info.color_map);
@@ -822,43 +845,20 @@ namespace bmpl
         inline BMPLoader(const char* filepath) noexcept
             : MyBaseClass(filepath)
         {
-            _reverse_lines_ordering();
+            if (!this->_info.info_header.top_down_encoded)
+                MyBaseClass::_reverse_lines_ordering();
         }
 
 
         inline BMPLoader(const std::string& filepath) noexcept
             : MyBaseClass(filepath)
         {
-            _reverse_lines_ordering();
+            if (!this->_info.info_header.top_down_encoded)
+                MyBaseClass::_reverse_lines_ordering();
         }
 
 
         virtual inline ~BMPLoader() noexcept = default;
-
-
-    protected:
-        void _reverse_lines_ordering() noexcept
-        {
-            if (this->is_ok()) {
-                const std::size_t line_width{ this->width() * sizeof MyBaseClass::pixel_type };
-
-                std::vector<std::uint8_t> tmp_line;
-                tmp_line.assign(line_width, '\0');
-
-                std::uint8_t* upline_ptr{ reinterpret_cast<std::uint8_t*>(this->image_content_ptr()) };
-                std::uint8_t* botline_ptr{ reinterpret_cast<std::uint8_t*>(this->image_content_ptr() + (this->height() - 1) * this->width()) };
-                std::uint8_t* tmpline_ptr{ tmp_line.data() };
-
-                for (std::size_t i = 0; i < this->height() / 2; ++i) {
-                    std::memcpy(tmpline_ptr, upline_ptr, line_width);
-                    std::memcpy(upline_ptr, botline_ptr, line_width);
-                    std::memcpy(botline_ptr, tmpline_ptr, line_width);
-
-                    upline_ptr += line_width;
-                    botline_ptr -= line_width;
-                }
-            }
-        }
 
     };
 

@@ -73,9 +73,11 @@ namespace bmpl
             case ErrorCode::INVALID_DEVICE_RESOLUTION:
                 return "some device resolution is invalid (maybe negative, for instance).";
             case ErrorCode::INVALID_IMAGE_DIMENSIONS:
-                return "some dimension of image is invalid (maybe negative, for instance).";
+                return "some dimension of image is set to zero.";
             case ErrorCode::IRRECOVERABLE_STREAM_ERROR:
                 return "encountered some irrecoverable file streaming error.";
+            case ErrorCode::NEGATIVE_WIDTH:
+                return "info header specifies a negative width for final image, which is forbidden.";
             case ErrorCode::NOT_BMP_ENCODING:
                 return "file is not a BMP file.";
             case ErrorCode::NOT_INITIALIZED:
