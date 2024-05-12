@@ -57,6 +57,10 @@ namespace bmpl
                 return "header indicates a planes count value different from 1.";
             case WarningCode::BITFIELDS_AND_PALETT:
                 return "a color palett is encoded while bitfields masks are defined.";
+            case WarningCode::INCOHERENT_IMAGE_SIZE:
+                return "image size in info header is incoherent with specified width and height.";
+            case WarningCode::INCOHERENT_RESOLUTIONS:
+                return "maybe incoherent image resolutions detected in info header - one of them may be too big compared to the other one.";
             case WarningCode::MISSING_BITFIELDS_MASKS:
                 return "at least on color bits mask is missing in bitfields definition.";
             case WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP:

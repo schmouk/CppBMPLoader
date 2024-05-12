@@ -72,6 +72,12 @@ namespace bmpl
                 top_down_encoding = true;
             }
 
+            if (width * height != image_size)
+                _set_warning(bmpl::utils::WarningCode::INCOHERENT_IMAGE_SIZE);
+
+            if (device_x_resolution > 2.5 * device_y_resolution || device_y_resolution > 2.5 * device_x_resolution)
+                _set_warning(bmpl::utils::WarningCode::INCOHERENT_RESOLUTIONS);
+
             if (planes_count != 1)
                 _set_warning(bmpl::utils::WarningCode::BAD_PLANES_VALUE);
 

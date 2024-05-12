@@ -54,6 +54,8 @@ namespace bmpl
             BAD_PALETTE_SIZE_IN_HEADER,
             BAD_PLANES_VALUE,
             BITFIELDS_AND_PALETT,
+            INCOHERENT_IMAGE_SIZE,
+            INCOHERENT_RESOLUTIONS,
             MISSING_BITFIELDS_MASKS,
             NOT_ENOUGH_INDICES_IN_BITMAP,
             PALETT_WITH_FULL_COLORS,
@@ -90,7 +92,7 @@ namespace bmpl
 
             inline void append_warnings(const WarningStatus& other) noexcept
             {
-                if (has_warnings())
+                if (other.has_warnings())
                     this->_warnings_list.insert(this->_warnings_list.end(), other._warnings_list.begin(), other._warnings_list.end());
             }
 
