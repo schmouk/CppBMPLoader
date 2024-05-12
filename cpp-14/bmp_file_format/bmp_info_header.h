@@ -64,7 +64,7 @@ namespace bmpl
             std::uint16_t planes_count{ 0 };            // biPlanes
             std::uint16_t bits_per_pixel{ 0 };          // biBitCount
             std::uint32_t compression_mode{ 0 };        // biCompression
-            std::uint32_t image_size{ 0 };              // biSizeImage
+            std::uint32_t bitmap_size{ 0 };              // biSizeImage
             std::int32_t device_x_resolution{ 0 };      // biXpelsPerMeter
             std::int32_t device_y_resolution{ 0 };      // biYpelsPerMeter
             std::uint32_t used_colors_count{ 0 };       // biClrUsed

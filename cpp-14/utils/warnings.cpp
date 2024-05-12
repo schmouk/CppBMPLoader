@@ -69,12 +69,16 @@ namespace bmpl
                 return "a color palett is defined while this is a full-color bitmap.";
             case WarningCode::SOME_GAP_BTW_PALETT_AND_BITMAP:
                 return "unused bytes appear between colors palett and start of bitmap.";
+            case WarningCode::TOO_BIG_PALETTE:
+                return "too many colors are defined in palette, extra ones will not be used.";
             case WarningCode::TOO_MANY_COLORS_IN_PALETT:
                 return "too many colors are defined in palett, some of them won't be used.";
             case WarningCode::TOO_MANY_INDICES_IN_BITMAP:
                 return "bitmap contains too many indices according to final image size.";
             case WarningCode::UNUSED_BITS_SET_TO_1:
                 return "some pixels have bitfields unused bits set to 1.";
+            case WarningCode::UNUSED_PALETTE:
+                return "An unused palette is defined in BMP file.";
             default:
                 return "unkown warning...";
             }

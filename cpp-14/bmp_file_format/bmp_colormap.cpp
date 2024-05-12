@@ -50,7 +50,11 @@ namespace bmpl
             this->colors_count = info_header.used_colors_count;
 
             if (this->colors_count > 0) {
-                const std::size_t to_be_loaded_count{ this->colors_count > 256 ? 256 : this->colors_count };
+                std::size_t to_be_loaded_count{ this->colors_count };
+                if (to_be_loaded_count > 256) {
+                    to_be_loaded_count = 256;
+                    _set_warning(bmpl::utils::WarningCode::TOO_BIG_PALETTE);
+                }
 
                 if (bmpl::utils::PLATFORM_IS_LITTLE_ENDIAN) {
                     if (!in_stream.read(reinterpret_cast<char*>(MyContainerBaseClass::data()), std::streamsize(4 * to_be_loaded_count)))

@@ -60,9 +60,11 @@ namespace bmpl
             NOT_ENOUGH_INDICES_IN_BITMAP,
             PALETT_WITH_FULL_COLORS,
             SOME_GAP_BTW_PALETT_AND_BITMAP,
+            TOO_BIG_PALETTE,
             TOO_MANY_COLORS_IN_PALETT,
             TOO_MANY_INDICES_IN_BITMAP,
             UNUSED_BITS_SET_TO_1,
+            UNUSED_PALETTE,
         };
 
 

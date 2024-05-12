@@ -53,7 +53,7 @@ namespace bmpl
                             >> planes_count
                             >> bits_per_pixel
                             >> compression_mode
-                            >> image_size
+                            >> bitmap_size
                             >> device_x_resolution
                             >> device_y_resolution
                             >> used_colors_count
@@ -72,9 +72,6 @@ namespace bmpl
                 top_down_encoding = true;
             }
 
-            if (width * height != image_size)
-                _set_warning(bmpl::utils::WarningCode::INCOHERENT_IMAGE_SIZE);
-
             if (device_x_resolution > 2.5 * device_y_resolution || device_y_resolution > 2.5 * device_x_resolution)
                 _set_warning(bmpl::utils::WarningCode::INCOHERENT_RESOLUTIONS);
 
@@ -84,7 +81,7 @@ namespace bmpl
             if (compression_mode > 3)
                 return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
 
-            if (image_size == 0 && compression_mode != 0)
+            if (bitmap_size == 0 && compression_mode != 0)
                 return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
 
             if (compression_mode == this->RLE_COLOR_BITMASKS) {
@@ -161,7 +158,7 @@ namespace bmpl
             }
             else {
                 if (used_colors_count != 0)
-                    return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
+                   _set_warning(bmpl::utils::WarningCode::UNUSED_PALETTE);
             }
 
             return _clr_err();
