@@ -397,7 +397,7 @@ namespace bmpl
                 auto img_it{ this->image_content.begin() };
                 auto bmp_it = bitmap.cbegin();
 
-                while (bmp_it != bitmap.cend() && img_it != this->image_content.end()) {
+                while (bmp_it != bitmap.cend()) {
                     if (*bmp_it > 0) {
                         // encoded mode, repetition of same pixel value n-times
                         std::uint8_t n_rep{ *bmp_it++ };
@@ -548,8 +548,16 @@ namespace bmpl
 
                 // evaluates the final image content
                 auto img_it{ this->image_content.begin() };
-                for (auto ndx_it = indexed_content.cbegin(); ndx_it != indexed_content.cend(); )
+                auto ndx_it{ indexed_content.cbegin() };
+                while (ndx_it != indexed_content.cend() && img_it != this->image_content.end())
                     bmpl::clr::convert(*img_it++, this->_info.color_map[*ndx_it++]);
+
+                if (img_it != this->image_content.end()) {
+                    _set_warning(bmpl::utils::WarningCode::TOO_MANY_INDICES_IN_BITMAP);
+                }
+                else if (ndx_it != indexed_content.cend()) {
+                    _set_warning(bmpl::utils::WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP);
+                }
             }
             else {
                 //-- Run Length encoding --//
@@ -567,30 +575,41 @@ namespace bmpl
                     return;
                 }
 
-                // parses then the RLE bitmap
+                // parses then the RLE-8 bitmap
                 std::uint32_t num_line{ 0 };
                 bool encountered_eof{ false };
 
                 auto img_it{ this->image_content.begin() };
-                auto bmp_it = bitmap.cbegin();
+                auto bmp_it{ bitmap.cbegin() };
 
-                try {
-                    while (bmp_it != bitmap.cend()) {
-                        if (*bmp_it > 0) {
-                            // encoded mode, repetition of same pixel value n-times
-                            std::uint8_t n_rep{ *bmp_it++ };
-                            pixel_type pxl_value;
-                            bmpl::clr::convert(pxl_value, this->_info.color_map[*bmp_it++]);
-                            while (n_rep--)
-                                *img_it++ = pxl_value;
-                        }
-                        else {
+                while (bmp_it != bitmap.cend()) {
+                    if (*bmp_it > 0) {
+                        // encoded mode, repetition of same pixel value n-times
+                        std::uint8_t n_rep{ *bmp_it++ };
+                        pixel_type pxl_value;
+                        bmpl::clr::convert(pxl_value, this->_info.color_map[*bmp_it]);
+                        if (bmp_it != bitmap.cend())
                             bmp_it++;
+                        while (n_rep--) {
+                            if (img_it == this->image_content.end()) {
+                                _set_err(bmpl::utils::ErrorCode::BUFFER_OVERFLOW);
+                                return;
+                            }
+                            *img_it++ = pxl_value;
+                        }
+                    }
+                    else if (bmp_it != bitmap.cend()) {
+                        bmp_it++;
+                        if (bmp_it != bitmap.cend()) {
                             switch (*bmp_it++)
                             {
                             case 0:
                                 // end of line
                                 ++num_line;
+                                if (num_line == this->height()) {
+                                    _set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
+                                    return;
+                                }
                                 img_it = this->image_content.begin() + std::size_t(num_line * this->width());
                                 break;
 
@@ -625,18 +644,19 @@ namespace bmpl
                                 // absolute mode
                                 std::uint8_t absolute_pixels_count{ *(bmp_it - 1) };
                                 const bool padding{ absolute_pixels_count % 2 != 0 };
-                                while (absolute_pixels_count--)
+                                while (absolute_pixels_count-- && bmp_it != bitmap.cend()) {
+                                    if (img_it == this->image_content.end()) {
+                                        _set_err(bmpl::utils::ErrorCode::BUFFER_OVERFLOW);
+                                        return;
+                                    }
                                     bmpl::clr::convert(*img_it++, this->_info.color_map[*bmp_it++]);
-                                if (padding)
+                                }
+                                if (padding && bmp_it != bitmap.cend())
                                     bmp_it++;
                                 break;
                             }
                         }
                     }
-                }
-                catch (...) {
-                    _set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
-                    return;
                 }
 
                 if (!encountered_eof) {
