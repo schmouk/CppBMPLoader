@@ -83,7 +83,11 @@ namespace bmpl
             const bool load(bmpl::utils::LEInStream& in_stream, const BMPInfoHeader& info_header) noexcept;
 
 
-            const pixel_type& operator[] (const std::uint32_t index) noexcept;
+            pixel_type& operator[] (const std::uint32_t index) noexcept;
+            inline const pixel_type& operator[] (const std::uint32_t index) const noexcept
+            {
+                return operator[](index);
+            }
 
 
         private:

@@ -252,7 +252,34 @@ namespace bmpl
 
 
         //===========================================================================
-        inline void set_pixel(RGBA& rgba, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b, const std::uint32_t a)
+        inline void set_full_transparency(RGBA& rgba) noexcept
+        {
+            rgba.a = 255;
+        }
+
+
+        inline void set_full_transparency(BGRA& bgra) noexcept
+        {
+            bgra.a = 255;
+        }
+
+
+        inline void set_full_transparency(RGB& rgb) noexcept
+        {}
+
+
+        inline void set_full_transparency(BGR& bgr) noexcept
+        {}
+
+
+        inline void set_full_transparency(BGRA_HDR& bgra64) noexcept
+        {
+            bgra64.a = 0x1fff;
+        }
+
+
+        //===========================================================================
+        inline void set_pixel(RGBA& rgba, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b, const std::uint32_t a) noexcept
         {
             rgba.r = r;
             rgba.g = g;
@@ -261,13 +288,13 @@ namespace bmpl
         }
 
 
-        inline void set_pixel(RGBA& rgba, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b)
+        inline void set_pixel(RGBA& rgba, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b) noexcept
         {
             set_pixel(rgba, r, g, b, 0);
         }
 
 
-        inline void set_pixel(BGRA& bgra, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b, const std::uint32_t a)
+        inline void set_pixel(BGRA& bgra, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b, const std::uint32_t a) noexcept
         {
             bgra.r = r;
             bgra.g = g;
@@ -276,13 +303,13 @@ namespace bmpl
         }
 
 
-        inline void set_pixel(BGRA& bgra, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b)
+        inline void set_pixel(BGRA& bgra, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b) noexcept
         {
             set_pixel(bgra, r, g, b, 0);
         }
 
 
-        inline void set_pixel(RGB& rgb, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b)
+        inline void set_pixel(RGB& rgb, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b) noexcept
         {
             rgb.r = r;
             rgb.g = g;
@@ -290,13 +317,13 @@ namespace bmpl
         }
 
 
-        inline void set_pixel(RGB& rgb, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b, const std::uint32_t a)
+        inline void set_pixel(RGB& rgb, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b, const std::uint32_t a) noexcept
         {
             set_pixel(rgb, r, g, b);
         }
 
 
-        inline void set_pixel(BGR& bgr, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b)
+        inline void set_pixel(BGR& bgr, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b) noexcept
         {
             bgr.r = r;
             bgr.g = g;
@@ -304,7 +331,7 @@ namespace bmpl
         }
 
 
-        inline void set_pixel(BGR& bgr, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b, const std::uint32_t a)
+        inline void set_pixel(BGR& bgr, const std::uint32_t r, const std::uint32_t g, const std::uint32_t b, const std::uint32_t a) noexcept
         {
             set_pixel(bgr, r, g, b);
         }

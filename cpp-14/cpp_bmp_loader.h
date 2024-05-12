@@ -79,6 +79,15 @@ namespace bmpl
 
 
     //===========================================================================
+    enum class ESkippedPixelsMode : std::uint8_t
+    {
+        BLACK = 0,
+        TRANSPARENCY,
+        PALETTE_INDEX_0
+    };
+
+
+    //===========================================================================
     template<typename PixelT>
     class BMPBottomUpLoader : public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
     {
@@ -92,10 +101,11 @@ namespace bmpl
         std::vector<pixel_type> image_content;
 
 
-        inline BMPBottomUpLoader(const std::string& filepath) noexcept
+        inline BMPBottomUpLoader(const std::string& filepath, const ESkippedPixelsMode mode = ESkippedPixelsMode::BLACK) noexcept
             : MyErrBaseClass()
             , MyWarnBaseClass()
             , _filepath(filepath)
+            , _skipped_mode(mode)
             , _in_stream(filepath)
             , _file_header(_in_stream)
             , _info(_in_stream)
@@ -168,6 +178,7 @@ namespace bmpl
 
     protected:
         std::string _filepath{};
+        ESkippedPixelsMode _skipped_mode{ ESkippedPixelsMode::BLACK };
 
         // notice: do not modify the ordering of next declarations
         bmpl::utils::LEInStream _in_stream;
@@ -202,7 +213,19 @@ namespace bmpl
         inline const bool _allocate_image_space() noexcept
         {
             try {
-                this->image_content.assign(std::size_t(width()) * std::size_t(height()), pixel_type());
+                pixel_type pixel_default_value{};
+                switch (_skipped_mode)
+                {
+                case ESkippedPixelsMode::TRANSPARENCY:
+                    bmpl::clr::set_full_transparency(pixel_default_value);
+                    break;
+
+                case ESkippedPixelsMode::PALETTE_INDEX_0:
+                    bmpl::clr::convert(pixel_default_value, this->_info.color_map[0]);
+                    break;
+                }
+
+                this->image_content.assign(std::size_t(width()) * std::size_t(height()), pixel_default_value);
                 return true;
             }
             catch (...) {
@@ -892,8 +915,8 @@ namespace bmpl
         using MyBaseClass = BMPBottomUpLoader<PixelT>;
 
 
-        inline BMPLoader(const std::string& filepath) noexcept
-            : MyBaseClass(filepath)
+        inline BMPLoader(const std::string& filepath, const ESkippedPixelsMode mode = ESkippedPixelsMode::BLACK) noexcept
+            : MyBaseClass(filepath, mode)
         {
 
             if (!MyBaseClass::_info.info_header.top_down_encoding)

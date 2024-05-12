@@ -81,7 +81,7 @@ namespace bmpl
         }
 
 
-        const BMPColorMap::pixel_type& BMPColorMap::operator[] (const std::uint32_t index) noexcept
+        BMPColorMap::pixel_type& BMPColorMap::operator[] (const std::uint32_t index) noexcept
         {
             if (index >= this->colors_count) {
                 if (!_bad_index_warn_already_set) {
