@@ -66,9 +66,11 @@ namespace bmpl
             if (width == 0 || height == 0)
                 return _set_err(bmpl::utils::ErrorCode::INVALID_IMAGE_DIMENSIONS);
 
-            if (height < 0)
+            if (height < 0) {
                 // top-down encoding
                 height = -height;
+                top_down_encoding = true;
+            }
 
             if (planes_count != 1)
                 _set_warning(bmpl::utils::WarningCode::BAD_PLANES_VALUE);

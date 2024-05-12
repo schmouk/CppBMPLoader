@@ -89,6 +89,8 @@ namespace bmpl
             std::uint32_t gamma_green{ 0 };    // Gamma green coordinate scale value
             std::uint32_t gamma_blue{ 0 };     // Gamma blue coordinate scale value
 
+            bool top_down_encoding{ false };
+
 
             BMPInfoHeader() noexcept = default;
             BMPInfoHeader(const BMPInfoHeader&) noexcept = default;
