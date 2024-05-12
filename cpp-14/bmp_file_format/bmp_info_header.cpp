@@ -44,6 +44,10 @@ namespace bmpl
             if (!(in_stream >> header_size))
                 return _set_err(in_stream.get_error());
 
+            if (header_size != 0x28 && header_size != 0x6c) {
+                return _set_err(bmpl::utils::ErrorCode::NOT_YET_IMPLEMENTED_BMP_FORMAT);
+            }
+
             if (!(in_stream >> width
                             >> height
                             >> planes_count
@@ -112,10 +116,6 @@ namespace bmpl
 
                 if ((red_mask & green_mask & blue_mask & alpha_mask) != 0)
                     return _set_err(bmpl::utils::ErrorCode::OVERLAPPING_BITFIELD_MASKS);
-            }
-            else
-            if (header_size != 0x28) {
-                return _set_err(bmpl::utils::ErrorCode::NOT_WINDOWS_BMP);
             }
 
             if (bits_per_pixel != 24) {

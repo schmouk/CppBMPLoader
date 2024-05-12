@@ -65,6 +65,7 @@ namespace bmpl
             NOT_BMP_ENCODING,
             NOT_INITIALIZED,
             NOT_WINDOWS_BMP,
+            NOT_YET_IMPLEMENTED_BMP_FORMAT,
             OUT_OF_COLORMAP_INDEX,
             OVERLAPPING_BITFIELD_MASKS,
             RLE_INPUT_OPERATION_FAILED,

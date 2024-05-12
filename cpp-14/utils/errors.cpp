@@ -84,6 +84,8 @@ namespace bmpl
                 return "file is currently not initialized.";
             case ErrorCode::NOT_WINDOWS_BMP:
                 return "file is not a Windows BMP file.";
+            case ErrorCode::NOT_YET_IMPLEMENTED_BMP_FORMAT:
+                return "this BMP file is not of a currently implemented format by library 'Cpp BMP Loader'.";
             case ErrorCode::OUT_OF_COLORMAP_INDEX:
                 return "encountered a color index not contained in color map.";
             case ErrorCode::OVERLAPPING_BITFIELD_MASKS:

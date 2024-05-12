@@ -189,6 +189,16 @@ namespace bmpl
                 return;
             }
 
+            if (_file_header.failed()) {
+                _set_err(_file_header.get_error());
+                return;
+            }
+
+            if (_info.failed()) {
+                _set_err(_info.get_error());
+                return;
+            }
+
             // let's set the file cursor position to the starting point of the image coding
             if (_in_stream.seekg(_file_header.content_offset).fail()) {
                 _set_err(bmpl::utils::ErrorCode::IRRECOVERABLE_STREAM_ERROR);
