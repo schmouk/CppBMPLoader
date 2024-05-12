@@ -199,9 +199,15 @@ namespace bmpl
 
 
     private:
-        inline void _allocate_image_space() noexcept
+        inline const bool _allocate_image_space() noexcept
         {
-            this->image_content.assign(std::size_t(width()) * std::size_t(height()), pixel_type());
+            try {
+                this->image_content.assign(std::size_t(width()) * std::size_t(height()), pixel_type());
+                return true;
+            }
+            catch (...) {
+                return _set_err(bmpl::utils::ErrorCode::INCOHERENT_IMAGE_DIMENSIONS);
+            }
         }
 
 
@@ -229,7 +235,8 @@ namespace bmpl
             }
 
             // reserves final image content space
-            _allocate_image_space();
+            if (!_allocate_image_space())
+                return;
 
             // finally, loads the BMP image content and decodes it
             switch (_info.info_header.bits_per_pixel)

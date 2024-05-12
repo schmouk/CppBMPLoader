@@ -65,7 +65,7 @@ namespace bmpl
             case ErrorCode::INCOHERENT_DELTA_MODE_VALUES:
                 return "incoherent delta mode values - creates buffers overflow.";
             case ErrorCode::INCOHERENT_IMAGE_DIMENSIONS:
-                return "some image dimension as indicated in header is incoherent with image size.";
+                return "some image dimension as indicated in header is incoherent - maybe too big.";
             case ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING:
                 return "incoherent Run Length Encoding control value.";
             case ErrorCode::INPUT_OPERATION_FAILED:
