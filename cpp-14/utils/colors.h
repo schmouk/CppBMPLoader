@@ -50,12 +50,6 @@ namespace bmpl
                 std::uint8_t r;
                 std::uint8_t a;
             };
-            std::uint8_t comps[4];
-
-            static constexpr int R{ 2 };
-            static constexpr int G{ 1 };
-            static constexpr int B{ 0 };
-            static constexpr int A{ 3 };
         };
 
         inline bmpl::utils::LEInStream& operator>> (bmpl::utils::LEInStream& in_stream, BGRA& bgra) noexcept
@@ -73,12 +67,6 @@ namespace bmpl
                 std::uint8_t b;
                 std::uint8_t a;
             };
-            std::uint8_t comps[4];
-
-            static constexpr int R{ 0 };
-            static constexpr int G{ 1 };
-            static constexpr int B{ 2 };
-            static constexpr int A{ 3 };
         };
 
         inline bmpl::utils::LEInStream& operator>> (bmpl::utils::LEInStream& in_stream, RGBA& rgba) noexcept
@@ -95,11 +83,6 @@ namespace bmpl
                 std::uint8_t g;
                 std::uint8_t b;
             };
-            std::uint8_t comps[3]{ 0, 0, 0 };
-
-            static constexpr int R{ 0 };
-            static constexpr int G{ 1 };
-            static constexpr int B{ 2 };
         };
 
 
@@ -111,11 +94,18 @@ namespace bmpl
                 std::uint8_t g;
                 std::uint8_t r;
             };
-            std::uint8_t comps[3]{ 0, 0, 0 };
+        };
 
-            static constexpr int R{ 2 };
-            static constexpr int G{ 1 };
-            static constexpr int B{ 0 };
+
+        //===========================================================================
+        using BGRA_HDR = union uBGR64 {
+            std::uint64_t value{ 0 };
+            struct {
+                std::uint16_t b;
+                std::uint16_t g;
+                std::uint16_t r;
+                std::uint16_t a;
+            };
         };
 
 
@@ -149,6 +139,14 @@ namespace bmpl
             bgra.a = 0;
         }
 
+        inline void convert(BGRA& bgra, const BGRA_HDR& bgra64) noexcept
+        {
+            bgra.r = bgra64.r >> 5;
+            bgra.g = bgra64.g >> 5;
+            bgra.b = bgra64.b >> 5;
+            bgra.a = bgra64.a >> 5;
+        }
+
         inline void convert(RGBA& rgba, const BGRA& bgra) noexcept
         {
             rgba.r = bgra.r;
@@ -178,6 +176,14 @@ namespace bmpl
             rgba.a = 0;
         }
 
+        inline void convert(RGBA& rgba, const BGRA_HDR& bgra64) noexcept
+        {
+            rgba.r = bgra64.r >> 5;
+            rgba.g = bgra64.g >> 5;
+            rgba.b = bgra64.b >> 5;
+            rgba.a = bgra64.a >> 5;
+        }
+
         inline void convert(RGB& rgb, const BGRA& bgra) noexcept
         {
             rgb.r = bgra.r;
@@ -204,6 +210,13 @@ namespace bmpl
             rgb = other;
         }
 
+        inline void convert(RGB& rgb, const BGRA_HDR& bgra64) noexcept
+        {
+            rgb.r = bgra64.r >> 5;
+            rgb.g = bgra64.g >> 5;
+            rgb.b = bgra64.b >> 5;
+        }
+
         inline void convert(BGR& brg, const BGRA& bgra) noexcept
         {
             brg.r = bgra.r;
@@ -228,6 +241,13 @@ namespace bmpl
         inline void convert(BGR& brg, const BGR& other) noexcept
         {
             brg = other;
+        }
+
+        inline void convert(BGR& brg, const BGRA_HDR& bgra64) noexcept
+        {
+            brg.r = bgra64.r >> 5;
+            brg.g = bgra64.g >> 5;
+            brg.b = bgra64.b >> 5;
         }
 
 

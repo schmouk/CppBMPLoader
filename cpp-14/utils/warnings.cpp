@@ -47,6 +47,8 @@ namespace bmpl
                 return "header indicates a bad bitmap size.";
             case WarningCode::BAD_FILE_SIZE_IN_HEADER:
                 return "the file size indicated in header is not the actual size of this file.";
+            case WarningCode::BAD_IMPORTANT_COLORS_COUNT:
+                return "the 'important colors' count appears to be greater than the defined colors count.";
             case WarningCode::BAD_PALETTE_INDICES:
                 return "one or many palett indices used for pixels are not present in color palett - index 0 used instead.";
             case WarningCode::BAD_PALETTE_SIZE_IN_HEADER:

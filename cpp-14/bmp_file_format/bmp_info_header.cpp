@@ -91,7 +91,7 @@ namespace bmpl
             else {
                 // checks pixels depth in bits count
                 if (bits_per_pixel != 1 && bits_per_pixel != 4 && bits_per_pixel != 8 && 
-                    bits_per_pixel != 16 && bits_per_pixel != 24 && bits_per_pixel != 32)
+                    bits_per_pixel != 16 && bits_per_pixel != 24 && bits_per_pixel != 32 && bits_per_pixel != 64)
                     return _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
             }
 
@@ -116,12 +116,17 @@ namespace bmpl
                                 >> gamma_blue))
                     return _set_err(in_stream.get_error());
 
-                if ((red_mask & green_mask & blue_mask & alpha_mask) != 0)
+                if ((red_mask & green_mask) ||
+                    (red_mask & blue_mask) ||
+                    (red_mask & alpha_mask) ||
+                    (green_mask & blue_mask) ||
+                    (green_mask & alpha_mask) ||
+                    (blue_mask & alpha_mask))
                     return _set_err(bmpl::utils::ErrorCode::OVERLAPPING_BITFIELD_MASKS);
             }
 
             if (bits_per_pixel != 24) {
-                if (bits_per_pixel != 16 && bits_per_pixel != 32) {
+                if (bits_per_pixel != 16 && bits_per_pixel != 32 && bits_per_pixel != 64) {
                     if (used_colors_count == 0)
                         used_colors_count = 1 << bits_per_pixel;
                     else if (used_colors_count > std::uint32_t(1 << bits_per_pixel))
@@ -129,7 +134,7 @@ namespace bmpl
                 }
 
                 if (important_colors_count > used_colors_count)
-                    return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
+                    _set_warning(bmpl::utils::WarningCode::BAD_IMPORTANT_COLORS_COUNT);
 
                 if (compression_mode == BMPInfoHeader::NO_RLE) {
                     if (bits_per_pixel == 16) {

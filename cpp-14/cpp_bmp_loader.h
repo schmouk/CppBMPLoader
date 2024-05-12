@@ -258,6 +258,10 @@ namespace bmpl
                 _load_32b();
                 break;
 
+            case 64:
+                _load_64b();
+                break;
+
             default:
                 _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
                 break;
@@ -782,7 +786,6 @@ namespace bmpl
 
         void _load_32b() noexcept
         {
-
             const std::size_t width{ std::size_t(this->width()) };
             const std::size_t height{ std::size_t(this->height()) };
             const std::size_t mask_size{ width * height };
@@ -823,6 +826,49 @@ namespace bmpl
                     alpha_mask_ptr->get_component_value(mask_pxl_value)
                 );
             }
+
+            // once here, everything was fine!
+            _clr_err();
+        }
+
+
+        void _load_64b()
+        {
+            const std::size_t bmp_size{ std::size_t(this->width()) * std::size_t(this->height()) };
+
+            std::vector<bmpl::clr::BGRA_HDR> bitmap;
+            bitmap.assign(bmp_size, bmpl::clr::BGRA_HDR());
+
+            if (bmpl::utils::PLATFORM_IS_LITTLE_ENDIAN) {
+                if (this->_in_stream.read(reinterpret_cast<char*>(bitmap.data()), bmp_size * sizeof bmpl::clr::BGRA_HDR).fail()) {
+                    _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
+                    return;
+                }
+            }
+            else {
+                for (auto bmp_it = bitmap.begin(); bmp_it != bitmap.end(); ++bmp_it) {
+                    if ((this->_in_stream >> bmp_it->b).failed()) {
+                        _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
+                        return;
+                    }
+                    if ((this->_in_stream >> bmp_it->g).failed()) {
+                        _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
+                        return;
+                    }
+                    if ((this->_in_stream >> bmp_it->r).failed()) {
+                        _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
+                        return;
+                    }
+                    if ((this->_in_stream >> bmp_it->a).failed()) {
+                        _set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
+                        return;
+                    }
+                }
+            }
+
+            auto img_it = this->image_content.begin();
+            for (const auto& bitmap_pxl : bitmap)
+                bmpl::clr::convert(*img_it++, bitmap_pxl);
 
             // once here, everything was fine!
             _clr_err();

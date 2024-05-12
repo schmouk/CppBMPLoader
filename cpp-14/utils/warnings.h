@@ -49,6 +49,7 @@ namespace bmpl
             ALPHA_16_BITS_IMAGE,
             BAD_BITMAP_SIZE_IN_HEADER,
             BAD_FILE_SIZE_IN_HEADER,
+            BAD_IMPORTANT_COLORS_COUNT,
             BAD_PALETTE_INDICES,
             BAD_PALETTE_SIZE_IN_HEADER,
             BAD_PLANES_VALUE,
