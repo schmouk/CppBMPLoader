@@ -156,7 +156,8 @@ namespace bmpl
                 else if ((bits_per_pixel == 16 || bits_per_pixel == 32) && compression_mode != BMPInfoHeader::RLE_COLOR_BITMASKS)
                     return _set_err(bmpl::utils::ErrorCode::INCOHERENT_COMPRESSION_MODE);
             }
-            else {
+
+            if (bits_per_pixel != 4 && bits_per_pixel != 8) {
                 if (used_colors_count != 0)
                    _set_warning(bmpl::utils::WarningCode::UNUSED_PALETTE);
             }
