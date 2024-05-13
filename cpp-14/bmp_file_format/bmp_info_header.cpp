@@ -114,9 +114,9 @@ namespace bmpl
                                 >> blue_endX
                                 >> blue_endY
                                 >> blue_endZ
-                                >> gamma_red
-                                >> gamma_green
-                                >> gamma_blue))
+                                >> gamma_red.value
+                                >> gamma_green.value
+                                >> gamma_blue.value))
                     return _set_err(in_stream.get_error());
 
                 if ((red_mask & green_mask) ||

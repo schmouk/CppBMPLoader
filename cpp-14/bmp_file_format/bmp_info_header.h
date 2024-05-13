@@ -37,6 +37,7 @@ SOFTWARE.
 #include "../utils/colors.h"
 #include "../utils/errors.h"
 #include "../utils/little_endian_streaming.h"
+#include "../utils/types.h"
 #include "../utils/warnings.h"
 
 
@@ -58,36 +59,36 @@ namespace bmpl
             static constexpr int RLE_COLOR_BITMASKS{ 3 };
 
 
-            std::uint32_t header_size{ 0 };                    // biSize
+            std::uint32_t header_size{ 0 };             // biSize
             std::int32_t width{ 0 };                    // biWidth
             std::int32_t height{ 0 };                   // biHeight
             std::uint16_t planes_count{ 0 };            // biPlanes
             std::uint16_t bits_per_pixel{ 0 };          // biBitCount
             std::uint32_t compression_mode{ 0 };        // biCompression
-            std::uint32_t bitmap_size{ 0 };              // biSizeImage
+            std::uint32_t bitmap_size{ 0 };             // biSizeImage
             std::int32_t device_x_resolution{ 0 };      // biXpelsPerMeter
             std::int32_t device_y_resolution{ 0 };      // biYpelsPerMeter
             std::uint32_t used_colors_count{ 0 };       // biClrUsed
             std::uint32_t important_colors_count{ 0 };  // biClrImportant
 
             // this is for BMP Version 4 format (Windows 95 and above)
-            std::uint32_t red_mask{ 0 };       // Mask identifying bits of red component 
-            std::uint32_t green_mask{ 0 };     // Mask identifying bits of green component 
-            std::uint32_t blue_mask{ 0 };      // Mask identifying bits of blue component 
-            std::uint32_t alpha_mask{ 0 };     // Mask identifying bits of alpha component 
-            std::uint32_t cs_type{ 0 };        // Color space type 
-            std::int32_t red_endX{ 0 };        // X coordinate of red endpoint
-            std::int32_t red_endY{ 0 };        // Y coordinate of red endpoint
-            std::int32_t red_endZ{ 0 };        // Z coordinate of red endpoint
-            std::int32_t green_endX{ 0 };      // X coordinate of green endpoint
-            std::int32_t green_endY{ 0 };      // Y coordinate of green endpoint
-            std::int32_t green_endZ{ 0 };      // Z coordinate of green endpoint
-            std::int32_t blue_endX{ 0 };       // X coordinate of blue endpoint
-            std::int32_t blue_endY{ 0 };       // Y coordinate of blue endpoint
-            std::int32_t blue_endZ{ 0 };       // Z coordinate of blue endpoint
-            std::uint32_t gamma_red{ 0 };      // Gamma red coordinate scale value
-            std::uint32_t gamma_green{ 0 };    // Gamma green coordinate scale value
-            std::uint32_t gamma_blue{ 0 };     // Gamma blue coordinate scale value
+            std::uint32_t red_mask{ 0xffff'ffff };      // Mask identifying bits of red component 
+            std::uint32_t green_mask{ 0xffff'ffff };    // Mask identifying bits of green component 
+            std::uint32_t blue_mask{ 0xffff'ffff };     // Mask identifying bits of blue component 
+            std::uint32_t alpha_mask{ 0xffff'ffff };    // Mask identifying bits of alpha component 
+            std::uint32_t cs_type{ 0xffff'ffff };       // Color space type 
+            std::int32_t red_endX{ -1 };                // X coordinate of red endpoint
+            std::int32_t red_endY{ -1 };                // Y coordinate of red endpoint
+            std::int32_t red_endZ{ -1 };                // Z coordinate of red endpoint
+            std::int32_t green_endX{ -1 };              // X coordinate of green endpoint
+            std::int32_t green_endY{ -1 };              // Y coordinate of green endpoint
+            std::int32_t green_endZ{ -1 };              // Z coordinate of green endpoint
+            std::int32_t blue_endX{ -1 };               // X coordinate of blue endpoint
+            std::int32_t blue_endY{ -1 };               // Y coordinate of blue endpoint
+            std::int32_t blue_endZ{ -1 };               // Z coordinate of blue endpoint
+            bmpl::utils::Frac16_16 gamma_red;           // Gamma red coordinate scale value
+            bmpl::utils::Frac16_16 gamma_green;         // Gamma green coordinate scale value
+            bmpl::utils::Frac16_16 gamma_blue;          // Gamma blue coordinate scale value
 
             bool top_down_encoding{ false };
 
