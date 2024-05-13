@@ -324,7 +324,7 @@ namespace bmpl
                 }
                 else {
                     // let's load the image content line per line
-                    const std::size_t padding_size{ 4 - index_width % 4 };
+                    const std::size_t padding_size{ (width % 4 > 0) ? (4 - width % 4) : 0 };
 
                     char* current_line_ptr{ reinterpret_cast<char*>(indexed_content.data()) };
                     for (int line = 0; line < index_height; ++line) {
@@ -333,7 +333,7 @@ namespace bmpl
                             return;
                         }
 
-                        if (this->_in_stream.seekg(padding_size, std::ios_base::cur).fail()) {
+                        if (padding_size > 0 && this->_in_stream.seekg(padding_size, std::ios_base::cur).fail()) {
                             _set_err(bmpl::utils::ErrorCode::END_OF_FILE);
                             return;
                         }
@@ -387,7 +387,7 @@ namespace bmpl
                 }
                 else {
                     // let's load the bitmap content line per line
-                    const std::size_t padding_size{ 4 - index_width % 4 };
+                    const std::size_t padding_size{ (width % 4 > 0) ? (4 - width % 4) : 0 };
 
                     char* current_line_ptr{ reinterpret_cast<char*>(indexed_content.data()) };
                     for (int line = 0; line < index_height; ++line) {
@@ -396,7 +396,7 @@ namespace bmpl
                             return;
                         }
 
-                        if (this->_in_stream.seekg(padding_size, std::ios_base::cur).fail()) {
+                        if (padding_size > 0 && this->_in_stream.seekg(padding_size, std::ios_base::cur).fail()) {
                             _set_err(bmpl::utils::ErrorCode::END_OF_FILE);
                             return;
                         }
@@ -582,7 +582,7 @@ namespace bmpl
                 }
                 else {
                     // let's load the image content line per line
-                    const std::size_t padding_size{ 4 - width % 4 };
+                    const std::size_t padding_size{ (width % 4 > 0) ? (4 - width % 4) : 0 };
 
                     char* current_line_ptr{ reinterpret_cast<char*>(indexed_content.data()) };
                     for (int line = 0; line < height; ++line) {
@@ -591,7 +591,7 @@ namespace bmpl
                             return;
                         }
 
-                        if (this->_in_stream.seekg(padding_size, std::ios_base::cur).fail()) {
+                        if (padding_size > 0 && this->_in_stream.seekg(padding_size, std::ios_base::cur).fail()) {
                             _set_err(bmpl::utils::ErrorCode::END_OF_FILE);
                             return;
                         }
@@ -787,7 +787,7 @@ namespace bmpl
 
             // let's load the image content line after line
             const std::size_t line_width{ width * 3 };
-            const std::size_t padding_size{ 4 - line_width % 4 };
+            const std::size_t padding_size{ (width % 4 > 0) ? (4 - width % 4) : 0 };
 
             std::vector<bmpl::clr::BGR> bitmap_line;
             bitmap_line.assign(width, bmpl::clr::BGR());
