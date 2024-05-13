@@ -74,6 +74,47 @@ namespace bmpl
 
             Frac16_16& operator= (const double val) noexcept;
 
+            inline const bool operator== (const std::uint32_t val) const noexcept
+            {
+                return this->value == val;
+            }
+
+            inline const bool operator== (const float val) const noexcept
+            {
+                return float(*this) == val;
+            }
+
+            inline const bool operator== (const double val) const noexcept
+            {
+                return double(*this) == val;
+            }
+
+            inline const bool operator!= (const std::uint32_t val) const noexcept
+            {
+                return this->value != val;
+            }
+
+            inline const bool operator!= (const float val) const noexcept
+            {
+                return float(*this) != val;
+            }
+
+            inline const bool operator!= (const double val) const noexcept
+            {
+                return double(*this) != val;
+            }
         };
+
+
+        //===========================================================================
+        enum class ELogicalColorSpace : std::uint32_t
+        {
+            CALIBRATED_RGB = 0x00000000,
+            S_RGB = 0x73524742,  // i.e. 'sRGB'
+            WINDOWS_COLOR_SPACE = 0x57696E20  // i.e. 'Win '
+        };
+
+        static constexpr ELogicalColorSpace DEFAULT_CS_TYPE{ ELogicalColorSpace::CALIBRATED_RGB };
+
     }
 }

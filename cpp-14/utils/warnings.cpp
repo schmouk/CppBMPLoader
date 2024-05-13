@@ -71,6 +71,8 @@ namespace bmpl
                 return "a color palett is defined while this is a full-color bitmap.";
             case WarningCode::SOME_GAP_BTW_PALETT_AND_BITMAP:
                 return "unused bytes appear between colors palett and start of bitmap.";
+            case WarningCode::SRGB_NOT_IMPLEMENTED:
+                return "the sRGB color space type embedded in this BMP file is not yet implemented here - a naive decoding is done instead.";
             case WarningCode::TOO_BIG_PALETTE:
                 return "too many colors are defined in palette, extra ones will not be used.";
             case WarningCode::TOO_MANY_COLORS_IN_PALETT:

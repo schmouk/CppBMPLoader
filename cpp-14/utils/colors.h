@@ -35,6 +35,7 @@ SOFTWARE.
 #include <cstdint>
 
 #include "../utils/little_endian_streaming.h"
+#include "../utils/types.h"
 
 
 namespace bmpl
@@ -248,6 +249,26 @@ namespace bmpl
             brg.r = bgra64.r >> 5;
             brg.g = bgra64.g >> 5;
             brg.b = bgra64.b >> 5;
+        }
+
+
+        //===========================================================================
+        template<typename PixelT>
+        inline void gamma_correction(PixelT& pixel, const double gamma_r, const double gamma_g, const double gamma_b)
+        {
+            constexpr double coeff{ 255.0 };
+            pixel.r = std::uint8_t(coeff * std::pow(pixel.r / coeff, gamma_r));
+            pixel.g = std::uint8_t(coeff * std::pow(pixel.g / coeff, gamma_g));
+            pixel.b = std::uint8_t(coeff * std::pow(pixel.b / coeff, gamma_b));
+        }
+
+        template<>
+        inline void gamma_correction(BGRA_HDR& pixel, const double gamma_r, const double gamma_g, const double gamma_b)
+        {
+            constexpr double coeff{ double(1 << 13) };
+            pixel.r = std::uint8_t(coeff * std::pow(pixel.r / coeff, gamma_r));
+            pixel.g = std::uint8_t(coeff * std::pow(pixel.g / coeff, gamma_g));
+            pixel.b = std::uint8_t(coeff * std::pow(pixel.b / coeff, gamma_b));
         }
 
 

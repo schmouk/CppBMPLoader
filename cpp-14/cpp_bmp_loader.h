@@ -284,6 +284,16 @@ namespace bmpl
                 return;
             }
             
+            // is there gamma correction to apply?
+            if (this->_info.info_header.bmp_v4 && this->_info.info_header.cs_type == bmpl::utils::ELogicalColorSpace::CALIBRATED_RGB) {
+                // yes!
+                const double gamma_r{ double(this->_info.info_header.gamma_red) };
+                const double gamma_g{ double(this->_info.info_header.gamma_green) };
+                const double gamma_b{ double(this->_info.info_header.gamma_blue) };
+                for (auto& pxl : this->image_content)
+                    bmpl::clr::gamma_correction(pxl, gamma_r, gamma_g, gamma_b);
+            }
+
             // once here, everything was fine
             _clr_err();
 

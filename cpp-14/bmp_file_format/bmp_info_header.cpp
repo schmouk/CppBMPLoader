@@ -100,11 +100,12 @@ namespace bmpl
 
             if (header_size == 0x6c) {
                 // BMP 4 format - Windows 95 and above
+                this->bmp_v4 = true;
                 if (!(in_stream >> red_mask
                                 >> green_mask
                                 >> blue_mask
                                 >> alpha_mask
-                                >> cs_type
+                                >> (std::uint32_t &)cs_type
                                 >> red_endX
                                 >> red_endY
                                 >> red_endZ
