@@ -38,7 +38,7 @@ SOFTWARE.
 
 namespace bmpl
 {
-    namespace utils
+    namespace bmpf
     {
         //===========================================================================
         class BitfieldMaskBase

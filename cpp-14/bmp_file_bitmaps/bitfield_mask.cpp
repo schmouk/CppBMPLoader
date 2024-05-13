@@ -34,10 +34,8 @@ SOFTWARE.
 
 namespace bmpl
 {
-    namespace utils
+    namespace bmpf
     {
-
-
         const std::uint32_t BitfieldMaskBase::get_component_value(const std::uint32_t pixel_value) const noexcept
         {
             std::uint32_t color_component{ this->_evaluate_component(pixel_value) };
@@ -114,6 +112,7 @@ namespace bmpl
             {
                 if (*ndx_it != *ndx1_it + 1) {
                     // the set bits are not contiguous
+                    // let's prune the checking right now
                     return new BitfieldMask(bits_indexes, bits_count);
                 }
             }
