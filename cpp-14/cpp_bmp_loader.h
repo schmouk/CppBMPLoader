@@ -285,7 +285,7 @@ namespace bmpl
             }
             
             // is there gamma correction to apply?
-            if (this->_info.info_header.bmp_v4 && this->_info.info_header.cs_type == bmpl::utils::ELogicalColorSpace::CALIBRATED_RGB) {
+            if (this->_info.info_header.bmp_v4 && this->_info.info_header.cs_type == bmpl::clr::ELogicalColorSpace::CALIBRATED_RGB) {
                 // yes!
                 const double gamma_r{ double(this->_info.info_header.gamma_red) };
                 const double gamma_g{ double(this->_info.info_header.gamma_green) };

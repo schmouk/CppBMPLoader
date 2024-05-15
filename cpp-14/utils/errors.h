@@ -46,8 +46,9 @@ namespace bmpl
         {
             NO_ERROR = 0,
             BAD_BITS_PER_PIXEL_VALUE,
-            BAD_DEFAULT_VALUE,
+            BAD_COLOR_SPACE_TYPE,
             BAD_COLORMAP_ENCODING,
+            BAD_DEFAULT_VALUE,
             BMP_BAD_ENCODING,
             BUFFER_OVERFLOW,
             CORRUPTED_BMP_FILE,
@@ -63,10 +64,10 @@ namespace bmpl
             IRRECOVERABLE_STREAM_ERROR,
             NEGATIVE_WIDTH,
             NOT_BMP_ENCODING,
+            NOT_IMPLEMENTED_BMP_V1,
             NOT_INITIALIZED,
             NOT_WINDOWS_BMP,
             NOT_YET_IMPLEMENTED_BMP_FORMAT,
-            OUT_OF_COLORMAP_INDEX,
             OVERLAPPING_BITFIELD_MASKS,
             RLE_INPUT_OPERATION_FAILED,
         };

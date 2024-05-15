@@ -46,6 +46,8 @@ namespace bmpl
                 return "no error.";
             case ErrorCode::BAD_BITS_PER_PIXEL_VALUE:
                 return "bad bits count per pixel value.";
+            case ErrorCode::BAD_COLOR_SPACE_TYPE:
+                return "bad color space type specification.";
             case ErrorCode::BAD_DEFAULT_VALUE:
                 return "bad default value.";
             case ErrorCode::BAD_COLORMAP_ENCODING:
@@ -69,7 +71,7 @@ namespace bmpl
             case ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING:
                 return "incoherent Run Length Encoding control value.";
             case ErrorCode::INPUT_OPERATION_FAILED:
-                return "some imput operation failed.";
+                return "some imput operation failed on file.";
             case ErrorCode::INVALID_DEVICE_RESOLUTION:
                 return "some device resolution is invalid (maybe negative, for instance).";
             case ErrorCode::INVALID_IMAGE_DIMENSIONS:
@@ -80,14 +82,14 @@ namespace bmpl
                 return "info header specifies a negative width for final image, which is forbidden.";
             case ErrorCode::NOT_BMP_ENCODING:
                 return "file is not a BMP file.";
+            case ErrorCode::NOT_IMPLEMENTED_BMP_V1:
+                return "this file is of BMP format version 1 which is not and which will not be implemented in library 'Cpp BMP Loader'.";
             case ErrorCode::NOT_INITIALIZED:
                 return "file is currently not initialized.";
             case ErrorCode::NOT_WINDOWS_BMP:
                 return "file is not a Windows BMP file.";
             case ErrorCode::NOT_YET_IMPLEMENTED_BMP_FORMAT:
                 return "this BMP file is not of a currently implemented format by library 'Cpp BMP Loader'.";
-            case ErrorCode::OUT_OF_COLORMAP_INDEX:
-                return "encountered a color index not contained in color map.";
             case ErrorCode::OVERLAPPING_BITFIELD_MASKS:
                 return "some bitfield masks are overlapping.";
             case ErrorCode::RLE_INPUT_OPERATION_FAILED:

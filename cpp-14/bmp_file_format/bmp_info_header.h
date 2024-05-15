@@ -46,65 +46,26 @@ namespace bmpl
     namespace frmt
     {
         //===========================================================================
-        class BMPInfoHeader : public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
+        struct BMPInfoHeaderBase : public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
         {
-        public:
             using MyErrBaseClass = bmpl::utils::ErrorStatus;
             using MyWarnBaseClass = bmpl::utils::WarningStatus;
 
-
-            static constexpr int NO_RLE{ 0 };
-            static constexpr int RLE_8{ 1 };
-            static constexpr int RLE_4{ 2 };
-            static constexpr int RLE_COLOR_BITMASKS{ 3 };
-
-
-            std::uint32_t header_size{ 0 };             // biSize
-            std::int32_t width{ 0 };                    // biWidth
-            std::int32_t height{ 0 };                   // biHeight
-            std::uint16_t planes_count{ 0 };            // biPlanes
-            std::uint16_t bits_per_pixel{ 0 };          // biBitCount
-            std::uint32_t compression_mode{ 0 };        // biCompression
-            std::uint32_t bitmap_size{ 0 };             // biSizeImage
-            std::int32_t device_x_resolution{ 0 };      // biXpelsPerMeter
-            std::int32_t device_y_resolution{ 0 };      // biYpelsPerMeter
-            std::uint32_t used_colors_count{ 0 };       // biClrUsed
-            std::uint32_t important_colors_count{ 0 };  // biClrImportant
-
-            // this is for BMP Version 4 format (Windows 95 and above)
-            std::uint32_t red_mask{ 0xffff'ffff };                                      // Mask identifying bits of red component 
-            std::uint32_t green_mask{ 0xffff'ffff };                                    // Mask identifying bits of green component 
-            std::uint32_t blue_mask{ 0xffff'ffff };                                     // Mask identifying bits of blue component 
-            std::uint32_t alpha_mask{ 0xffff'ffff };                                    // Mask identifying bits of alpha component 
-            bmpl::utils::ELogicalColorSpace cs_type{ bmpl::utils::DEFAULT_CS_TYPE };    // Color space type 
-            std::int32_t red_endX{ -1 };                                                // X coordinate of red endpoint
-            std::int32_t red_endY{ -1 };                                                // Y coordinate of red endpoint
-            std::int32_t red_endZ{ -1 };                                                // Z coordinate of red endpoint
-            std::int32_t green_endX{ -1 };                                              // X coordinate of green endpoint
-            std::int32_t green_endY{ -1 };                                              // Y coordinate of green endpoint
-            std::int32_t green_endZ{ -1 };                                              // Z coordinate of green endpoint
-            std::int32_t blue_endX{ -1 };                                               // X coordinate of blue endpoint
-            std::int32_t blue_endY{ -1 };                                               // Y coordinate of blue endpoint
-            std::int32_t blue_endZ{ -1 };                                               // Z coordinate of blue endpoint
-            bmpl::utils::Frac16_16 gamma_red;                                           // Gamma red coordinate scale value
-            bmpl::utils::Frac16_16 gamma_green;                                         // Gamma green coordinate scale value
-            bmpl::utils::Frac16_16 gamma_blue;                                          // Gamma blue coordinate scale value
-
+            std::uint32_t header_size{ 0 };
             bool top_down_encoding{ false };
-            bool bmp_v4{ false };
 
 
-            BMPInfoHeader() noexcept = default;
-            BMPInfoHeader(const BMPInfoHeader&) noexcept = default;
-            BMPInfoHeader(BMPInfoHeader&&) noexcept = default;
-            virtual ~BMPInfoHeader() noexcept = default;
+            BMPInfoHeaderBase() noexcept = default;
+            BMPInfoHeaderBase(const BMPInfoHeaderBase&) noexcept = default;
+            BMPInfoHeaderBase(BMPInfoHeaderBase&&) noexcept = default;
+            virtual ~BMPInfoHeaderBase() noexcept = default;
 
 
-            inline BMPInfoHeader& operator= (const BMPInfoHeader&) noexcept = default;
-            inline BMPInfoHeader& operator= (BMPInfoHeader&&) noexcept = default;
+            inline BMPInfoHeaderBase& operator= (const BMPInfoHeaderBase&) noexcept = default;
+            inline BMPInfoHeaderBase& operator= (BMPInfoHeaderBase&&) noexcept = default;
 
 
-            inline BMPInfoHeader(bmpl::utils::LEInStream& in_stream) noexcept
+            inline BMPInfoHeaderBase(bmpl::utils::LEInStream& in_stream) noexcept
                 : MyErrBaseClass()
                 , MyWarnBaseClass()
             {
@@ -112,8 +73,413 @@ namespace bmpl
             }
 
 
-            const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+            virtual inline const bool load(bmpl::utils::LEInStream& in_stream) noexcept
+            {
+                return this->_clr_err();
+            }
+
+
+            virtual inline const bool is_calibrated_rgb_color_space() const noexcept
+            {
+                return false;
+            }
+
+            virtual inline const bool is_sRGB_color_space() const noexcept
+            {
+                return false;
+            }
+
+            virtual inline const bool is_windows_color_space() const noexcept
+            {
+                return false;
+            }
+
+            virtual inline const bool get_gamma_values(double& gamma_red, double& gamma_green, double& gamma_blue) const noexcept
+            {
+                return false;
+            }
+
+            virtual inline const bool get_XYZ_end_points(
+                std::int32_t& red_endX, std::int32_t& red_endY, std::int32_t& red_endZ,
+                std::int32_t& green_endX, std::int32_t& green_endY, std::int32_t& green_endZ,
+                std::int32_t& blue_endX, std::int32_t& blue_endY, std::int32_t& blue_endZ
+            ) const noexcept
+            {
+                return false;
+            }
+
+
+            inline virtual const bool is_v1() const { return false; }
+            inline virtual const bool is_v2() const { return false; }
+            inline virtual const bool is_v3() const { return false; }
+            inline virtual const bool is_v3_NT() const { return false; }
+            inline virtual const bool is_v3_NT_4() const { return false; }
+            inline virtual const bool is_v4() const { return false; }
+            inline virtual const bool is_v5() const { return false; }
+            inline virtual const bool is_vOS21() const { return false; }
+            inline virtual const bool is_vOS22() const { return false; }
 
         };
+
+
+        //===========================================================================
+        struct BMPInfoHeaderV1 : public BMPInfoHeaderBase
+        {
+            inline BMPInfoHeaderV1(bmpl::utils::LEInStream& in_stream) noexcept
+                : BMPInfoHeaderBase(in_stream)
+            {
+                _set_err(bmpl::utils::ErrorCode::NOT_IMPLEMENTED_BMP_V1);
+            }
+
+            inline virtual const bool is_v1() const { return true; }
+
+        };
+
+
+        //===========================================================================
+        struct BMPInfoHeaderV2 : public BMPInfoHeaderBase
+        {
+            std::int16_t width{ 0 };
+            std::int16_t height{ 0 };
+            std::uint16_t planes_count{ 0 };
+            std::uint16_t bits_per_pixel{ 0 };
+
+
+            BMPInfoHeaderV2() noexcept = default;
+            BMPInfoHeaderV2(const BMPInfoHeaderV2&) noexcept = default;
+            BMPInfoHeaderV2(BMPInfoHeaderV2&&) noexcept = default;
+            virtual ~BMPInfoHeaderV2() noexcept = default;
+
+
+            inline BMPInfoHeaderV2& operator= (const BMPInfoHeaderV2&) noexcept = default;
+            inline BMPInfoHeaderV2& operator= (BMPInfoHeaderV2&&) noexcept = default;
+
+
+            inline BMPInfoHeaderV2(bmpl::utils::LEInStream& in_stream) noexcept
+                : BMPInfoHeaderBase(in_stream)
+            {
+                load(in_stream);
+            }
+
+            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+
+            inline virtual const bool is_v2() const { return true; }
+
+        };
+
+
+        //===========================================================================
+        struct BMPInfoHeaderV3 : public BMPInfoHeaderBase
+        {
+            std::int32_t width{ 0 };
+            std::int32_t height{ 0 };
+            std::uint16_t planes_count{ 0 };
+            std::uint16_t bits_per_pixel{ 0 };
+            std::uint32_t compression_mode{ 0 };
+            std::uint32_t bitmap_size{ 0 };
+            std::int32_t device_x_resolution{ 0 };
+            std::int32_t device_y_resolution{ 0 };
+            std::uint32_t used_colors_count{ 0 };
+            std::uint32_t important_colors_count{ 0 };
+
+
+            BMPInfoHeaderV3() noexcept = default;
+            BMPInfoHeaderV3(const BMPInfoHeaderV3&) noexcept = default;
+            BMPInfoHeaderV3(BMPInfoHeaderV3&&) noexcept = default;
+            virtual ~BMPInfoHeaderV3() noexcept = default;
+
+
+            inline BMPInfoHeaderV3& operator= (const BMPInfoHeaderV3&) noexcept = default;
+            inline BMPInfoHeaderV3& operator= (BMPInfoHeaderV3&&) noexcept = default;
+
+
+            inline BMPInfoHeaderV3(bmpl::utils::LEInStream& in_stream, const bool is_V3_base = true) noexcept
+                : BMPInfoHeaderBase(in_stream)
+            {
+                load(in_stream, is_V3_base);
+            }
+
+            virtual const bool load(bmpl::utils::LEInStream& in_stream, const bool is_V3_base) noexcept;
+
+
+            inline virtual const bool is_v3() const { return true; }
+
+
+            static constexpr int COMPR_NO_RLE{ 0 };
+            static constexpr int COMPR_RLE_8{ 1 };
+            static constexpr int COMPR_RLE_4{ 2 };
+
+        };
+
+
+        //===========================================================================
+        struct BMPInfoHeaderV3_NT : public BMPInfoHeaderV3
+        {
+            std::uint32_t red_mask{ 0xffff'ffff };
+            std::uint32_t green_mask{ 0xffff'ffff };
+            std::uint32_t blue_mask{ 0xffff'ffff };
+
+
+            BMPInfoHeaderV3_NT() noexcept = default;
+            BMPInfoHeaderV3_NT(const BMPInfoHeaderV3_NT&) noexcept = default;
+            BMPInfoHeaderV3_NT(BMPInfoHeaderV3_NT&&) noexcept = default;
+            virtual ~BMPInfoHeaderV3_NT() noexcept = default;
+
+
+            inline BMPInfoHeaderV3_NT& operator= (const BMPInfoHeaderV3_NT&) noexcept = default;
+            inline BMPInfoHeaderV3_NT& operator= (BMPInfoHeaderV3_NT&&) noexcept = default;
+
+
+            inline BMPInfoHeaderV3_NT(bmpl::utils::LEInStream& in_stream) noexcept
+                : BMPInfoHeaderV3(in_stream, false)
+            {
+                load(in_stream);
+            }
+
+            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+
+
+            inline virtual const bool is_v3() const { return false; }
+            inline virtual const bool is_v3_NT() const { return true; }
+
+
+            static constexpr int COMPR_RLE_COLOR_BITMASKS{ 3 };
+
+        };
+
+
+        //===========================================================================
+        struct BMPInfoHeaderV3_NT_4 : public BMPInfoHeaderV3_NT
+        {
+            std::uint32_t alpha_mask{ 0x0000'0000 };
+
+
+            BMPInfoHeaderV3_NT_4() noexcept = default;
+            BMPInfoHeaderV3_NT_4(const BMPInfoHeaderV3_NT_4&) noexcept = default;
+            BMPInfoHeaderV3_NT_4(BMPInfoHeaderV3_NT_4&&) noexcept = default;
+            virtual ~BMPInfoHeaderV3_NT_4() noexcept = default;
+
+
+            inline BMPInfoHeaderV3_NT_4& operator= (const BMPInfoHeaderV3_NT_4&) noexcept = default;
+            inline BMPInfoHeaderV3_NT_4& operator= (BMPInfoHeaderV3_NT_4&&) noexcept = default;
+
+
+            inline BMPInfoHeaderV3_NT_4(bmpl::utils::LEInStream& in_stream) noexcept
+                : BMPInfoHeaderV3_NT(in_stream)
+            {
+                load(in_stream);
+            }
+
+            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+
+
+            inline virtual const bool is_v3_NT() const { return false; }
+            inline virtual const bool is_v3_NT_4() const { return true; }
+
+        };
+
+
+        //===========================================================================
+        struct BMPInfoHeaderV4 : public BMPInfoHeaderV3_NT_4
+        {
+            bmpl::clr::ELogicalColorSpace cs_type{ bmpl::clr::DEFAULT_CS_TYPE };
+            std::int32_t red_endX{ -1 };
+            std::int32_t red_endY{ -1 };
+            std::int32_t red_endZ{ -1 };
+            std::int32_t green_endX{ -1 };
+            std::int32_t green_endY{ -1 };
+            std::int32_t green_endZ{ -1 };
+            std::int32_t blue_endX{ -1 };
+            std::int32_t blue_endY{ -1 };
+            std::int32_t blue_endZ{ -1 };
+            bmpl::utils::Frac16_16 gamma_red{ 2.2 };
+            bmpl::utils::Frac16_16 gamma_green{ 2.2 };
+            bmpl::utils::Frac16_16 gamma_blue{ 2.2 };
+
+
+            BMPInfoHeaderV4() noexcept = default;
+            BMPInfoHeaderV4(const BMPInfoHeaderV4&) noexcept = default;
+            BMPInfoHeaderV4(BMPInfoHeaderV4&&) noexcept = default;
+            virtual ~BMPInfoHeaderV4() noexcept = default;
+
+
+            inline BMPInfoHeaderV4& operator= (const BMPInfoHeaderV4&) noexcept = default;
+            inline BMPInfoHeaderV4& operator= (BMPInfoHeaderV4&&) noexcept = default;
+
+
+            inline BMPInfoHeaderV4(bmpl::utils::LEInStream& in_stream) noexcept
+                : BMPInfoHeaderV3_NT_4(in_stream)
+            {
+                load(in_stream);
+            }
+
+            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+
+
+            virtual inline const bool is_calibrated_rgb_color_space() const noexcept
+            {
+                return (this->compression_mode == COMPR_NO_RLE && this->cs_type == bmpl::clr::ELogicalColorSpace::CALIBRATED_RGB);
+            }
+
+            virtual inline const bool is_sRGB_color_space() const noexcept
+            {
+                return (this->compression_mode == COMPR_NO_RLE && this->cs_type == bmpl::clr::ELogicalColorSpace::S_RGB);
+            }
+
+            virtual inline const bool is_windows_color_space() const noexcept
+            {
+                return (this->compression_mode == COMPR_NO_RLE && this->cs_type == bmpl::clr::ELogicalColorSpace::WINDOWS_COLOR_SPACE);
+            }
+
+            virtual const bool get_gamma_values(double& gamma_red_, double& gamma_green_, double& gamma_blue_) const noexcept;
+
+            virtual const bool get_XYZ_end_points(
+                std::int32_t& red_endX_, std::int32_t& red_endY_, std::int32_t& red_endZ_,
+                std::int32_t& green_endX_, std::int32_t& green_endY_, std::int32_t& green_endZ_,
+                std::int32_t& blue_endX_, std::int32_t& blue_endY_, std::int32_t& blue_endZ_
+            ) const noexcept;
+
+            inline virtual const bool is_v3_NT() const { return false; }
+            inline virtual const bool is_v4() const { return true; }
+
+        };
+
+
+        //===========================================================================
+        struct BMPInfoHeaderV5 : public BMPInfoHeaderV4
+        {
+            BMPInfoHeaderV5() noexcept = default;
+            BMPInfoHeaderV5(const BMPInfoHeaderV5&) noexcept = default;
+            BMPInfoHeaderV5(BMPInfoHeaderV5&&) noexcept = default;
+            virtual ~BMPInfoHeaderV5() noexcept = default;
+
+
+            inline BMPInfoHeaderV5& operator= (const BMPInfoHeaderV5&) noexcept = default;
+            inline BMPInfoHeaderV5& operator= (BMPInfoHeaderV5&&) noexcept = default;
+
+
+            inline BMPInfoHeaderV5(bmpl::utils::LEInStream& in_stream) noexcept
+                : BMPInfoHeaderV4(in_stream)
+            {
+                load(in_stream);
+            }
+
+            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+
+            inline virtual const bool is_v4() const { return false; }
+            inline virtual const bool is_v5() const { return true; }
+
+
+            static constexpr int COMPR_EMBEDS_JPEG{ 4 };
+            static constexpr int COMPR_EMBEDS_PNG{ 5 };
+
+        };
+
+
+        //===========================================================================
+        struct BMPInfoHeaderVOS21 : public BMPInfoHeaderBase
+        {
+            std::uint16_t width{ 0 };
+            std::uint16_t height{ 0 };
+            std::uint16_t planes_count{ 0 };
+            std::uint16_t bits_per_pixel{ 0 };
+
+
+            BMPInfoHeaderVOS21() noexcept = default;
+            BMPInfoHeaderVOS21(const BMPInfoHeaderVOS21&) noexcept = default;
+            BMPInfoHeaderVOS21(BMPInfoHeaderVOS21&&) noexcept = default;
+            virtual ~BMPInfoHeaderVOS21() noexcept = default;
+
+
+            inline BMPInfoHeaderVOS21& operator= (const BMPInfoHeaderVOS21&) noexcept = default;
+            inline BMPInfoHeaderVOS21& operator= (BMPInfoHeaderVOS21&&) noexcept = default;
+
+
+            inline BMPInfoHeaderVOS21(bmpl::utils::LEInStream& in_stream) noexcept
+                : BMPInfoHeaderBase(in_stream)
+            {
+                load(in_stream);
+            }
+
+            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+
+            inline virtual const bool is_vOS21() const { return true; }
+
+        };
+
+
+        //===========================================================================
+        struct BMPInfoHeaderVOS22_16 : public BMPInfoHeaderBase
+        {
+            std::int32_t width{ 0 };
+            std::int32_t height{ 0 };
+            std::uint16_t planes_count{ 0 };
+            std::uint16_t bits_per_pixel{ 0 };
+            std::uint32_t compression_mode{ 0 };
+            std::uint32_t bitmap_size{ 0 };
+            std::uint32_t device_x_resolution{ 0 };
+            std::uint32_t device_y_resolution{ 0 };
+            std::uint32_t used_colors_count{ 0 };
+            std::uint32_t important_colors_count{ 0 };
+            std::int16_t resolution_units{ 0 };
+            std::int16_t reserved{ 0 };
+            std::int16_t recording_algorithm{ 0 };
+            std::int16_t halftoning_rendering_algorithm{ 0 };
+            std::uint16_t halftoning_reserved_1{ 0 };
+            std::uint16_t halftoning_reserved_2{ 0 };
+            std::uint32_t color_encoding{ 0 };
+            std::uint32_t application_identifier{ 0 };
+
+
+            BMPInfoHeaderVOS22_16() noexcept = default;
+            BMPInfoHeaderVOS22_16(const BMPInfoHeaderVOS22_16&) noexcept = default;
+            BMPInfoHeaderVOS22_16(BMPInfoHeaderVOS22_16&&) noexcept = default;
+            virtual ~BMPInfoHeaderVOS22_16() noexcept = default;
+
+
+            inline BMPInfoHeaderVOS22_16& operator= (const BMPInfoHeaderVOS22_16&) noexcept = default;
+            inline BMPInfoHeaderVOS22_16& operator= (BMPInfoHeaderVOS22_16&&) noexcept = default;
+
+
+            inline BMPInfoHeaderVOS22_16(bmpl::utils::LEInStream& in_stream) noexcept
+                : BMPInfoHeaderBase(in_stream)
+            {
+                load(in_stream);
+            }
+
+            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+
+        };
+
+
+        //===========================================================================
+        struct BMPInfoHeaderVOS22 : public BMPInfoHeaderVOS22_16
+        {
+            BMPInfoHeaderVOS22() noexcept = default;
+            BMPInfoHeaderVOS22(const BMPInfoHeaderVOS22&) noexcept = default;
+            BMPInfoHeaderVOS22(BMPInfoHeaderVOS22&&) noexcept = default;
+            virtual ~BMPInfoHeaderVOS22() noexcept = default;
+
+
+            inline BMPInfoHeaderVOS22& operator= (const BMPInfoHeaderVOS22&) noexcept = default;
+            inline BMPInfoHeaderVOS22& operator= (BMPInfoHeaderVOS22&&) noexcept = default;
+
+
+            inline BMPInfoHeaderVOS22(bmpl::utils::LEInStream& in_stream) noexcept
+                : BMPInfoHeaderVOS22_16(in_stream)
+            {
+                load(in_stream);
+            }
+
+            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+
+            inline virtual const bool is_vOS22() const { return true; }
+
+        };
+
+
+        //===========================================================================
+        const BMPInfoHeaderBase* create_bmp_info_header(bmpl::utils::LEInStream& in_stream) noexcept;
+
     }
 }

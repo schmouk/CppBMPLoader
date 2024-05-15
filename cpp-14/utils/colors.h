@@ -42,6 +42,18 @@ namespace bmpl
 {
     namespace clr
     {
+
+        //===========================================================================
+        enum class ELogicalColorSpace : std::uint32_t
+        {
+            CALIBRATED_RGB = 0x00000000,
+            S_RGB = 0x73524742,  // i.e. 'sRGB'
+            WINDOWS_COLOR_SPACE = 0x57696E20  // i.e. 'Win '
+        };
+
+        static constexpr ELogicalColorSpace DEFAULT_CS_TYPE{ ELogicalColorSpace::CALIBRATED_RGB };
+
+
         //===========================================================================
         using BGRA = union uBGRA {
             std::uint32_t value{ 0 };
