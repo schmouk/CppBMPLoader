@@ -34,6 +34,7 @@ SOFTWARE.
 
 #include <array>
 #include <cstdint>
+#include <type_traits>
 
 #include "bmp_info_header.h"
 #include "../utils/colors.h"
@@ -70,20 +71,39 @@ namespace bmpl
             inline BMPColorMap& operator= (BMPColorMap&&) noexcept = default;
 
 
-            inline BMPColorMap(bmpl::utils::LEInStream& in_stream, const BMPInfoHeader& info_header) noexcept
+            inline BMPColorMap(bmpl::utils::LEInStream& in_stream, const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr) noexcept
                 : MyErrBaseClass()
                 , MyWarnBaseClass()
                 , MyContainerBaseClass()
-                , colors_count(info_header.used_colors_count)
             {
-                load(in_stream, info_header);
+                if (info_header_ptr == nullptr || !info_header_ptr->may_embed_color_palette()) {
+                    _set_err(bmpl::utils::ErrorCode::INCOHERENT_BMP_LOADER_IMPLEMENTATION);
+                }
+                else {
+                    load(in_stream, info_header_ptr);
+                }
             }
 
 
-            const bool load(bmpl::utils::LEInStream& in_stream, const BMPInfoHeader& info_header) noexcept;
+            const bool load(bmpl::utils::LEInStream& in_stream, const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr) noexcept;
 
 
-            pixel_type& operator[] (const std::uint32_t index) noexcept;
+            pixel_type& operator[] (const std::uint32_t index) noexcept
+            {
+                if (index >= this->colors_count) {
+                    if (!_bad_index_warn_already_set) {
+                        _set_warning(bmpl::utils::WarningCode::BAD_PALETTE_INDICES);
+                        _bad_index_warn_already_set = true;
+                    }
+                    // notice: we use entry 0 as the default color for bad indices
+                    return MyContainerBaseClass::operator[](0);
+                }
+                else {
+                    return MyContainerBaseClass::operator[](index);
+                }
+            }
+
+
             inline const pixel_type& operator[] (const std::uint32_t index) const noexcept
             {
                 return operator[](index);

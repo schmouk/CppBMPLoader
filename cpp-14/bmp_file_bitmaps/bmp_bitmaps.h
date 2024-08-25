@@ -56,7 +56,7 @@ namespace bmpl
 
             bmpl::utils::LEInStream& in_stream;
             bmpl::frmt::BMPFileHeader file_header;
-            bmpl::frmt::BMPInfoHeader info_header;
+            const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr;
             bmpl::frmt::BMPColorMap color_map;
             const std::int32_t image_width;
             const std::int32_t image_height;
@@ -73,7 +73,7 @@ namespace bmpl
             inline BitmapLoaderBase(
                 bmpl::utils::LEInStream& in_stream_,
                 bmpl::frmt::BMPFileHeader& file_header_,
-                bmpl::frmt::BMPInfoHeader& info_header_,
+                const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr_,
                 bmpl::frmt::BMPColorMap& color_map_,
                 const std::int32_t image_width_,
                 const std::int32_t image_height_
@@ -82,7 +82,7 @@ namespace bmpl
                 , MyWarnBaseClass()
                 , in_stream(in_stream_)
                 , file_header(file_header_)
-                , info_header(info_header_)
+                , info_header_ptr(info_header_ptr_)
                 , color_map(color_map_)
                 , image_width(image_width_)
                 , image_height(image_height_)
@@ -115,12 +115,12 @@ namespace bmpl
             inline BitmapLoader1bit(
                 bmpl::utils::LEInStream& in_stream,
                 bmpl::frmt::BMPFileHeader& file_header,
-                bmpl::frmt::BMPInfoHeader& info_header,
+                const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
                 bmpl::frmt::BMPColorMap& color_map,
                 const std::int32_t image_width,
                 const std::int32_t image_height
             ) noexcept
-                : MyBaseClass(in_stream, file_header, info_header, color_map, image_width, image_height)
+                : MyBaseClass(in_stream, file_header, info_header_ptr, color_map, image_width, image_height)
             {}
 
             virtual const bool load(std::vector<PixelT>& image_content) noexcept;
@@ -139,12 +139,12 @@ namespace bmpl
             inline BitmapLoader4bits(
                 bmpl::utils::LEInStream& in_stream,
                 bmpl::frmt::BMPFileHeader& file_header,
-                bmpl::frmt::BMPInfoHeader& info_header,
+                const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
                 bmpl::frmt::BMPColorMap& color_map,
                 const std::int32_t image_width,
                 const std::int32_t image_height
             ) noexcept
-                : MyBaseClass(in_stream, file_header, info_header, color_map, image_width, image_height)
+                : MyBaseClass(in_stream, file_header, info_header_ptr, color_map, image_width, image_height)
             {}
 
             virtual const bool load(std::vector<PixelT>& image_content) noexcept;
@@ -163,12 +163,12 @@ namespace bmpl
             inline BitmapLoader4bitsRLE(
                 bmpl::utils::LEInStream& in_stream,
                 bmpl::frmt::BMPFileHeader& file_header,
-                bmpl::frmt::BMPInfoHeader& info_header,
+                const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
                 bmpl::frmt::BMPColorMap& color_map,
                 const std::int32_t image_width,
                 const std::int32_t image_height
             ) noexcept
-                : MyBaseClass(in_stream, file_header, info_header, color_map, image_width, image_height)
+                : MyBaseClass(in_stream, file_header, info_header_ptr, color_map, image_width, image_height)
             {}
 
             virtual const bool load(std::vector<PixelT>& image_content) noexcept;
@@ -187,12 +187,12 @@ namespace bmpl
             inline BitmapLoader8bits(
                 bmpl::utils::LEInStream& in_stream,
                 bmpl::frmt::BMPFileHeader& file_header,
-                bmpl::frmt::BMPInfoHeader& info_header,
+                const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
                 bmpl::frmt::BMPColorMap& color_map,
                 const std::int32_t image_width,
                 const std::int32_t image_height
             ) noexcept
-                : MyBaseClass(in_stream, file_header, info_header, color_map, image_width, image_height)
+                : MyBaseClass(in_stream, file_header, info_header_ptr, color_map, image_width, image_height)
             {}
 
             virtual const bool load(std::vector<PixelT>& image_content) noexcept;
@@ -211,12 +211,12 @@ namespace bmpl
             inline BitmapLoader8bitsRLE(
                 bmpl::utils::LEInStream& in_stream,
                 bmpl::frmt::BMPFileHeader& file_header,
-                bmpl::frmt::BMPInfoHeader& info_header,
+                const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
                 bmpl::frmt::BMPColorMap& color_map,
                 const std::int32_t image_width,
                 const std::int32_t image_height
             ) noexcept
-                : MyBaseClass(in_stream, file_header, info_header, color_map, image_width, image_height)
+                : MyBaseClass(in_stream, file_header, info_header_ptr, color_map, image_width, image_height)
             {}
 
             virtual const bool load(std::vector<PixelT>& image_content) noexcept;
@@ -235,12 +235,12 @@ namespace bmpl
             inline BitmapLoader16bits(
                 bmpl::utils::LEInStream& in_stream,
                 bmpl::frmt::BMPFileHeader& file_header,
-                bmpl::frmt::BMPInfoHeader& info_header,
+                const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
                 bmpl::frmt::BMPColorMap& color_map,
                 const std::int32_t image_width,
                 const std::int32_t image_height
             ) noexcept
-                : MyBaseClass(in_stream, file_header, info_header, color_map, image_width, image_height)
+                : MyBaseClass(in_stream, file_header, info_header_ptr, color_map, image_width, image_height)
             {}
 
             virtual const bool load(std::vector<PixelT>& image_content) noexcept;
@@ -259,12 +259,12 @@ namespace bmpl
             inline BitmapLoader24bits(
                 bmpl::utils::LEInStream& in_stream,
                 bmpl::frmt::BMPFileHeader& file_header,
-                bmpl::frmt::BMPInfoHeader& info_header,
+                const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
                 bmpl::frmt::BMPColorMap& color_map,
                 const std::int32_t image_width,
                 const std::int32_t image_height
             ) noexcept
-                : MyBaseClass(in_stream, file_header, info_header, color_map, image_width, image_height)
+                : MyBaseClass(in_stream, file_header, info_header_ptr, color_map, image_width, image_height)
             {}
 
             virtual const bool load(std::vector<PixelT>& image_content) noexcept;
@@ -283,12 +283,12 @@ namespace bmpl
             inline BitmapLoader32bits(
                 bmpl::utils::LEInStream& in_stream,
                 bmpl::frmt::BMPFileHeader& file_header,
-                bmpl::frmt::BMPInfoHeader& info_header,
+                const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
                 bmpl::frmt::BMPColorMap& color_map,
                 const std::int32_t image_width,
                 const std::int32_t image_height
             ) noexcept
-                : MyBaseClass(in_stream, file_header, info_header, color_map, image_width, image_height)
+                : MyBaseClass(in_stream, file_header, info_header_ptr, color_map, image_width, image_height)
             {}
 
             virtual const bool load(std::vector<PixelT>& image_content) noexcept;
@@ -307,12 +307,12 @@ namespace bmpl
             inline BitmapLoader64bits(
                 bmpl::utils::LEInStream& in_stream,
                 bmpl::frmt::BMPFileHeader& file_header,
-                bmpl::frmt::BMPInfoHeader& info_header,
+                const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
                 bmpl::frmt::BMPColorMap& color_map,
                 const std::int32_t image_width,
                 const std::int32_t image_height
             ) noexcept
-                : MyBaseClass(in_stream, file_header, info_header, color_map, image_width, image_height)
+                : MyBaseClass(in_stream, file_header, info_header_ptr, color_map, image_width, image_height)
             {}
 
             virtual const bool load(std::vector<PixelT>& image_content) noexcept;
@@ -325,40 +325,44 @@ namespace bmpl
         BitmapLoaderBase<PixelT>* create_bitmap_loader(
             bmpl::utils::LEInStream& in_stream,
             bmpl::frmt::BMPFileHeader& file_header,
-            bmpl::frmt::BMPInfoHeader& info_header,
+            const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
             bmpl::frmt::BMPColorMap& color_map,
             const std::int32_t image_width,
             const std::int32_t image_height
         ) noexcept
         {
-            switch (info_header.bits_per_pixel)
+            if (info_header_ptr == nullptr) {
+                return nullptr;
+            }
+
+            switch (info_header_ptr->bits_per_pixel)
             {
             case 1:
-                return new BitmapLoader1bit<PixelT>(in_stream, file_header, info_header, color_map, image_width, image_height);
+                return new BitmapLoader1bit<PixelT>(in_stream, file_header, info_header_ptr, color_map, image_width, image_height);
 
             case 4:
-                if (info_header.compression_mode == info_header.NO_RLE)
-                    return new BitmapLoader4bits<PixelT>(in_stream, file_header, info_header, color_map, image_width, image_height);
+                if (info_header_ptr->compression_mode == info_header_ptr->COMPR_NO_RLE)
+                    return new BitmapLoader4bits<PixelT>(in_stream, file_header, info_header_ptr, color_map, image_width, image_height);
                 else
-                    return new BitmapLoader4bitsRLE<PixelT>(in_stream, file_header, info_header, color_map, image_width, image_height);
+                    return new BitmapLoader4bitsRLE<PixelT>(in_stream, file_header, info_header_ptr, color_map, image_width, image_height);
 
             case  8:
-                if (info_header.compression_mode == info_header.NO_RLE)
-                    return new BitmapLoader8bits<PixelT>(in_stream, file_header, info_header, color_map, image_width, image_height);
+                if (info_header_ptr->compression_mode == info_header_ptr->COMPR_NO_RLE)
+                    return new BitmapLoader8bits<PixelT>(in_stream, file_header, info_header_ptr, color_map, image_width, image_height);
                 else
-                    return new BitmapLoader8bitsRLE<PixelT>(in_stream, file_header, info_header, color_map, image_width, image_height);
+                    return new BitmapLoader8bitsRLE<PixelT>(in_stream, file_header, info_header_ptr, color_map, image_width, image_height);
 
             case 16:
-                return new BitmapLoader16bits<PixelT>(in_stream, file_header, info_header, color_map, image_width, image_height);
+                return new BitmapLoader16bits<PixelT>(in_stream, file_header, info_header_ptr, color_map, image_width, image_height);
 
             case 24:
-                return new BitmapLoader24bits<PixelT>(in_stream, file_header, info_header, color_map, image_width, image_height);
+                return new BitmapLoader24bits<PixelT>(in_stream, file_header, info_header_ptr, color_map, image_width, image_height);
 
             case 32:
-                return new BitmapLoader32bits<PixelT>(in_stream, file_header, info_header, color_map, image_width, image_height);
+                return new BitmapLoader32bits<PixelT>(in_stream, file_header, info_header_ptr, color_map, image_width, image_height);
 
             case 64:
-                return new BitmapLoader64bits<PixelT>(in_stream, file_header, info_header, color_map, image_width, image_height);
+                return new BitmapLoader64bits<PixelT>(in_stream, file_header, info_header_ptr, color_map, image_width, image_height);
 
             default:
                 return nullptr;
@@ -371,7 +375,7 @@ namespace bmpl
         template<typename PixelT>
         const bool BitmapLoader1bit<PixelT>::load(std::vector<PixelT>& image_content) noexcept
         {
-            if (this->info_header.compression_mode != this->info_header.NO_RLE) {
+            if (this->info_header_ptr->compression_mode != this->info_header_ptr->COMPR_NO_RLE) {
                 // No Run Length Encoding is defined by Windows for 2 colors mapped bitmaps
                 return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
             }
@@ -520,7 +524,7 @@ namespace bmpl
         template<typename PixelT>
         const bool BitmapLoader4bitsRLE<PixelT>::load(std::vector<PixelT>& image_content) noexcept
         {
-            if (this->info_header.compression_mode != this->info_header.RLE_4) {
+            if (this->info_header_ptr->compression_mode != this->info_header_ptr->COMPR_RLE_4) {
                 return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
             }
 
@@ -746,7 +750,7 @@ namespace bmpl
         const bool BitmapLoader8bitsRLE<PixelT>::load(std::vector<PixelT>& image_content) noexcept
         {
 
-            if (this->info_header.compression_mode != this->info_header.RLE_8) {
+            if (this->info_header_ptr->compression_mode != this->info_header_ptr->COMPR_RLE_8) {
                 return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
             }
 
@@ -891,10 +895,10 @@ namespace bmpl
             const std::size_t line_width{ width + padding };
             const std::size_t mask_size{ line_width * height };
 
-            const bmpl::bmpf::BitfieldMaskBase* red_mask_ptr{ bmpl::bmpf::create_bitfield_mask(this->info_header.red_mask) };
-            const bmpl::bmpf::BitfieldMaskBase* green_mask_ptr{ bmpl::bmpf::create_bitfield_mask(this->info_header.green_mask) };
-            const bmpl::bmpf::BitfieldMaskBase* blue_mask_ptr{ bmpl::bmpf::create_bitfield_mask(this->info_header.blue_mask) };
-            const bmpl::bmpf::BitfieldMaskBase* alpha_mask_ptr{ bmpl::bmpf::create_bitfield_mask(this->info_header.alpha_mask) };
+            const bmpl::bmpf::BitfieldMaskBase* red_mask_ptr{ bmpl::bmpf::create_bitfield_mask(this->info_header_ptr->get_red_mask()) };
+            const bmpl::bmpf::BitfieldMaskBase* green_mask_ptr{ bmpl::bmpf::create_bitfield_mask(this->info_header_ptr->get_green_mask()) };
+            const bmpl::bmpf::BitfieldMaskBase* blue_mask_ptr{ bmpl::bmpf::create_bitfield_mask(this->info_header_ptr->get_blue_mask()) };
+            const bmpl::bmpf::BitfieldMaskBase* alpha_mask_ptr{ bmpl::bmpf::create_bitfield_mask(this->info_header_ptr->get_alpha_mask()) };
 
             std::vector<std::uint16_t> masked_content;
             masked_content.assign(mask_size, std::uint16_t(0));
@@ -1003,10 +1007,10 @@ namespace bmpl
             const std::size_t height{ std::size_t(this->image_height) };
             const std::size_t mask_size{ width * height };
 
-            const bmpl::bmpf::BitfieldMaskBase* red_mask_ptr{ bmpl::bmpf::create_bitfield_mask(this->info_header.red_mask) };
-            const bmpl::bmpf::BitfieldMaskBase* green_mask_ptr{ bmpl::bmpf::create_bitfield_mask(this->info_header.green_mask) };
-            const bmpl::bmpf::BitfieldMaskBase* blue_mask_ptr{ bmpl::bmpf::create_bitfield_mask(this->info_header.blue_mask) };
-            const bmpl::bmpf::BitfieldMaskBase* alpha_mask_ptr{ bmpl::bmpf::create_bitfield_mask(this->info_header.alpha_mask) };
+            const bmpl::bmpf::BitfieldMaskBase* red_mask_ptr{ bmpl::bmpf::create_bitfield_mask(this->info_header_ptr->get_red_mask()) };
+            const bmpl::bmpf::BitfieldMaskBase* green_mask_ptr{ bmpl::bmpf::create_bitfield_mask(this->info_header_ptr->get_green_mask()) };
+            const bmpl::bmpf::BitfieldMaskBase* blue_mask_ptr{ bmpl::bmpf::create_bitfield_mask(this->info_header_ptr->get_blue_mask()) };
+            const bmpl::bmpf::BitfieldMaskBase* alpha_mask_ptr{ bmpl::bmpf::create_bitfield_mask(this->info_header_ptr->get_alpha_mask()) };
 
             std::vector<std::uint32_t> masked_content;
             masked_content.assign(mask_size, std::uint32_t(0));

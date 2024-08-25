@@ -154,10 +154,10 @@ namespace bmpl
 
         inline void convert(BGRA& bgra, const BGRA_HDR& bgra64) noexcept
         {
-            bgra.r = bgra64.r >> 5;
-            bgra.g = bgra64.g >> 5;
-            bgra.b = bgra64.b >> 5;
-            bgra.a = bgra64.a >> 5;
+            bgra.r = (bgra64.r >= 8192) ? 255 : bgra64.r >> 5;
+            bgra.g = (bgra64.g >= 8192) ? 255 : bgra64.g >> 5;
+            bgra.b = (bgra64.b >= 8192) ? 255 : bgra64.b >> 5;
+            bgra.a = (bgra64.a >= 8192) ? 255 : bgra64.a >> 5;
         }
 
         inline void convert(RGBA& rgba, const BGRA& bgra) noexcept
@@ -191,10 +191,10 @@ namespace bmpl
 
         inline void convert(RGBA& rgba, const BGRA_HDR& bgra64) noexcept
         {
-            rgba.r = bgra64.r >> 5;
-            rgba.g = bgra64.g >> 5;
-            rgba.b = bgra64.b >> 5;
-            rgba.a = bgra64.a >> 5;
+            rgba.r = (bgra64.r >= 8192) ? 255 : bgra64.r >> 5;
+            rgba.g = (bgra64.g >= 8192) ? 255 : bgra64.g >> 5;
+            rgba.b = (bgra64.b >= 8192) ? 255 : bgra64.b >> 5;
+            rgba.a = (bgra64.a >= 8192) ? 255 : bgra64.a >> 5;
         }
 
         inline void convert(RGB& rgb, const BGRA& bgra) noexcept
@@ -225,9 +225,9 @@ namespace bmpl
 
         inline void convert(RGB& rgb, const BGRA_HDR& bgra64) noexcept
         {
-            rgb.r = bgra64.r >> 5;
-            rgb.g = bgra64.g >> 5;
-            rgb.b = bgra64.b >> 5;
+            rgb.r = (bgra64.r >= 8192) ? 255 : bgra64.r >> 5;
+            rgb.g = (bgra64.g >= 8192) ? 255 : bgra64.g >> 5;
+            rgb.b = (bgra64.b >= 8192) ? 255 : bgra64.b >> 5;
         }
 
         inline void convert(BGR& brg, const BGRA& bgra) noexcept
@@ -258,9 +258,9 @@ namespace bmpl
 
         inline void convert(BGR& brg, const BGRA_HDR& bgra64) noexcept
         {
-            brg.r = bgra64.r >> 5;
-            brg.g = bgra64.g >> 5;
-            brg.b = bgra64.b >> 5;
+            brg.r = (bgra64.r >= 8192) ? 255 : bgra64.r >> 5;
+            brg.g = (bgra64.g >= 8192) ? 255 : bgra64.g >> 5;
+            brg.b = (bgra64.b >= 8192) ? 255 : bgra64.b >> 5;
         }
 
 

@@ -1,3 +1,5 @@
+#pragma once
+
 /*
 MIT License
 
@@ -30,8 +32,6 @@ SOFTWARE.
 */
 
 
-#include <array>
-
 #include "bmp_colormap.h"
 
 
@@ -39,15 +39,16 @@ namespace bmpl
 {
     namespace frmt
     {
-        const bool BMPColorMap::load(bmpl::utils::LEInStream& in_stream, const BMPInfoHeader& info_header) noexcept
+        //===========================================================================
+        const bool BMPColorMap::load(bmpl::utils::LEInStream& in_stream, const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr) noexcept
         {
             if (in_stream.failed())
                 return _set_err(in_stream.get_error());
 
-            if (info_header.failed())
-                return _set_err(info_header.get_error());
+            if (info_header_ptr->failed())
+                return _set_err(info_header_ptr->get_error());
 
-            this->colors_count = info_header.used_colors_count;
+            this->colors_count = info_header_ptr->get_colors_count();
 
             if (this->colors_count > 0) {
                 std::size_t to_be_loaded_count{ this->colors_count };
@@ -78,22 +79,6 @@ namespace bmpl
 
             // once here, everything was fine
             return _clr_err();
-        }
-
-
-        BMPColorMap::pixel_type& BMPColorMap::operator[] (const std::uint32_t index) noexcept
-        {
-            if (index >= this->colors_count) {
-                if (!_bad_index_warn_already_set) {
-                    _set_warning(bmpl::utils::WarningCode::BAD_PALETTE_INDICES);
-                    _bad_index_warn_already_set = true;
-                }
-                // notice: we use entry 0 as the default color for bad indices
-                return MyContainerBaseClass::operator[](0);
-            }
-            else {
-                return MyContainerBaseClass::operator[](index);
-            }
         }
 
     }

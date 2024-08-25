@@ -128,14 +128,14 @@ namespace bmpl
         [[nodiscard]]
         inline const std::int32_t get_device_x_resolution() const noexcept
         {
-            return this->_info.info_header.device_x_resolution;
+            return this->_info.info_header_ptr->device_x_resolution;
         }
 
 
         [[nodiscard]]
         inline const std::int32_t get_device_y_resolution() const noexcept
         {
-            return this->_info.info_header.device_y_resolution;
+            return this->_info.info_header_ptr->device_y_resolution;
         }
 
 
@@ -152,7 +152,7 @@ namespace bmpl
         [[nodiscard]]
         inline const std::int32_t height() const noexcept
         {
-            return _info.info_header.height;
+            return _info.info_header_ptr->get_height();
         }
 
 
@@ -173,7 +173,7 @@ namespace bmpl
         [[nodiscard]]
         inline const std::int32_t width() const noexcept
         {
-            return _info.info_header.width;
+            return _info.info_header_ptr->get_width();
         }
 
 
@@ -267,7 +267,7 @@ namespace bmpl
                 bmpl::bmpf::create_bitmap_loader<pixel_type>(
                     this->_in_stream,
                     this->_file_header,
-                    this->_info.info_header,
+                    this->_info.info_header_ptr,
                     this->_info.color_map,
                     this->width(),
                     this->height()
@@ -285,13 +285,16 @@ namespace bmpl
             }
             
             // is there gamma correction to apply?
-            if (this->_info.info_header.bmp_v4 && this->_info.info_header.cs_type == bmpl::clr::ELogicalColorSpace::CALIBRATED_RGB) {
+            if (this->_info.info_header_ptr->is_v4()) {
                 // yes!
-                const double gamma_r{ double(this->_info.info_header.gamma_red) };
-                const double gamma_g{ double(this->_info.info_header.gamma_green) };
-                const double gamma_b{ double(this->_info.info_header.gamma_blue) };
-                for (auto& pxl : this->image_content)
-                    bmpl::clr::gamma_correction(pxl, gamma_r, gamma_g, gamma_b);
+                const bmpl::frmt::BMPInfoHeaderV4* info_header_ptr = dynamic_cast<const bmpl::frmt::BMPInfoHeaderV4*>(this->_info.info_header_ptr);
+                if (info_header_ptr->cs_type == bmpl::clr::ELogicalColorSpace::CALIBRATED_RGB) {
+                    const double gamma_r{ double(info_header_ptr->gamma_red) };
+                    const double gamma_g{ double(info_header_ptr->gamma_green) };
+                    const double gamma_b{ double(info_header_ptr->gamma_blue) };
+                    for (auto& pxl : this->image_content)
+                        bmpl::clr::gamma_correction(pxl, gamma_r, gamma_g, gamma_b);
+                }
             }
 
             // once here, everything was fine
@@ -299,7 +302,7 @@ namespace bmpl
 
             // let's finally append any maybe warning detected during processing
             this->append_warnings(this->_file_header);
-            this->append_warnings(this->_info.info_header);
+            this->append_warnings(*this->_info.info_header_ptr);
             this->append_warnings(this->_info.color_map);
             this->append_warnings(*bitmap_loader_ptr);
         }
@@ -319,8 +322,11 @@ namespace bmpl
             : MyBaseClass(filepath, mode)
         {
 
-            if (!MyBaseClass::_info.info_header.top_down_encoding)
+            if (MyBaseClass::_info.info_header_ptr != nullptr &&
+                !MyBaseClass::_info.info_header_ptr->top_down_encoding)
+            {
                 MyBaseClass::_reverse_lines_ordering();
+            }
         }
 
 
