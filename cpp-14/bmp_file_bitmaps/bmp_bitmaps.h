@@ -375,6 +375,9 @@ namespace bmpl
         template<typename PixelT>
         const bool BitmapLoader1bit<PixelT>::load(std::vector<PixelT>& image_content) noexcept
         {
+            if (this->info_header_ptr == nullptr)
+                return this->_set_err(bmpl::utils::ErrorCode::BAD_INFO_HEADER);
+
             if (this->info_header_ptr->compression_mode != this->info_header_ptr->COMPR_NO_RLE) {
                 // No Run Length Encoding is defined by Windows for 2 colors mapped bitmaps
                 return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
@@ -524,6 +527,9 @@ namespace bmpl
         template<typename PixelT>
         const bool BitmapLoader4bitsRLE<PixelT>::load(std::vector<PixelT>& image_content) noexcept
         {
+            if (this->info_header_ptr == nullptr)
+                return this->_set_err(bmpl::utils::ErrorCode::BAD_INFO_HEADER);
+
             if (this->info_header_ptr->compression_mode != this->info_header_ptr->COMPR_RLE_4) {
                 return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
             }
@@ -749,6 +755,8 @@ namespace bmpl
         template<typename PixelT>
         const bool BitmapLoader8bitsRLE<PixelT>::load(std::vector<PixelT>& image_content) noexcept
         {
+            if (this->info_header_ptr == nullptr)
+                return this->_set_err(bmpl::utils::ErrorCode::BAD_INFO_HEADER);
 
             if (this->info_header_ptr->compression_mode != this->info_header_ptr->COMPR_RLE_8) {
                 return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
@@ -889,6 +897,9 @@ namespace bmpl
         template<typename PixelT>
         const bool BitmapLoader16bits<PixelT>::load(std::vector<PixelT>& image_content) noexcept
         {
+            if (this->info_header_ptr == nullptr)
+                return this->_set_err(bmpl::utils::ErrorCode::BAD_INFO_HEADER);
+
             const std::size_t width{ std::size_t(this->image_width) };
             const std::size_t height{ std::size_t(this->image_height) };
             const std::size_t padding{ (width % 2) != 0 ? std::size_t(1) : std::size_t(0) };
@@ -1003,7 +1014,10 @@ namespace bmpl
         template<typename PixelT>
         const bool BitmapLoader32bits<PixelT>::load(std::vector<PixelT>& image_content) noexcept
         {
-            const std::size_t width{ std::size_t(this->image_width) };
+            if (this->info_header_ptr == nullptr)
+                return this->_set_err(bmpl::utils::ErrorCode::BAD_INFO_HEADER);
+
+                const std::size_t width{ std::size_t(this->image_width) };
             const std::size_t height{ std::size_t(this->image_height) };
             const std::size_t mask_size{ width * height };
 

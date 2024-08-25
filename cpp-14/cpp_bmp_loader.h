@@ -128,14 +128,20 @@ namespace bmpl
         [[nodiscard]]
         inline const std::int32_t get_device_x_resolution() const noexcept
         {
-            return this->_info.info_header_ptr->device_x_resolution;
+            if (this->_info.info_header_ptr == nullptr)
+                return 0;
+            else
+                return this->_info.info_header_ptr->device_x_resolution;
         }
 
 
         [[nodiscard]]
         inline const std::int32_t get_device_y_resolution() const noexcept
         {
-            return this->_info.info_header_ptr->device_y_resolution;
+            if (this->_info.info_header_ptr == nullptr)
+                return 0;
+            else
+                return this->_info.info_header_ptr->device_y_resolution;
         }
 
 
@@ -152,7 +158,10 @@ namespace bmpl
         [[nodiscard]]
         inline const std::int32_t height() const noexcept
         {
-            return _info.info_header_ptr->get_height();
+            if (this->_info.info_header_ptr == nullptr)
+                return 0;
+            else
+                return _info.info_header_ptr->get_height();
         }
 
 
@@ -173,7 +182,10 @@ namespace bmpl
         [[nodiscard]]
         inline const std::int32_t width() const noexcept
         {
-            return _info.info_header_ptr->get_width();
+            if (this->_info.info_header_ptr == nullptr)
+                return 0;
+            else
+                return _info.info_header_ptr->get_width();
         }
 
 

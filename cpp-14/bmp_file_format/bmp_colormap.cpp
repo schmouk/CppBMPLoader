@@ -45,6 +45,9 @@ namespace bmpl
             if (in_stream.failed())
                 return _set_err(in_stream.get_error());
 
+            if (info_header_ptr == nullptr)
+                return _set_err(bmpl::utils::ErrorCode::BAD_INFO_HEADER);
+
             if (info_header_ptr->failed())
                 return _set_err(info_header_ptr->get_error());
 
