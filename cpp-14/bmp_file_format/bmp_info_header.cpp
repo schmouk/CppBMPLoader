@@ -89,9 +89,13 @@ namespace bmpl
                 // top-down encoding
                 height = -height;
                 top_down_encoding = true;
+
+                if (compression_mode != COMPR_NO_RLE)
+                    _set_warning(bmpl::utils::WarningCode::FORBIDDEN_TOP_DOWN_ORIENTATION);
             }
 
             if (device_x_resolution > 2.5 * device_y_resolution || device_y_resolution > 2.5 * device_x_resolution)
+                // notice: factor 2.5 is per pure convention and has nothing to do with the BMP format
                 _set_warning(bmpl::utils::WarningCode::INCOHERENT_RESOLUTIONS);
 
             if (planes_count != 1)
@@ -108,16 +112,14 @@ namespace bmpl
                 return _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
 
             if (bits_per_pixel != 24) {
-                if (used_colors_count == 0)
-                    used_colors_count = 1 << bits_per_pixel;
-                else if (used_colors_count > std::uint32_t(1 << bits_per_pixel))
-                    _set_warning(bmpl::utils::WarningCode::BAD_PALETTE_SIZE_IN_HEADER);
-
                 if (important_colors_count > used_colors_count)
                     _set_warning(bmpl::utils::WarningCode::BAD_IMPORTANT_COLORS_COUNT);
             }
 
-            if (bits_per_pixel != 4 && bits_per_pixel != 8) {
+            if (bits_per_pixel > 64)
+                return _set_err(bmpl::utils::ErrorCode::TOO_BIG_BITS_PER_PIXEL_VALUE);
+
+            if (is_V3_base && bits_per_pixel != 1 && bits_per_pixel != 4 && bits_per_pixel != 8) {
                 if (used_colors_count != 0)
                     _set_warning(bmpl::utils::WarningCode::UNUSED_PALETTE);
             }
@@ -129,14 +131,8 @@ namespace bmpl
         //===========================================================================
         const bool BMPInfoHeaderV3_NT::load(bmpl::utils::LEInStream& in_stream) noexcept
         {
-            if (!(in_stream >> red_mask >> green_mask >> blue_mask))
-                return _set_err(in_stream.get_error());
-
-            if ((red_mask & green_mask) || (red_mask & blue_mask) || (green_mask & blue_mask))
-                return _set_err(bmpl::utils::ErrorCode::OVERLAPPING_BITFIELD_MASKS);
-
-            if (compression_mode > COMPR_RLE_COLOR_BITMASKS)
-                return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
+            if (failed())
+                return false;
 
             if (compression_mode == COMPR_NO_RLE) {
                 if (bits_per_pixel == 16) {
@@ -150,8 +146,14 @@ namespace bmpl
                     red_mask = 0x00ff'0000;
                 }
             }
-            else if ((bits_per_pixel == 16 || bits_per_pixel == 32) && compression_mode != COMPR_RLE_COLOR_BITMASKS)
-                return _set_err(bmpl::utils::ErrorCode::INCOHERENT_COMPRESSION_MODE);
+            else if (!(in_stream >> red_mask >> green_mask >> blue_mask))
+                return _set_err(in_stream.get_error());
+
+            if ((red_mask & green_mask) || (red_mask & blue_mask) || (green_mask & blue_mask))
+                return _set_err(bmpl::utils::ErrorCode::OVERLAPPING_BITFIELD_MASKS);
+
+            if (compression_mode > COMPR_RLE_COLOR_BITMASKS)
+                return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
 
             if (compression_mode == COMPR_RLE_COLOR_BITMASKS) {
                 if (bits_per_pixel != 16 && bits_per_pixel != 32)
@@ -216,6 +218,8 @@ namespace bmpl
             return _clr_err();
         }
 
+
+        //===========================================================================
         const bool BMPInfoHeaderV4::get_gamma_values(double& gamma_red_, double& gamma_green_, double& gamma_blue_) const noexcept
         {
             if (is_calibrated_rgb_color_space()) {
@@ -233,6 +237,8 @@ namespace bmpl
             }
         }
 
+
+        //===========================================================================
         const bool BMPInfoHeaderV4::get_XYZ_end_points(
             std::int32_t& red_endX_, std::int32_t& red_endY_, std::int32_t& red_endZ_,
             std::int32_t& green_endX_, std::int32_t& green_endY_, std::int32_t& green_endZ_,
@@ -240,15 +246,15 @@ namespace bmpl
         ) const noexcept
         {
             if (this->is_calibrated_rgb_color_space()) {
-                this->red_endX = red_endX_;
-                this->red_endY = red_endY_;
-                this->red_endZ = red_endZ_;
-                this->green_endX = green_endX_;
-                this->green_endY = green_endY_;
-                this->green_endZ = green_endZ_;
-                this->blue_endX = blue_endX_;
-                this->blue_endY = blue_endY_;
-                this->blue_endZ = blue_endZ_;
+                red_endX_ = this->red_endX;
+                red_endY_ = this->red_endY;
+                red_endZ_ = this->red_endZ;
+                green_endX_ = this->green_endX;
+                green_endY_ = this->green_endY;
+                green_endZ_ = this->green_endZ;
+                blue_endX_ = this->blue_endX;
+                blue_endY_ = this->blue_endY;
+                blue_endZ_ = this->blue_endZ;
                 return true;
             }
             else {
@@ -309,10 +315,10 @@ namespace bmpl
                 BMPInfoHeaderV2* header_ptr{ new BMPInfoHeaderV2(in_stream) };
 
                 if (header_ptr != nullptr && header_ptr->is_ok()) {
-                    const std::size_t file_size{ in_stream.get_size() };
+                    const std::size_t file_size{ std::size_t(in_stream.get_size()) };
                     const std::size_t actual_bitmap_size{ file_size - header_size - header_file_size };
-                    const std::size_t pixels_per_byte{ 8 / header_ptr->bits_per_pixel };
-                    const std::size_t expected_bitmap_size{ std::abs(header_ptr->width) * std::abs(header_ptr->height) / pixels_per_byte };
+                    const std::size_t pixels_per_byte{ 8 / std::size_t(header_ptr->bits_per_pixel) };
+                    const std::size_t expected_bitmap_size{ std::size_t(std::abs(header_ptr->width)) * std::abs(header_ptr->height) / pixels_per_byte };
 
                     if (expected_bitmap_size < actual_bitmap_size) {
                         // well, this finally appears to be an OS/2 1.x BMP file
@@ -331,12 +337,14 @@ namespace bmpl
 
             case 0x28:
             {   //-- Version 3 or 3_NT of BMP file format --//
-                constexpr size_t header_file_size{ 14 };
+                constexpr size_t header_file_size{ 18 };
 
                 BMPInfoHeaderV3* header_ptr{ new BMPInfoHeaderV3(in_stream) };
 
-                if (header_ptr != nullptr && header_ptr->is_ok()) {
-                    if (header_ptr->compression_mode == BMPInfoHeaderV3_NT::COMPR_RLE_COLOR_BITMASKS) {
+                if (header_ptr != nullptr && header_ptr->failed()) {
+                    if (header_ptr->compression_mode == BMPInfoHeaderV3_NT::COMPR_RLE_COLOR_BITMASKS ||
+                        header_ptr->compression_mode == BMPInfoHeaderV3_NT::COMPR_NO_RLE)
+                    {
                         // well, this finally appears to be a version 3-NT BMP file
                         in_stream.seekg(header_file_size);  // let's go back to the starting position of this info header
                         BMPInfoHeaderV3_NT* header_ptr{ new BMPInfoHeaderV3_NT(in_stream) };
@@ -369,7 +377,10 @@ namespace bmpl
 
             default:
                 //-- Invalid BMP file format --//
-                return nullptr;
+                BMPInfoHeaderBase* header_ptr{ new BMPInfoHeaderBase() };
+                if (header_ptr != nullptr)
+                    header_ptr->set_err(bmpl::utils::ErrorCode::INVALID_HEADER_SIZE);
+                return header_ptr;
             }
         }
 

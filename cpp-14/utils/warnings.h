@@ -55,6 +55,7 @@ namespace bmpl
             BAD_PLANES_VALUE,
             BITFIELDS_AND_PALETT,
             DELTA_MODE_MAY_OVERFLOW,
+            FORBIDDEN_TOP_DOWN_ORIENTATION,
             INCOHERENT_IMAGE_SIZE,
             INCOHERENT_RESOLUTIONS,
             MISSING_BITFIELDS_MASKS,

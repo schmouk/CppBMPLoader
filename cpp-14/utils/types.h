@@ -51,6 +51,17 @@ namespace bmpl
                 : value(val)
             {}
 
+            inline Frac16_16(const float val) noexcept
+            {
+                *this = val;
+            }
+
+            inline Frac16_16(const double val) noexcept
+            {
+                *this = val;
+            }
+
+
             inline operator float() const noexcept
             {
                 return float(value >> 16) + float(value & 0xffff) / 65536.0f;

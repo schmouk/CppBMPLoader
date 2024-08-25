@@ -62,6 +62,8 @@ namespace bmpl
                 return "encountered unexpected end-of-file.";
             case ErrorCode::FILE_NOT_FOUND:
                 return "file not found.";
+            case ErrorCode::INCOHERENT_BMP_LOADER_IMPLEMENTATION:
+                return "incoherent implementation of Cpp BMP Loader - this is a program error.";
             case ErrorCode::INCOHERENT_COMPRESSION_MODE:
                 return "forbidden compression mode (1 or 2) associated with bitfield masks encoding";
             case ErrorCode::INCOHERENT_DELTA_MODE_VALUES:
@@ -74,6 +76,8 @@ namespace bmpl
                 return "some imput operation failed on file.";
             case ErrorCode::INVALID_DEVICE_RESOLUTION:
                 return "some device resolution is invalid (maybe negative, for instance).";
+            case ErrorCode::INVALID_HEADER_SIZE:
+                return "the specified size for the info header is invalid.";
             case ErrorCode::INVALID_IMAGE_DIMENSIONS:
                 return "some dimension of image is set to zero.";
             case ErrorCode::IRRECOVERABLE_STREAM_ERROR:
@@ -94,6 +98,8 @@ namespace bmpl
                 return "some bitfield masks are overlapping.";
             case ErrorCode::RLE_INPUT_OPERATION_FAILED:
                 return "input operation on Run Length Encoded bitmap has failed.";
+            case ErrorCode::TOO_BIG_BITS_PER_PIXEL_VALUE:
+                return "too big value for bits count per pixel.";
             default:
                 return "unkown error...";
             }

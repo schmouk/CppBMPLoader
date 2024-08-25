@@ -52,6 +52,20 @@ namespace bmpl
             using MyWarnBaseClass = bmpl::utils::WarningStatus;
 
             std::uint32_t header_size{ 0 };
+            std::uint32_t compression_mode{ 0 };
+            std::uint16_t bits_per_pixel{ 0 };
+            bmpl::clr::ELogicalColorSpace cs_type{ bmpl::clr::DEFAULT_CS_TYPE };
+            bool bmp_v4{ false };
+
+
+            static constexpr int COMPR_NO_RLE{ 0 };
+            static constexpr int COMPR_RLE_8{ 1 };
+            static constexpr int COMPR_RLE_4{ 2 };
+            static constexpr int COMPR_RLE_COLOR_BITMASKS{ 3 };
+            static constexpr int COMPR_EMBEDS_JPEG{ 4 };
+            static constexpr int COMPR_EMBEDS_PNG{ 5 };
+
+
             bool top_down_encoding{ false };
 
 
@@ -77,6 +91,54 @@ namespace bmpl
             {
                 return this->_clr_err();
             }
+
+
+            virtual inline const std::uint32_t get_colors_count() const noexcept
+            {
+                return 0;
+            }
+
+
+            virtual inline const std::uint32_t get_important_colors_count() const noexcept
+            {
+                return 0;
+            }
+
+
+            virtual inline const std::int32_t get_height() const noexcept
+            {
+                return 0;
+            }
+
+
+            virtual inline const std::int32_t get_width() const noexcept
+            {
+                return 0;
+            }
+
+
+            virtual inline const std::uint32_t get_red_mask() const noexcept
+            {
+                return 0xffff'ffff;
+            };
+
+
+            virtual inline const std::uint32_t get_green_mask() const noexcept
+            {
+                return 0xffff'ffff;
+            };
+
+
+            virtual inline const std::uint32_t get_blue_mask() const noexcept
+            {
+                return 0xffff'ffff;
+            };
+
+
+            virtual inline const std::uint32_t get_alpha_mask() const noexcept
+            {
+                return 0x0000'0000;
+            };
 
 
             virtual inline const bool is_calibrated_rgb_color_space() const noexcept
@@ -119,6 +181,23 @@ namespace bmpl
             inline virtual const bool is_vOS21() const { return false; }
             inline virtual const bool is_vOS22() const { return false; }
 
+            inline virtual const bool may_embed_color_palette() const { return false; }
+
+
+            inline const bool set_err(const bmpl::utils::ErrorCode err_code) noexcept
+            {
+                return _set_err(err_code);
+            }
+
+
+        };
+
+
+        //===========================================================================
+        struct BMPInfoHeaderWithPalette
+        {
+            std::uint32_t used_colors_count{ 0 };
+            std::uint32_t important_colors_count{ 0 };
         };
 
 
@@ -142,7 +221,6 @@ namespace bmpl
             std::int16_t width{ 0 };
             std::int16_t height{ 0 };
             std::uint16_t planes_count{ 0 };
-            std::uint16_t bits_per_pixel{ 0 };
 
 
             BMPInfoHeaderV2() noexcept = default;
@@ -161,6 +239,16 @@ namespace bmpl
                 load(in_stream);
             }
 
+            virtual inline const std::int32_t get_height() const noexcept override
+            {
+                return std::int32_t(height);
+            }
+
+            virtual inline const std::int32_t get_width() const noexcept override
+            {
+                return std::int32_t(width);
+            }
+
             virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
 
             inline virtual const bool is_v2() const { return true; }
@@ -169,18 +257,14 @@ namespace bmpl
 
 
         //===========================================================================
-        struct BMPInfoHeaderV3 : public BMPInfoHeaderBase
+        struct BMPInfoHeaderV3 : virtual public BMPInfoHeaderWithPalette, virtual public BMPInfoHeaderBase
         {
             std::int32_t width{ 0 };
             std::int32_t height{ 0 };
             std::uint16_t planes_count{ 0 };
-            std::uint16_t bits_per_pixel{ 0 };
-            std::uint32_t compression_mode{ 0 };
             std::uint32_t bitmap_size{ 0 };
             std::int32_t device_x_resolution{ 0 };
             std::int32_t device_y_resolution{ 0 };
-            std::uint32_t used_colors_count{ 0 };
-            std::uint32_t important_colors_count{ 0 };
 
 
             BMPInfoHeaderV3() noexcept = default;
@@ -194,9 +278,20 @@ namespace bmpl
 
 
             inline BMPInfoHeaderV3(bmpl::utils::LEInStream& in_stream, const bool is_V3_base = true) noexcept
-                : BMPInfoHeaderBase(in_stream)
+                : BMPInfoHeaderWithPalette()
+                , BMPInfoHeaderBase(in_stream)
             {
                 load(in_stream, is_V3_base);
+            }
+
+            virtual inline const std::int32_t get_height() const noexcept override
+            {
+                return height;
+            }
+
+            virtual inline const std::int32_t get_width() const noexcept override
+            {
+                return width;
             }
 
             virtual const bool load(bmpl::utils::LEInStream& in_stream, const bool is_V3_base) noexcept;
@@ -204,10 +299,20 @@ namespace bmpl
 
             inline virtual const bool is_v3() const { return true; }
 
+            inline virtual const bool may_embed_color_palette() const override
+            {
+                return true;
+            }
 
-            static constexpr int COMPR_NO_RLE{ 0 };
-            static constexpr int COMPR_RLE_8{ 1 };
-            static constexpr int COMPR_RLE_4{ 2 };
+            virtual inline const std::uint32_t get_colors_count() const noexcept override
+            {
+                return this->used_colors_count;;
+            }
+
+            virtual inline const std::uint32_t get_important_colors_count() const noexcept override
+            {
+                return this->important_colors_count;
+            }
 
         };
 
@@ -238,12 +343,26 @@ namespace bmpl
 
             virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
 
+            virtual inline const std::uint32_t get_red_mask() const noexcept override
+            {
+                return red_mask;
+            };
+
+            virtual inline const std::uint32_t get_green_mask() const noexcept override
+            {
+                return green_mask;
+            };
+
+            virtual inline const std::uint32_t get_blue_mask() const noexcept override
+            {
+                return blue_mask;
+            };
+
 
             inline virtual const bool is_v3() const { return false; }
             inline virtual const bool is_v3_NT() const { return true; }
 
 
-            static constexpr int COMPR_RLE_COLOR_BITMASKS{ 3 };
 
         };
 
@@ -272,6 +391,11 @@ namespace bmpl
 
             virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
 
+            virtual inline const std::uint32_t get_alpha_mask() const noexcept override
+            {
+                return alpha_mask;
+            };
+
 
             inline virtual const bool is_v3_NT() const { return false; }
             inline virtual const bool is_v3_NT_4() const { return true; }
@@ -282,7 +406,6 @@ namespace bmpl
         //===========================================================================
         struct BMPInfoHeaderV4 : public BMPInfoHeaderV3_NT_4
         {
-            bmpl::clr::ELogicalColorSpace cs_type{ bmpl::clr::DEFAULT_CS_TYPE };
             std::int32_t red_endX{ -1 };
             std::int32_t red_endY{ -1 };
             std::int32_t red_endZ{ -1 };
@@ -369,10 +492,6 @@ namespace bmpl
             inline virtual const bool is_v4() const { return false; }
             inline virtual const bool is_v5() const { return true; }
 
-
-            static constexpr int COMPR_EMBEDS_JPEG{ 4 };
-            static constexpr int COMPR_EMBEDS_PNG{ 5 };
-
         };
 
 
@@ -382,7 +501,6 @@ namespace bmpl
             std::uint16_t width{ 0 };
             std::uint16_t height{ 0 };
             std::uint16_t planes_count{ 0 };
-            std::uint16_t bits_per_pixel{ 0 };
 
 
             BMPInfoHeaderVOS21() noexcept = default;
@@ -401,6 +519,16 @@ namespace bmpl
                 load(in_stream);
             }
 
+            virtual inline const std::int32_t get_height() const noexcept override
+            {
+                return std::int32_t(height);
+            }
+
+            virtual inline const std::int32_t get_width() const noexcept override
+            {
+                return std::int32_t(width);
+            }
+
             virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
 
             inline virtual const bool is_vOS21() const { return true; }
@@ -409,18 +537,14 @@ namespace bmpl
 
 
         //===========================================================================
-        struct BMPInfoHeaderVOS22_16 : public BMPInfoHeaderBase
+        struct BMPInfoHeaderVOS22_16 : virtual public BMPInfoHeaderWithPalette, virtual public BMPInfoHeaderBase
         {
             std::int32_t width{ 0 };
             std::int32_t height{ 0 };
             std::uint16_t planes_count{ 0 };
-            std::uint16_t bits_per_pixel{ 0 };
-            std::uint32_t compression_mode{ 0 };
             std::uint32_t bitmap_size{ 0 };
             std::uint32_t device_x_resolution{ 0 };
             std::uint32_t device_y_resolution{ 0 };
-            std::uint32_t used_colors_count{ 0 };
-            std::uint32_t important_colors_count{ 0 };
             std::int16_t resolution_units{ 0 };
             std::int16_t reserved{ 0 };
             std::int16_t recording_algorithm{ 0 };
@@ -442,12 +566,38 @@ namespace bmpl
 
 
             inline BMPInfoHeaderVOS22_16(bmpl::utils::LEInStream& in_stream) noexcept
-                : BMPInfoHeaderBase(in_stream)
+                : BMPInfoHeaderWithPalette()
+                , BMPInfoHeaderBase(in_stream)
             {
                 load(in_stream);
             }
 
+            virtual inline const std::int32_t get_height() const noexcept override
+            {
+                return height;
+            }
+
+            virtual inline const std::int32_t get_width() const noexcept override
+            {
+                return width;
+            }
+
             virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+
+            inline virtual const bool may_embed_color_palette() const override
+            {
+                return true;
+            }
+
+            virtual inline const std::uint32_t get_colors_count() const noexcept override
+            {
+                return this->used_colors_count;;
+            }
+
+            virtual inline const std::uint32_t get_important_colors_count() const noexcept override
+            {
+                return this->important_colors_count;
+            }
 
         };
 

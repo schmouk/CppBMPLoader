@@ -46,7 +46,7 @@ namespace bmpl
         {
             using MyErrBaseClass = bmpl::utils::ErrorStatus;
 
-            BMPInfoHeader info_header;
+            const BMPInfoHeaderBase* info_header_ptr{ nullptr };
             BMPColorMap color_map;
 
 
@@ -62,13 +62,15 @@ namespace bmpl
 
             inline BMPInfo(bmpl::utils::LEInStream& in_stream) noexcept
                 : MyErrBaseClass()
-                , info_header(in_stream)
-                , color_map(in_stream, info_header)
+                , info_header_ptr{ bmpl::frmt::create_bmp_info_header(in_stream) }
+                , color_map(in_stream, info_header_ptr)
             {
                 if (in_stream.failed())
                     _set_err(in_stream.get_error());
-                else if (info_header.failed())
-                    _set_err(info_header.get_error());
+                else if (info_header_ptr == nullptr)
+                    _set_err(bmpl::utils::ErrorCode::BAD_INFO_HEADER);
+                else if (info_header_ptr->failed())
+                    _set_err(info_header_ptr->get_error());
                 else if (color_map.failed())
                     _set_err(color_map.get_error());
                 else

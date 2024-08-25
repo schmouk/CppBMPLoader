@@ -59,6 +59,8 @@ namespace bmpl
                 return "a color palett is encoded while bitfields masks are defined.";
             case WarningCode::DELTA_MODE_MAY_OVERFLOW:
                 return "some value specified in RLE delta mode may cause buffers overflow.";
+            case WarningCode::FORBIDDEN_TOP_DOWN_ORIENTATION:
+                return "top-down orientation of image is not allowed with RLE-compression; we try to decode it nevertheless.";
             case WarningCode::INCOHERENT_IMAGE_SIZE:
                 return "image size in info header is incoherent with specified width and height.";
             case WarningCode::INCOHERENT_RESOLUTIONS:
@@ -74,7 +76,7 @@ namespace bmpl
             case WarningCode::SRGB_NOT_IMPLEMENTED:
                 return "the sRGB color space type embedded in this BMP file is not yet implemented here - a naive decoding is done instead.";
             case WarningCode::TOO_BIG_PALETTE:
-                return "too many colors are defined in palette, extra ones will not be used.";
+                return "too many colors are defined in palette, extra ones will be ignored.";
             case WarningCode::TOO_MANY_COLORS_IN_PALETT:
                 return "too many colors are defined in palett, some of them won't be used.";
             case WarningCode::TOO_MANY_INDICES_IN_BITMAP:

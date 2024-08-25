@@ -49,6 +49,7 @@ namespace bmpl
             BAD_COLOR_SPACE_TYPE,
             BAD_COLORMAP_ENCODING,
             BAD_DEFAULT_VALUE,
+            BAD_INFO_HEADER,
             BMP_BAD_ENCODING,
             BUFFER_OVERFLOW,
             CORRUPTED_BMP_FILE,
@@ -57,9 +58,11 @@ namespace bmpl
             INCOHERENT_COMPRESSION_MODE,
             INCOHERENT_DELTA_MODE_VALUES,
             INCOHERENT_IMAGE_DIMENSIONS,
+            INCOHERENT_BMP_LOADER_IMPLEMENTATION,
             INCOHERENT_RUN_LENGTH_ENCODING,
             INPUT_OPERATION_FAILED,
             INVALID_DEVICE_RESOLUTION,
+            INVALID_HEADER_SIZE,
             INVALID_IMAGE_DIMENSIONS,
             IRRECOVERABLE_STREAM_ERROR,
             NEGATIVE_WIDTH,
@@ -70,6 +73,7 @@ namespace bmpl
             NOT_YET_IMPLEMENTED_BMP_FORMAT,
             OVERLAPPING_BITFIELD_MASKS,
             RLE_INPUT_OPERATION_FAILED,
+            TOO_BIG_BITS_PER_PIXEL_VALUE,
         };
 
 
