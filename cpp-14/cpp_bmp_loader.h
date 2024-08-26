@@ -318,7 +318,7 @@ namespace bmpl
                         for (auto& pxl : this->image_content)
                             bmpl::clr::gamma_correction(pxl, gamma_r, gamma_g, gamma_b);
                     }
-                    else if (info_header_ptr->cs_type == bmpl::clr::ELogicalColorSpace::DEVICE_RGB) {
+                    else if (info_header_ptr->cs_type == bmpl::clr::ELogicalColorSpace::S_RGB) {
                         for (auto& pxl : this->image_content)
                             bmpl::clr::gamma_correction(pxl, 2.2, 2.2, 2.2);  // notice: gamma value 2.2 is an accepted approximation.
                     }

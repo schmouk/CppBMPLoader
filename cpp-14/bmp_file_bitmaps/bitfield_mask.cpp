@@ -54,7 +54,7 @@ namespace bmpl
             case 3:
                 return (color_component * 0b0010'0100) | (color_component >> 1);
             case 4:
-                return color_component * 0b1000'1000;
+                return color_component * 0b0001'0001;
             case 5:
                 return (color_component << 3) | (color_component >> 2);
             case 6:
