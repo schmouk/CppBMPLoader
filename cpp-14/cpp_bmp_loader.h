@@ -300,7 +300,7 @@ namespace bmpl
             if (this->_info.info_header_ptr->is_v4()) {
                 // yes!
                 const bmpl::frmt::BMPInfoHeaderV4* info_header_ptr = dynamic_cast<const bmpl::frmt::BMPInfoHeaderV4*>(this->_info.info_header_ptr);
-                if (info_header_ptr->cs_type == bmpl::clr::ELogicalColorSpace::CALIBRATED_RGB) {
+                if (info_header_ptr->cs_type == bmpl::clr::ELogicalColorSpace::CALIBRATED_RGB) {  //DEVICE_RGB) {  //
                     const double gamma_r{ double(info_header_ptr->gamma_red) };
                     const double gamma_g{ double(info_header_ptr->gamma_green) };
                     const double gamma_b{ double(info_header_ptr->gamma_blue) };
@@ -308,6 +308,21 @@ namespace bmpl
                         bmpl::clr::gamma_correction(pxl, gamma_r, gamma_g, gamma_b);
                 }
             }
+            else if (this->_info.info_header_ptr->is_v5()) {
+                    // yes!
+                    const bmpl::frmt::BMPInfoHeaderV5* info_header_ptr = dynamic_cast<const bmpl::frmt::BMPInfoHeaderV5*>(this->_info.info_header_ptr);
+                    if (info_header_ptr->cs_type == bmpl::clr::ELogicalColorSpace::CALIBRATED_RGB) {
+                        const double gamma_r{ double(info_header_ptr->gamma_red) };
+                        const double gamma_g{ double(info_header_ptr->gamma_green) };
+                        const double gamma_b{ double(info_header_ptr->gamma_blue) };
+                        for (auto& pxl : this->image_content)
+                            bmpl::clr::gamma_correction(pxl, gamma_r, gamma_g, gamma_b);
+                    }
+                    else if (info_header_ptr->cs_type == bmpl::clr::ELogicalColorSpace::DEVICE_RGB) {
+                        for (auto& pxl : this->image_content)
+                            bmpl::clr::gamma_correction(pxl, 2.2, 2.2, 2.2);  // notice: gamma value 2.2 is an accepted approximation.
+                    }
+                }
 
             // once here, everything was fine
             _clr_err();
