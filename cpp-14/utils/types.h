@@ -114,6 +114,27 @@ namespace bmpl
             {
                 return double(*this) != val;
             }
+
+            inline const bool operator< (const float val) const noexcept
+            {
+                return float(*this) < val;
+            }
+
+            inline const bool operator< (const double val) const noexcept
+            {
+                return double(*this) < val;
+            }
+
+            inline const bool operator> (const float val) const noexcept
+            {
+                return float(*this) > val;
+            }
+
+            inline const bool operator> (const double val) const noexcept
+            {
+                return double(*this) > val;
+            }
+
         };
 
     }

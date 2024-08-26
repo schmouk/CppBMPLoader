@@ -134,19 +134,7 @@ namespace bmpl
             if (failed())
                 return false;
 
-            if (compression_mode == COMPR_NO_RLE) {
-                if (bits_per_pixel == 16) {
-                    blue_mask = 0b0000'0000'0001'1111;
-                    green_mask = 0b0000'0011'1110'0000;
-                    red_mask = 0b0111'1100'0000'0000;
-                }
-                else if (bits_per_pixel == 32) {
-                    blue_mask = 0x0000'00ff;
-                    green_mask = 0x0000'ff00;
-                    red_mask = 0x00ff'0000;
-                }
-            }
-            else if (!(in_stream >> red_mask >> green_mask >> blue_mask))
+            if (!(in_stream >> red_mask >> green_mask >> blue_mask))
                 return _set_err(in_stream.get_error());
 
             if ((red_mask & green_mask) || (red_mask & blue_mask) || (green_mask & blue_mask))
@@ -173,6 +161,9 @@ namespace bmpl
         //===========================================================================
         const bool BMPInfoHeaderV3_NT_4::load(bmpl::utils::LEInStream& in_stream) noexcept
         {
+            if (failed())
+                return false;
+
             if (!(in_stream >> alpha_mask))
                 return _set_err(in_stream.get_error());
 
@@ -193,8 +184,11 @@ namespace bmpl
 
 
         //===========================================================================
-        const bool BMPInfoHeaderV4::load(bmpl::utils::LEInStream& in_stream) noexcept
+        const bool BMPInfoHeaderV4::load(bmpl::utils::LEInStream& in_stream, const bool is_V4_base) noexcept
         {
+            if (failed())
+                return false;
+
             if (!(in_stream >> (std::uint32_t&)cs_type
                             >> red_endX
                             >> red_endY
@@ -213,7 +207,13 @@ namespace bmpl
             if (cs_type != bmpl::clr::ELogicalColorSpace::CALIBRATED_RGB &&
                 cs_type != bmpl::clr::ELogicalColorSpace::S_RGB &&
                 cs_type != bmpl::clr::ELogicalColorSpace::WINDOWS_COLOR_SPACE)
-                return _set_err(bmpl::utils::ErrorCode::BAD_COLOR_SPACE_TYPE);
+            {
+                if (is_V4_base || (!is_V4_base &&
+                    cs_type != bmpl::clr::ELogicalColorSpace::EMBEDDED_COLOR_PROFILE &&
+                    cs_type != bmpl::clr::ELogicalColorSpace::LINKED_COLOR_PROFILE)
+                )
+                    return _set_err(bmpl::utils::ErrorCode::BAD_COLOR_SPACE_TYPE);
+            }
                 
             return _clr_err();
         }
@@ -222,6 +222,9 @@ namespace bmpl
         //===========================================================================
         const bool BMPInfoHeaderV4::get_gamma_values(double& gamma_red_, double& gamma_green_, double& gamma_blue_) const noexcept
         {
+            if (failed())
+                return false;
+
             if (is_calibrated_rgb_color_space()) {
                 gamma_red_ = double(this->gamma_red);
                 gamma_green_ = double(this->gamma_green);
@@ -266,8 +269,43 @@ namespace bmpl
         //===========================================================================
         const bool BMPInfoHeaderV5::load(bmpl::utils::LEInStream& in_stream) noexcept
         {
-            // TODO: implement this
-            return _set_err(bmpl::utils::ErrorCode::NOT_YET_IMPLEMENTED_BMP_FORMAT);
+            if (failed())
+                return false;
+
+            if (!(in_stream >> intent >> profile_data >> profile_size >> reserved))
+                return _set_err(in_stream.get_error());
+
+            if (intent != LCS_GM_BUSINESS && intent != LCS_GM_GRAPHICS && intent != LCS_GM_IMAGES && intent != LCS_GM_ABS_COLORIMETRIC)
+                return _set_err(bmpl::utils::ErrorCode::BAD_INTENT_VALUE);
+
+            if (profile_data != 0 && (profile_data < 128 || profile_data >= in_stream.get_size()))
+                return _set_err(bmpl::utils::ErrorCode::BAD_PROFILE_DATA_OFFSET);
+
+            if (profile_data + profile_size > in_stream.get_size())
+                return _set_err(bmpl::utils::ErrorCode::BAD_PROFILE_SIZE);
+
+            if (reserved != 0)
+                _set_warning(bmpl::utils::WarningCode::NOT_ZERO_RESERVED);
+
+            if (cs_type == bmpl::clr::ELogicalColorSpace::EMBEDDED_COLOR_PROFILE ||
+                cs_type == bmpl::clr::ELogicalColorSpace::LINKED_COLOR_PROFILE)
+            {
+                if (profile_data == 0)
+                    return _set_err(bmpl::utils::ErrorCode::MISSING_PROFILE_DATA_OFFSET);
+                if (profile_size == 0)
+                    return _set_err(bmpl::utils::ErrorCode::MISSING_PROFILE_DATA);
+            }
+
+            if (cs_type == bmpl::clr::ELogicalColorSpace::EMBEDDED_COLOR_PROFILE)
+                _set_warning(bmpl::utils::WarningCode::EMBEDDED_PROFILE_NOT_IMPLEMENTED);
+            else if (cs_type == bmpl::clr::ELogicalColorSpace::LINKED_COLOR_PROFILE)
+                _set_warning(bmpl::utils::WarningCode::LINKED_PROFILE_NOT_IMPLEMENTED);
+
+            if (bits_per_pixel == 0 && compression_mode != COMPR_EMBEDS_JPEG && compression_mode != COMPR_EMBEDS_PNG)
+                return _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
+
+            return _clr_err();
+
         }
 
 
@@ -337,7 +375,7 @@ namespace bmpl
 
             case 0x28:
             {   //-- Version 3 or 3_NT of BMP file format --//
-                constexpr size_t header_file_size{ 18 };
+                constexpr size_t header_file_size{ 14 };
 
                 BMPInfoHeaderV3* header_ptr{ new BMPInfoHeaderV3(in_stream) };
 

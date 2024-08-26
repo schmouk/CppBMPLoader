@@ -52,6 +52,12 @@ namespace bmpl
                 return "bad default value.";
             case ErrorCode::BAD_COLORMAP_ENCODING:
                 return "bad encoding for colors map.";
+            case ErrorCode::BAD_INTENT_VALUE:
+                return "bad intent value.";
+            case ErrorCode::BAD_PROFILE_DATA_OFFSET:
+                return "bad specified offset for data pofile.";
+            case ErrorCode::BAD_PROFILE_SIZE:
+                return "bad specified size for data profile.";
             case ErrorCode::BMP_BAD_ENCODING:
                 return "bad BMP format encoding.";
             case ErrorCode::BUFFER_OVERFLOW:
@@ -80,8 +86,14 @@ namespace bmpl
                 return "the specified size for the info header is invalid.";
             case ErrorCode::INVALID_IMAGE_DIMENSIONS:
                 return "some dimension of image is set to zero.";
+            case ErrorCode::INVALID_PROFILE_DATA_OFFSET:
+                return "The specified offset for profile data is invalid.";
             case ErrorCode::IRRECOVERABLE_STREAM_ERROR:
                 return "encountered some irrecoverable file streaming error.";
+            case ErrorCode::MISSING_PROFILE_DATA:
+                return "profile data is missing.";
+            case ErrorCode::MISSING_PROFILE_DATA_OFFSET:
+                return "profile data offset is missing.";
             case ErrorCode::NEGATIVE_WIDTH:
                 return "info header specifies a negative width for final image, which is forbidden.";
             case ErrorCode::NOT_BMP_ENCODING:

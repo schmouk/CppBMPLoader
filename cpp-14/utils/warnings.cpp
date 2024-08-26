@@ -57,18 +57,30 @@ namespace bmpl
                 return "header indicates a planes count value different from 1.";
             case WarningCode::BITFIELDS_AND_PALETT:
                 return "a color palett is encoded while bitfields masks are defined.";
+            case WarningCode::CORRECTED_GAMMA_BLUE:
+                return "strange gamma value on blue component, forced to 2.2.";
+            case WarningCode::CORRECTED_GAMMA_GREEN:
+                return "strange gamma value on green component, forced to 2.2.";
+            case WarningCode::CORRECTED_GAMMA_RED:
+                return "strange gamma value on red component, forced to 2.2.";
             case WarningCode::DELTA_MODE_MAY_OVERFLOW:
                 return "some value specified in RLE delta mode may cause buffers overflow.";
+            case WarningCode::EMBEDDED_PROFILE_NOT_IMPLEMENTED:
+                return "ICC embedded profiles are not implemented in CppBMPLoader library which uses plain coded colors instead.";
             case WarningCode::FORBIDDEN_TOP_DOWN_ORIENTATION:
                 return "top-down orientation of image is not allowed with RLE-compression; we try to decode it nevertheless.";
             case WarningCode::INCOHERENT_IMAGE_SIZE:
                 return "image size in info header is incoherent with specified width and height.";
             case WarningCode::INCOHERENT_RESOLUTIONS:
                 return "maybe incoherent image resolutions detected in info header - one of them may be too big compared to the other one.";
+            case WarningCode::LINKED_PROFILE_NOT_IMPLEMENTED:
+                return "for security issues, ICC linked profiles are not implemented in CppBMPLoader library which uses plain coded colors instead.";
             case WarningCode::MISSING_BITFIELDS_MASKS:
                 return "at least on color bits mask is missing in bitfields definition.";
             case WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP:
                 return "too small bitmap, last image pixels are set to default value.";
+            case WarningCode::NOT_ZERO_RESERVED:
+                return "a reserved word is not set to zero.";
             case WarningCode::PALETT_WITH_FULL_COLORS:
                 return "a color palett is defined while this is a full-color bitmap.";
             case WarningCode::SOME_GAP_BTW_PALETT_AND_BITMAP:

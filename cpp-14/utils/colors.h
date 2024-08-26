@@ -46,9 +46,13 @@ namespace bmpl
         //===========================================================================
         enum class ELogicalColorSpace : std::uint32_t
         {
-            CALIBRATED_RGB = 0x00000000,
-            S_RGB = 0x73524742,  // i.e. 'sRGB'
-            WINDOWS_COLOR_SPACE = 0x57696E20  // i.e. 'Win '
+            CALIBRATED_RGB         = 0,
+            DEVICE_RGB             = 1,
+            DEVICE_CMYK            = 2,
+            EMBEDDED_COLOR_PROFILE = 0x4D424544,  // i.e. 'MBED',
+            LINKED_COLOR_PROFILE   = 0x4C494D4B,  // i.e. 'LINK',
+            S_RGB                  = 0x73524742,  // i.e. 'sRGB'
+            WINDOWS_COLOR_SPACE    = 0x57696E20,  // i.e. 'Win '
         };
 
         static constexpr ELogicalColorSpace DEFAULT_CS_TYPE{ ELogicalColorSpace::CALIBRATED_RGB };

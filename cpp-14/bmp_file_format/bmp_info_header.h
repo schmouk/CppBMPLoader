@@ -320,9 +320,9 @@ namespace bmpl
         //===========================================================================
         struct BMPInfoHeaderV3_NT : public BMPInfoHeaderV3
         {
-            std::uint32_t red_mask{ 0xffff'ffff };
-            std::uint32_t green_mask{ 0xffff'ffff };
-            std::uint32_t blue_mask{ 0xffff'ffff };
+            std::uint32_t red_mask{ 0 };
+            std::uint32_t green_mask{ 0 };
+            std::uint32_t blue_mask{ 0 };
 
 
             BMPInfoHeaderV3_NT() noexcept = default;
@@ -430,13 +430,13 @@ namespace bmpl
             inline BMPInfoHeaderV4& operator= (BMPInfoHeaderV4&&) noexcept = default;
 
 
-            inline BMPInfoHeaderV4(bmpl::utils::LEInStream& in_stream) noexcept
+            inline BMPInfoHeaderV4(bmpl::utils::LEInStream& in_stream, const bool is_V4_base = true) noexcept
                 : BMPInfoHeaderV3_NT_4(in_stream)
             {
-                load(in_stream);
+                load(in_stream, is_V4_base);
             }
 
-            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+            virtual const bool load(bmpl::utils::LEInStream& in_stream, const bool is_V4_base) noexcept;
 
 
             virtual inline const bool is_calibrated_rgb_color_space() const noexcept
@@ -471,6 +471,18 @@ namespace bmpl
         //===========================================================================
         struct BMPInfoHeaderV5 : public BMPInfoHeaderV4
         {
+            static constexpr std::uint32_t HEADER_SIZE{ 128 };
+
+            static constexpr std::uint32_t LCS_GM_BUSINESS{ 1 };
+            static constexpr std::uint32_t LCS_GM_GRAPHICS{ 2 };
+            static constexpr std::uint32_t LCS_GM_IMAGES{ 4 };
+            static constexpr std::uint32_t LCS_GM_ABS_COLORIMETRIC{ 8 };
+
+            std::uint32_t intent{ 0 };
+            std::uint32_t profile_data{ 0 };
+            std::uint32_t profile_size{ 0 };
+            std::uint32_t reserved{ 0 };
+
             BMPInfoHeaderV5() noexcept = default;
             BMPInfoHeaderV5(const BMPInfoHeaderV5&) noexcept = default;
             BMPInfoHeaderV5(BMPInfoHeaderV5&&) noexcept = default;
@@ -482,7 +494,7 @@ namespace bmpl
 
 
             inline BMPInfoHeaderV5(bmpl::utils::LEInStream& in_stream) noexcept
-                : BMPInfoHeaderV4(in_stream)
+                : BMPInfoHeaderV4(in_stream, false)
             {
                 load(in_stream);
             }
