@@ -32,6 +32,7 @@ SOFTWARE.
 */
 
 
+#include <algorithm>
 #include <cstdint>
 #include <string>
 #include <strstream>
@@ -74,6 +75,7 @@ namespace bmpl
             TOO_MANY_INDICES_IN_BITMAP,
             UNUSED_BITS_SET_TO_1,
             UNUSED_PALETTE,
+            WIN_CE_2_BITS_PIXELS,
         };
 
 
@@ -125,6 +127,8 @@ namespace bmpl
                 return !this->_warnings_list.empty();
             }
 
+
+            void set_unique_warnings();
 
 
         protected:

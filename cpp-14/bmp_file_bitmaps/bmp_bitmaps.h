@@ -123,7 +123,31 @@ namespace bmpl
                 : MyBaseClass(in_stream, file_header, info_header_ptr, color_map, image_width, image_height)
             {}
 
-            virtual const bool load(std::vector<PixelT>& image_content) noexcept;
+            virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
+
+        };
+
+
+        //===========================================================================
+        template<typename PixelT>
+        class BitmapLoader2bits : public BitmapLoaderBase<PixelT>
+        {
+        public:
+
+            using MyBaseClass = BitmapLoaderBase<PixelT>;
+
+            inline BitmapLoader2bits(
+                bmpl::utils::LEInStream& in_stream,
+                bmpl::frmt::BMPFileHeader& file_header,
+                const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
+                bmpl::frmt::BMPColorMap& color_map,
+                const std::int32_t image_width,
+                const std::int32_t image_height
+            ) noexcept
+                : MyBaseClass(in_stream, file_header, info_header_ptr, color_map, image_width, image_height)
+            {}
+
+            virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
 
         };
 
@@ -147,7 +171,7 @@ namespace bmpl
                 : MyBaseClass(in_stream, file_header, info_header_ptr, color_map, image_width, image_height)
             {}
 
-            virtual const bool load(std::vector<PixelT>& image_content) noexcept;
+            virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
 
         };
 
@@ -171,7 +195,7 @@ namespace bmpl
                 : MyBaseClass(in_stream, file_header, info_header_ptr, color_map, image_width, image_height)
             {}
 
-            virtual const bool load(std::vector<PixelT>& image_content) noexcept;
+            virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
 
         };
 
@@ -195,7 +219,7 @@ namespace bmpl
                 : MyBaseClass(in_stream, file_header, info_header_ptr, color_map, image_width, image_height)
             {}
 
-            virtual const bool load(std::vector<PixelT>& image_content) noexcept;
+            virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
 
         };
 
@@ -219,7 +243,7 @@ namespace bmpl
                 : MyBaseClass(in_stream, file_header, info_header_ptr, color_map, image_width, image_height)
             {}
 
-            virtual const bool load(std::vector<PixelT>& image_content) noexcept;
+            virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
 
         };
 
@@ -243,7 +267,7 @@ namespace bmpl
                 : MyBaseClass(in_stream, file_header, info_header_ptr, color_map, image_width, image_height)
             {}
 
-            virtual const bool load(std::vector<PixelT>& image_content) noexcept;
+            virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
 
         };
 
@@ -267,7 +291,7 @@ namespace bmpl
                 : MyBaseClass(in_stream, file_header, info_header_ptr, color_map, image_width, image_height)
             {}
 
-            virtual const bool load(std::vector<PixelT>& image_content) noexcept;
+            virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
 
         };
 
@@ -291,7 +315,7 @@ namespace bmpl
                 : MyBaseClass(in_stream, file_header, info_header_ptr, color_map, image_width, image_height)
             {}
 
-            virtual const bool load(std::vector<PixelT>& image_content) noexcept;
+            virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
 
         };
 
@@ -315,7 +339,7 @@ namespace bmpl
                 : MyBaseClass(in_stream, file_header, info_header_ptr, color_map, image_width, image_height)
             {}
 
-            virtual const bool load(std::vector<PixelT>& image_content) noexcept;
+            virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
 
         };
 
@@ -339,6 +363,9 @@ namespace bmpl
             {
             case 1:
                 return new BitmapLoader1bit<PixelT>(in_stream, file_header, info_header_ptr, color_map, image_width, image_height);
+
+            case 2:
+                return new BitmapLoader2bits<PixelT>(in_stream, file_header, info_header_ptr, color_map, image_width, image_height);
 
             case 4:
                 if (info_header_ptr->compression_mode == info_header_ptr->COMPR_NO_RLE)
@@ -428,7 +455,86 @@ namespace bmpl
             auto ndx_it = indexed_content.cbegin();
             while (ndx_it != indexed_content.cend()) {
                 for (std::uint8_t mask = 0x80; line_remaining_pixels > 0 && mask > 0 && img_it != image_content.end(); mask >>= 1) {
-                    bmpl::clr::convert(*img_it++, this->color_map[(*ndx_it & mask) != 0]);
+                    bmpl::clr::convert(*img_it++, this->color_map[(*ndx_it & mask) != 0]);  // notice: "!= 0" optimization to avoid bits shifting
+                    --line_remaining_pixels;
+                }
+                ++ndx_it;
+                if (line_remaining_pixels == 0)
+                    line_remaining_pixels = width;
+            }
+
+            if (img_it != image_content.end()) {
+                this->_set_warning(bmpl::utils::WarningCode::TOO_MANY_INDICES_IN_BITMAP);
+            }
+            else if (ndx_it != indexed_content.cend()) {
+                this->_set_warning(bmpl::utils::WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP);
+            }
+
+            // once here, everything was fine!
+            return this->_clr_err();
+        }
+
+
+
+        //===========================================================================
+        template<typename PixelT>
+        const bool BitmapLoader2bits<PixelT>::load(std::vector<PixelT>& image_content) noexcept
+        {
+            // Notice: this is a specific case with Windows CE
+            if (this->info_header_ptr == nullptr)
+                return this->_set_err(bmpl::utils::ErrorCode::BAD_INFO_HEADER);
+
+            if (this->info_header_ptr->compression_mode != this->info_header_ptr->COMPR_NO_RLE) {
+                // No Run Length Encoding is defined by Windows CE
+                return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
+            }
+
+            const std::size_t width{ std::size_t(this->image_width) };
+            const std::size_t index_width{ std::size_t(std::ceil(width / 4.0f)) };
+            const std::size_t index_height{ std::size_t(this->image_height) };
+
+            std::vector<std::uint8_t> indexed_content;
+            indexed_content.assign(index_width * index_height, 0);
+
+            // loads the indexed content
+            if (index_width % 4 == 0) {
+                // cool, no padding at end of each line
+                // let's load the whole image content at once
+                if (!(this->in_stream.read(reinterpret_cast<char*>(indexed_content.data()), index_width * index_height)))
+                    if (this->in_stream.eof())
+                        return this->_set_err(bmpl::utils::ErrorCode::END_OF_FILE);
+                    else
+                        return this->_set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
+            }
+            else {
+                // let's load the image content line after line
+                const std::size_t padding_size{ this->_evaluate_padding(width) };
+
+                char* current_line_ptr{ reinterpret_cast<char*>(indexed_content.data()) };
+                for (int line = 0; line < index_height; ++line) {
+                    if (!(this->in_stream.read(current_line_ptr, index_width))) {
+                        if (this->in_stream.eof())
+                            return this->_set_err(bmpl::utils::ErrorCode::END_OF_FILE);
+                        else
+                            return this->_set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
+                    }
+
+                    if (padding_size > 0 && !(this->in_stream.seekg(padding_size, std::ios_base::cur))) {
+                        return this->_set_err(bmpl::utils::ErrorCode::END_OF_FILE);
+                    }
+
+                    current_line_ptr += index_width;
+                }
+            }
+
+            // evaluates the final image content
+            std::size_t line_remaining_pixels{ width };
+
+            auto img_it{ image_content.begin() };
+            auto ndx_it = indexed_content.cbegin();
+            while (ndx_it != indexed_content.cend()) {
+                for (std::uint8_t mask = 0xc0, shift = 6; line_remaining_pixels > 0 && mask > 0 && img_it != image_content.end(); mask >>= 2, shift -= 2) {
+                    bmpl::clr::convert(*img_it++, this->color_map[(*ndx_it & mask) >> shift]);
                     --line_remaining_pixels;
                 }
                 ++ndx_it;

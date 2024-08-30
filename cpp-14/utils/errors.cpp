@@ -68,6 +68,10 @@ namespace bmpl
                 return "encountered unexpected end-of-file.";
             case ErrorCode::FILE_NOT_FOUND:
                 return "file not found.";
+            case ErrorCode::FORBIDDEN_BOTTOM_UP_ORIENTATION:
+                return "bottom-up image orientation is forbidden with JPEG and PNG embedded encodings.";
+            case ErrorCode::INCOHERENT_BITS_PER_PIXEL_VALUE:
+                return "incoherent number of bits per pixel with specified compression mode.";
             case ErrorCode::INCOHERENT_BMP_LOADER_IMPLEMENTATION:
                 return "incoherent implementation of Cpp BMP Loader - this is a program error.";
             case ErrorCode::INCOHERENT_COMPRESSION_MODE:
@@ -106,6 +110,10 @@ namespace bmpl
                 return "file is not a Windows BMP file.";
             case ErrorCode::NOT_YET_IMPLEMENTED_BMP_FORMAT:
                 return "this BMP file is not of a currently implemented format by library 'Cpp BMP Loader'.";
+            case ErrorCode::NOT_YET_IMPLEMENTED_JPEG_DECODING:
+                return "Library 'Cpp BMP Loader' does not yet implement embedded JPEG decoding.";
+            case ErrorCode::NOT_YET_IMPLEMENTED_PNG_DECODING:
+                return "Library 'Cpp BMP Loader' does not yet implement embedded PNG decoding'.";
             case ErrorCode::OVERLAPPING_BITFIELD_MASKS:
                 return "some bitfield masks are overlapping.";
             case ErrorCode::RLE_INPUT_OPERATION_FAILED:

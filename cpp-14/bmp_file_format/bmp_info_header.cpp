@@ -64,7 +64,7 @@ namespace bmpl
 
 
         //===========================================================================
-        const bool BMPInfoHeaderV3::load(bmpl::utils::LEInStream& in_stream, const bool is_V3_base) noexcept
+        const bool BMPInfoHeaderV3::load(bmpl::utils::LEInStream& in_stream, const bool is_V3_base, const bool is_V5_base) noexcept
         {
 
             if (!(in_stream >> width
@@ -92,6 +92,8 @@ namespace bmpl
 
                 if (compression_mode != COMPR_NO_RLE)
                     _set_warning(bmpl::utils::WarningCode::FORBIDDEN_TOP_DOWN_ORIENTATION);
+                else if (is_V5_base && (compression_mode == COMPR_EMBEDS_JPEG || compression_mode == COMPR_EMBEDS_PNG))
+                    return _set_err(bmpl::utils::ErrorCode::FORBIDDEN_BOTTOM_UP_ORIENTATION);
             }
 
             if (device_x_resolution > 2.5 * device_y_resolution || device_y_resolution > 2.5 * device_x_resolution)
@@ -104,12 +106,24 @@ namespace bmpl
             if (is_V3_base && compression_mode > COMPR_RLE_4)
                 return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
 
+            if (is_V5_base) {
+                if (compression_mode == COMPR_EMBEDS_JPEG)
+                    return _set_err(bmpl::utils::ErrorCode::NOT_YET_IMPLEMENTED_JPEG_DECODING);
+                else if (compression_mode == COMPR_EMBEDS_PNG)
+                    return _set_err(bmpl::utils::ErrorCode::NOT_YET_IMPLEMENTED_PNG_DECODING);
+            }
+
             if (bitmap_size == 0 && compression_mode != COMPR_NO_RLE)
                 return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
 
-            if (is_V3_base && bits_per_pixel != 1 && bits_per_pixel != 4 &&
+            if (bits_per_pixel != 1 && bits_per_pixel != 4 &&
                 bits_per_pixel != 8 && bits_per_pixel != 24 && bits_per_pixel != 64)
-                return _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
+            {
+                if (bits_per_pixel == 2)
+                    _set_warning(bmpl::utils::WarningCode::WIN_CE_2_BITS_PIXELS);
+                else if (is_V3_base || (bits_per_pixel != 16 && bits_per_pixel != 32))
+                    return _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
+            }
 
             if (bits_per_pixel != 24) {
                 if (important_colors_count > used_colors_count)
@@ -119,23 +133,42 @@ namespace bmpl
             if (bits_per_pixel > 64)
                 return _set_err(bmpl::utils::ErrorCode::TOO_BIG_BITS_PER_PIXEL_VALUE);
 
-            if (is_V3_base && bits_per_pixel != 1 && bits_per_pixel != 4 && bits_per_pixel != 8) {
+            if (is_V3_base && bits_per_pixel != 1 && bits_per_pixel != 2 && bits_per_pixel != 4 && bits_per_pixel != 8) {
                 if (used_colors_count != 0)
                     _set_warning(bmpl::utils::WarningCode::UNUSED_PALETTE);
             }
+
+            if (used_colors_count == 0 && bits_per_pixel < 24)
+                used_colors_count = 256;
 
             return _clr_err();
         }
 
 
         //===========================================================================
-        const bool BMPInfoHeaderV3_NT::load(bmpl::utils::LEInStream& in_stream) noexcept
+        const bool BMPInfoHeaderV3_NT::load(bmpl::utils::LEInStream& in_stream, const bool is_V4_base) noexcept
         {
             if (failed())
                 return false;
 
-            if (!(in_stream >> red_mask >> green_mask >> blue_mask))
-                return _set_err(in_stream.get_error());
+            if (compression_mode == COMPR_RLE_COLOR_BITMASKS || is_V4_base) {
+                if (!(in_stream >> red_mask >> green_mask >> blue_mask))
+                    return _set_err(in_stream.get_error());
+            }
+            else {
+                if (bits_per_pixel == 16) {
+                    alpha_mask = 0;
+                    red_mask = 0xf800'0000;
+                    green_mask = 0x07e0'0000;
+                    blue_mask = 0x001f'0000;
+                }
+                else if (bits_per_pixel == 32) {
+                    alpha_mask = 0;
+                    red_mask   = 0xffc0'0000;
+                    green_mask = 0x003f'f000;
+                    blue_mask  = 0x0000'0ffc;
+                }
+            }
 
             if ((red_mask & green_mask) || (red_mask & blue_mask) || (green_mask & blue_mask))
                 return _set_err(bmpl::utils::ErrorCode::OVERLAPPING_BITFIELD_MASKS);
@@ -188,6 +221,11 @@ namespace bmpl
         {
             if (failed())
                 return false;
+
+            if (compression_mode == COMPR_EMBEDS_JPEG)
+                return _set_err(bmpl::utils::ErrorCode::NOT_YET_IMPLEMENTED_JPEG_DECODING);
+            else if (compression_mode == COMPR_EMBEDS_PNG)
+                return _set_err(bmpl::utils::ErrorCode::NOT_YET_IMPLEMENTED_PNG_DECODING);
 
             if (!(in_stream >> (std::uint32_t&)cs_type
                             >> red_endX
@@ -360,7 +398,7 @@ namespace bmpl
 
                     if (expected_bitmap_size < actual_bitmap_size) {
                         // well, this finally appears to be an OS/2 1.x BMP file
-                        in_stream.seekg(header_file_size);  // let's go back to the starting position of this info header
+                        in_stream.seekg(header_file_size + 4);  // let's go back to the starting position of this info header, right after its size encoding on 32 bits 
                         BMPInfoHeaderVOS21* header_ptr{ new BMPInfoHeaderVOS21(in_stream) };
                         return header_ptr;
                     }
@@ -384,7 +422,7 @@ namespace bmpl
                         header_ptr->compression_mode == BMPInfoHeaderV3_NT::COMPR_NO_RLE)
                     {
                         // well, this finally appears to be a version 3-NT BMP file
-                        in_stream.seekg(header_file_size);  // let's go back to the starting position of this info header
+                        in_stream.seekg(header_file_size + 4);  // let's go back to the starting position of this info header, right after its size encoding on 32 bits
                         BMPInfoHeaderV3_NT* header_ptr{ new BMPInfoHeaderV3_NT(in_stream) };
                         return header_ptr;
                     }

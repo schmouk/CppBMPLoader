@@ -68,7 +68,7 @@ namespace bmpl
             case WarningCode::EMBEDDED_PROFILE_NOT_IMPLEMENTED:
                 return "ICC embedded profiles are not implemented in CppBMPLoader library which uses plain coded colors instead.";
             case WarningCode::FORBIDDEN_TOP_DOWN_ORIENTATION:
-                return "top-down orientation of image is not allowed with RLE-compression; we try to decode it nevertheless.";
+                return "top-down orientation of image is not allowed with RLE-compression; CppBMPLoader librar tries to decode it nevertheless.";
             case WarningCode::INCOHERENT_IMAGE_SIZE:
                 return "image size in info header is incoherent with specified width and height.";
             case WarningCode::INCOHERENT_RESOLUTIONS:
@@ -97,6 +97,8 @@ namespace bmpl
                 return "some pixels have bitfields unused bits set to 1.";
             case WarningCode::UNUSED_PALETTE:
                 return "An unused palette is defined in BMP file.";
+            case WarningCode::WIN_CE_2_BITS_PIXELS:
+                return "An unused 2-bits per pixel specification is only allowed with Windows CE; CppBMPLoader library decodes this nevertheless.";
             default:
                 return "unkown warning...";
             }
@@ -108,6 +110,14 @@ namespace bmpl
             std::strstream msg;
             msg << "file \"" << file_path << "\": Warning #" << int(warn_code) << " - " << warning_msg(warn_code) << std::ends;
             return msg.str();
+        }
+
+
+        void WarningStatus::set_unique_warnings()
+        {
+            std::sort(_warnings_list.begin(), _warnings_list.end());
+            auto new_end_it{ std::unique(_warnings_list.begin(), _warnings_list.end()) };
+            _warnings_list.erase(new_end_it, _warnings_list.end());
         }
 
     }
