@@ -80,6 +80,7 @@ namespace bmpl
             NOT_IMPLEMENTED_BMP_V1,
             NOT_INITIALIZED,
             NOT_WINDOWS_BMP,
+            NOT_YET_IMPLEMENTED_BA_FORMAT,
             NOT_YET_IMPLEMENTED_BMP_FORMAT,
             OVERLAPPING_BITFIELD_MASKS,
             RLE_INPUT_OPERATION_FAILED,

@@ -76,7 +76,10 @@ namespace bmpl
                 , MyWarnBaseClass()
                 , MyContainerBaseClass()
             {
-                if (info_header_ptr == nullptr || !info_header_ptr->may_embed_color_palette()) {
+                if (info_header_ptr != nullptr && info_header_ptr->failed()) {
+                    _set_err(info_header_ptr->get_error());
+                }
+                else if (info_header_ptr == nullptr || !info_header_ptr->may_embed_color_palette()) {
                     _set_err(bmpl::utils::ErrorCode::INCOHERENT_BMP_LOADER_IMPLEMENTATION);
                 }
                 else {

@@ -68,7 +68,7 @@ namespace bmpl
             case WarningCode::EMBEDDED_PROFILE_NOT_IMPLEMENTED:
                 return "ICC embedded profiles are not implemented in CppBMPLoader library which uses plain coded colors instead.";
             case WarningCode::FORBIDDEN_TOP_DOWN_ORIENTATION:
-                return "top-down orientation of image is not allowed with RLE-compression; CppBMPLoader librar tries to decode it nevertheless.";
+                return "top-down orientation of image is not allowed with RLE-compression; CppBMPLoader library tries to decode it nevertheless.";
             case WarningCode::INCOHERENT_IMAGE_SIZE:
                 return "image size in info header is incoherent with specified width and height.";
             case WarningCode::INCOHERENT_RESOLUTIONS:
@@ -98,7 +98,7 @@ namespace bmpl
             case WarningCode::UNUSED_PALETTE:
                 return "An unused palette is defined in BMP file.";
             case WarningCode::WIN_CE_2_BITS_PIXELS:
-                return "An unused 2-bits per pixel specification is only allowed with Windows CE; CppBMPLoader library decodes this nevertheless.";
+                return "An unusual 2-bits per pixel specification is only allowed with Windows CE; CppBMPLoader library decodes this nevertheless.";
             default:
                 return "unkown warning...";
             }

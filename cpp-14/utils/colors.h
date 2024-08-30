@@ -49,10 +49,10 @@ namespace bmpl
             CALIBRATED_RGB         = 0,
             DEVICE_RGB             = 1,
             DEVICE_CMYK            = 2,
-            EMBEDDED_COLOR_PROFILE = 0x4D424544,  // i.e. 'MBED',
-            LINKED_COLOR_PROFILE   = 0x4C494D4B,  // i.e. 'LINK',
+            EMBEDDED_COLOR_PROFILE = 0x4d424544,  // i.e. 'MBED',
+            LINKED_COLOR_PROFILE   = 0x4c494e4b,  // i.e. 'LINK',
             S_RGB                  = 0x73524742,  // i.e. 'sRGB'
-            WINDOWS_COLOR_SPACE    = 0x57696E20,  // i.e. 'Win '
+            WINDOWS_COLOR_SPACE    = 0x57696e20,  // i.e. 'Win '
         };
 
         static constexpr ELogicalColorSpace DEFAULT_CS_TYPE{ ELogicalColorSpace::CALIBRATED_RGB };

@@ -138,7 +138,7 @@ namespace bmpl
                     _set_warning(bmpl::utils::WarningCode::UNUSED_PALETTE);
             }
 
-            if (used_colors_count == 0 && bits_per_pixel < 24)
+            if (used_colors_count == 0 && bits_per_pixel <= 8)  //< 24)
                 used_colors_count = 256;
 
             return _clr_err();
@@ -151,22 +151,29 @@ namespace bmpl
             if (failed())
                 return false;
 
-            if (compression_mode == COMPR_RLE_COLOR_BITMASKS || is_V4_base) {
+            if (compression_mode == COMPR_RLE_COLOR_BITMASKS ||
+                compression_mode == COMPR_ALPHABITFIELDS ||
+                is_V4_base)
+            {
                 if (!(in_stream >> red_mask >> green_mask >> blue_mask))
                     return _set_err(in_stream.get_error());
+
+                if (compression_mode == COMPR_ALPHABITFIELDS)
+                    if (!(in_stream >> alpha_mask))
+                        return _set_err(in_stream.get_error());
             }
             else {
                 if (bits_per_pixel == 16) {
-                    alpha_mask = 0;
-                    red_mask = 0xf800'0000;
-                    green_mask = 0x07e0'0000;
-                    blue_mask = 0x001f'0000;
+                    alpha_mask = 0x8000;
+                    red_mask = 0x7c00;
+                    green_mask = 0x03e0;
+                    blue_mask = 0x001f;
                 }
                 else if (bits_per_pixel == 32) {
-                    alpha_mask = 0;
-                    red_mask   = 0xffc0'0000;
-                    green_mask = 0x003f'f000;
-                    blue_mask  = 0x0000'0ffc;
+                    alpha_mask = 0xff00'0000;
+                    red_mask   = 0x00ff'0000;
+                    green_mask = 0x0000'ff00;
+                    blue_mask  = 0x0000'00ff;
                 }
             }
 

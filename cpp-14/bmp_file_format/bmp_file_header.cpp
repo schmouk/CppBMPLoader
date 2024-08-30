@@ -44,14 +44,20 @@ namespace bmpl
             if (!(in_stream >> type >> size >> reserved >> content_offset))
                 return _set_err(in_stream.get_error());
 
-            if (type != 0x4d42)  // i.e. "BM", little-endian encoded on 16 bits-
-                return _set_err(bmpl::utils::ErrorCode::NOT_BMP_ENCODING);
+            if (type != 0x4d42) {  // i.e. "BM" as little-endian encoded on 16 bits
+                if (type == 0x4142)  // i.e. "BA" as little-endian encoding on 16 bits
+                    return _set_err(bmpl::utils::ErrorCode::NOT_YET_IMPLEMENTED_BA_FORMAT);
+                else
+                    return _set_err(bmpl::utils::ErrorCode::NOT_BMP_ENCODING);
+            }
 
             if (in_stream.get_size() != size)
                 _set_warning(bmpl::utils::WarningCode::BAD_FILE_SIZE_IN_HEADER);
 
+            /* notice: removed test for further 0S2 decoding
             if (content_offset >= size - 14)
                 return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
+            */
 
             return _clr_err();
         }

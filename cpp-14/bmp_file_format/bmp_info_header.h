@@ -64,7 +64,8 @@ namespace bmpl
             static constexpr int COMPR_RLE_COLOR_BITMASKS{ 3 };
             static constexpr int COMPR_EMBEDS_JPEG{ 4 };
             static constexpr int COMPR_EMBEDS_PNG{ 5 };
-
+            static constexpr int COMPR_BITFIELDS{ 3 };
+            static constexpr int COMPR_ALPHABITFIELDS{ 6 };
 
             bool top_down_encoding{ false };
 
@@ -277,11 +278,11 @@ namespace bmpl
             inline BMPInfoHeaderV3& operator= (BMPInfoHeaderV3&&) noexcept = default;
 
 
-            inline BMPInfoHeaderV3(bmpl::utils::LEInStream& in_stream, const bool is_V3_base = true) noexcept
+            inline BMPInfoHeaderV3(bmpl::utils::LEInStream& in_stream, const bool is_V3_base = true, const bool is_V5_base = false) noexcept
                 : BMPInfoHeaderWithPalette()
                 , BMPInfoHeaderBase(in_stream)
             {
-                load(in_stream, is_V3_base);
+                load(in_stream, is_V3_base, is_V5_base);
             }
 
             virtual inline const std::int32_t get_height() const noexcept override
@@ -294,7 +295,7 @@ namespace bmpl
                 return width;
             }
 
-            virtual const bool load(bmpl::utils::LEInStream& in_stream, const bool is_V3_base) noexcept;
+            virtual const bool load(bmpl::utils::LEInStream& in_stream, const bool is_V3_base, const bool is_V5_base) noexcept;
 
 
             inline virtual const bool is_v3() const { return true; }
@@ -320,9 +321,10 @@ namespace bmpl
         //===========================================================================
         struct BMPInfoHeaderV3_NT : public BMPInfoHeaderV3
         {
-            std::uint32_t red_mask{ 0 };
-            std::uint32_t green_mask{ 0 };
-            std::uint32_t blue_mask{ 0 };
+            std::uint32_t red_mask{ 0xffff'ffff };
+            std::uint32_t green_mask{ 0xffff'ffff };
+            std::uint32_t blue_mask{ 0xffff'ffff };
+            std::uint32_t alpha_mask{ 0xffff'ffff };
 
 
             BMPInfoHeaderV3_NT() noexcept = default;
@@ -335,13 +337,13 @@ namespace bmpl
             inline BMPInfoHeaderV3_NT& operator= (BMPInfoHeaderV3_NT&&) noexcept = default;
 
 
-            inline BMPInfoHeaderV3_NT(bmpl::utils::LEInStream& in_stream) noexcept
-                : BMPInfoHeaderV3(in_stream, false)
+            inline BMPInfoHeaderV3_NT(bmpl::utils::LEInStream& in_stream, const bool is_V4_base = false, const bool is_V5_base = false) noexcept
+                : BMPInfoHeaderV3(in_stream, false, is_V5_base)
             {
-                load(in_stream);
+                load(in_stream, is_V4_base || is_V5_base);
             }
 
-            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+            virtual const bool load(bmpl::utils::LEInStream& in_stream, const bool is_V4_base) noexcept;
 
             virtual inline const std::uint32_t get_red_mask() const noexcept override
             {
@@ -370,9 +372,6 @@ namespace bmpl
         //===========================================================================
         struct BMPInfoHeaderV3_NT_4 : public BMPInfoHeaderV3_NT
         {
-            std::uint32_t alpha_mask{ 0x0000'0000 };
-
-
             BMPInfoHeaderV3_NT_4() noexcept = default;
             BMPInfoHeaderV3_NT_4(const BMPInfoHeaderV3_NT_4&) noexcept = default;
             BMPInfoHeaderV3_NT_4(BMPInfoHeaderV3_NT_4&&) noexcept = default;
@@ -383,8 +382,8 @@ namespace bmpl
             inline BMPInfoHeaderV3_NT_4& operator= (BMPInfoHeaderV3_NT_4&&) noexcept = default;
 
 
-            inline BMPInfoHeaderV3_NT_4(bmpl::utils::LEInStream& in_stream) noexcept
-                : BMPInfoHeaderV3_NT(in_stream)
+            inline BMPInfoHeaderV3_NT_4(bmpl::utils::LEInStream& in_stream, const bool is_V4_base = false, const bool is_V5_base = false) noexcept
+                : BMPInfoHeaderV3_NT(in_stream, is_V4_base, is_V5_base)
             {
                 load(in_stream);
             }
@@ -415,9 +414,9 @@ namespace bmpl
             std::int32_t blue_endX{ -1 };
             std::int32_t blue_endY{ -1 };
             std::int32_t blue_endZ{ -1 };
-            bmpl::utils::Frac16_16 gamma_red{ 2.2 };
-            bmpl::utils::Frac16_16 gamma_green{ 2.2 };
-            bmpl::utils::Frac16_16 gamma_blue{ 2.2 };
+            bmpl::utils::Frac16_16 gamma_red{ 1.0 };
+            bmpl::utils::Frac16_16 gamma_green{ 1.0 };
+            bmpl::utils::Frac16_16 gamma_blue{ 1.0 };
 
 
             BMPInfoHeaderV4() noexcept = default;
@@ -430,8 +429,8 @@ namespace bmpl
             inline BMPInfoHeaderV4& operator= (BMPInfoHeaderV4&&) noexcept = default;
 
 
-            inline BMPInfoHeaderV4(bmpl::utils::LEInStream& in_stream, const bool is_V4_base = true) noexcept
-                : BMPInfoHeaderV3_NT_4(in_stream)
+            inline BMPInfoHeaderV4(bmpl::utils::LEInStream& in_stream, const bool is_V4_base = true, const bool is_V5_base = false) noexcept
+                : BMPInfoHeaderV3_NT_4(in_stream, is_V4_base, is_V5_base)
             {
                 load(in_stream, is_V4_base);
             }
@@ -494,7 +493,7 @@ namespace bmpl
 
 
             inline BMPInfoHeaderV5(bmpl::utils::LEInStream& in_stream) noexcept
-                : BMPInfoHeaderV4(in_stream, false)
+                : BMPInfoHeaderV4(in_stream, false, true)
             {
                 load(in_stream);
             }
