@@ -102,7 +102,11 @@ namespace bmpl
         std::vector<pixel_type> image_content;
 
 
-        inline BMPBottomUpLoader(const std::string& filepath, const ESkippedPixelsMode mode = ESkippedPixelsMode::BLACK) noexcept
+        inline BMPBottomUpLoader(
+            const std::string& filepath,
+            const ESkippedPixelsMode mode = ESkippedPixelsMode::BLACK,
+            const bool apply_gamma_corection = false
+        ) noexcept
             : MyErrBaseClass()
             , MyWarnBaseClass()
             , _filepath(filepath)
@@ -111,7 +115,7 @@ namespace bmpl
             , _file_header(_in_stream)
             , _info(_in_stream)
         {
-            _load_image();
+            _load_image(apply_gamma_corection);
         }
 
 
@@ -247,7 +251,7 @@ namespace bmpl
         }
 
 
-        void _load_image() noexcept
+        void _load_image(const bool apply_gamma_corection) noexcept
         {
             if (_in_stream.failed()) {
                 _set_err(_in_stream.get_error());
@@ -297,19 +301,25 @@ namespace bmpl
             }
             
             // is there gamma correction to apply?
-            if (this->_info.info_header_ptr->is_v4()) {
+            if (apply_gamma_corection) {
                 // yes!
-                const bmpl::frmt::BMPInfoHeaderV4* info_header_ptr = dynamic_cast<const bmpl::frmt::BMPInfoHeaderV4*>(this->_info.info_header_ptr);
-                if (info_header_ptr->cs_type == bmpl::clr::ELogicalColorSpace::CALIBRATED_RGB) {  //DEVICE_RGB) {  //
-                    const double gamma_r{ double(info_header_ptr->gamma_red) };
-                    const double gamma_g{ double(info_header_ptr->gamma_green) };
-                    const double gamma_b{ double(info_header_ptr->gamma_blue) };
+                if (this->_info.info_header_ptr->bits_per_pixel == 64) {
+                    // this is a specific case for which an HDR image is decalibrated to be shown on displays
+                    constexpr double gamma{ double(1.0 / 2.2) };
                     for (auto& pxl : this->image_content)
-                        bmpl::clr::gamma_correction(pxl, gamma_r, gamma_g, gamma_b);
+                        bmpl::clr::gamma_correction(pxl, gamma, gamma, gamma);
                 }
-            }
-            else if (this->_info.info_header_ptr->is_v5()) {
-                    // yes!
+                else if (this->_info.info_header_ptr->is_v4()) {
+                    const bmpl::frmt::BMPInfoHeaderV4* info_header_ptr = dynamic_cast<const bmpl::frmt::BMPInfoHeaderV4*>(this->_info.info_header_ptr);
+                    if (info_header_ptr->cs_type == bmpl::clr::ELogicalColorSpace::CALIBRATED_RGB) {
+                        const double gamma_r{ double(info_header_ptr->gamma_red) };
+                        const double gamma_g{ double(info_header_ptr->gamma_green) };
+                        const double gamma_b{ double(info_header_ptr->gamma_blue) };
+                        for (auto& pxl : this->image_content)
+                            bmpl::clr::gamma_correction(pxl, gamma_r, gamma_g, gamma_b);
+                    }
+                }
+                else if (this->_info.info_header_ptr->is_v5()) {
                     const bmpl::frmt::BMPInfoHeaderV5* info_header_ptr = dynamic_cast<const bmpl::frmt::BMPInfoHeaderV5*>(this->_info.info_header_ptr);
                     if (info_header_ptr->cs_type == bmpl::clr::ELogicalColorSpace::CALIBRATED_RGB) {
                         const double gamma_r{ double(info_header_ptr->gamma_red) };
@@ -318,11 +328,13 @@ namespace bmpl
                         for (auto& pxl : this->image_content)
                             bmpl::clr::gamma_correction(pxl, gamma_r, gamma_g, gamma_b);
                     }
-                    else if (info_header_ptr->cs_type == bmpl::clr::ELogicalColorSpace::S_RGB) {
+                    else
+                    if (info_header_ptr->cs_type == bmpl::clr::ELogicalColorSpace::S_RGB) {
                         for (auto& pxl : this->image_content)
                             bmpl::clr::gamma_correction(pxl, 2.2, 2.2, 2.2);  // notice: gamma value 2.2 is an accepted approximation.
                     }
                 }
+            }
 
             // once here, everything was fine
             _clr_err();
@@ -332,6 +344,8 @@ namespace bmpl
             this->append_warnings(*this->_info.info_header_ptr);
             this->append_warnings(this->_info.color_map);
             this->append_warnings(*bitmap_loader_ptr);
+
+            this->set_unique_warnings();
         }
 
     };
@@ -345,10 +359,13 @@ namespace bmpl
         using MyBaseClass = BMPBottomUpLoader<PixelT>;
 
 
-        inline BMPLoader(const std::string& filepath, const ESkippedPixelsMode mode = ESkippedPixelsMode::BLACK) noexcept
-            : MyBaseClass(filepath, mode)
+        inline BMPLoader(
+            const std::string& filepath,
+            const ESkippedPixelsMode mode = ESkippedPixelsMode::BLACK,
+            const bool apply_gamma_correction = false
+        ) noexcept
+            : MyBaseClass(filepath, mode, apply_gamma_correction)
         {
-
             if (MyBaseClass::_info.info_header_ptr != nullptr &&
                 !MyBaseClass::_info.info_header_ptr->top_down_encoding)
             {
