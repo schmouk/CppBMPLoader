@@ -95,7 +95,7 @@ namespace bmpl
             {
                 if (index >= this->colors_count) {
                     if (!_bad_index_warn_already_set) {
-                        _set_warning(bmpl::utils::WarningCode::BAD_PALETTE_INDICES);
+                        set_warning(bmpl::utils::WarningCode::BAD_PALETTE_INDICES);
                         _bad_index_warn_already_set = true;
                     }
                     // notice: we use entry 0 as the default color for bad indices

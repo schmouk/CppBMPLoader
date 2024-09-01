@@ -31,6 +31,7 @@ SOFTWARE.
 
 #include <cmath>
 
+#include "bmp_file_header.h"
 #include "bmp_info_header.h"
 
 
@@ -57,7 +58,7 @@ namespace bmpl
             }
 
             if (planes_count != 1)
-                _set_warning(bmpl::utils::WarningCode::BAD_PLANES_VALUE);
+                set_warning(bmpl::utils::WarningCode::BAD_PLANES_VALUE);
 
             return _clr_err();
         }
@@ -91,17 +92,17 @@ namespace bmpl
                 top_down_encoding = true;
 
                 if (compression_mode != COMPR_NO_RLE)
-                    _set_warning(bmpl::utils::WarningCode::FORBIDDEN_TOP_DOWN_ORIENTATION);
+                    set_warning(bmpl::utils::WarningCode::FORBIDDEN_TOP_DOWN_ORIENTATION);
                 else if (is_V5_base && (compression_mode == COMPR_EMBEDS_JPEG || compression_mode == COMPR_EMBEDS_PNG))
                     return _set_err(bmpl::utils::ErrorCode::FORBIDDEN_BOTTOM_UP_ORIENTATION);
             }
 
             if (device_x_resolution > 2.5 * device_y_resolution || device_y_resolution > 2.5 * device_x_resolution)
                 // notice: factor 2.5 is per pure convention and has nothing to do with the BMP format
-                _set_warning(bmpl::utils::WarningCode::INCOHERENT_RESOLUTIONS);
+                set_warning(bmpl::utils::WarningCode::INCOHERENT_RESOLUTIONS);
 
             if (planes_count != 1)
-                _set_warning(bmpl::utils::WarningCode::BAD_PLANES_VALUE);
+                set_warning(bmpl::utils::WarningCode::BAD_PLANES_VALUE);
 
             if (is_V3_base && compression_mode > COMPR_RLE_4)
                 return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
@@ -120,14 +121,14 @@ namespace bmpl
                 bits_per_pixel != 8 && bits_per_pixel != 24 && bits_per_pixel != 64)
             {
                 if (bits_per_pixel == 2)
-                    _set_warning(bmpl::utils::WarningCode::WIN_CE_2_BITS_PIXELS);
+                    set_warning(bmpl::utils::WarningCode::WIN_CE_2_BITS_PIXELS);
                 else if (is_V3_base || (bits_per_pixel != 16 && bits_per_pixel != 32))
                     return _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
             }
 
             if (bits_per_pixel != 24) {
                 if (important_colors_count > used_colors_count)
-                    _set_warning(bmpl::utils::WarningCode::BAD_IMPORTANT_COLORS_COUNT);
+                    set_warning(bmpl::utils::WarningCode::BAD_IMPORTANT_COLORS_COUNT);
             }
 
             if (bits_per_pixel > 64)
@@ -135,7 +136,7 @@ namespace bmpl
 
             if (is_V3_base && bits_per_pixel != 1 && bits_per_pixel != 2 && bits_per_pixel != 4 && bits_per_pixel != 8) {
                 if (used_colors_count != 0)
-                    _set_warning(bmpl::utils::WarningCode::UNUSED_PALETTE);
+                    set_warning(bmpl::utils::WarningCode::UNUSED_PALETTE);
             }
 
             if (used_colors_count == 0 && bits_per_pixel <= 8)  //< 24)
@@ -330,7 +331,7 @@ namespace bmpl
                 return _set_err(bmpl::utils::ErrorCode::BAD_PROFILE_SIZE);
 
             if (reserved != 0)
-                _set_warning(bmpl::utils::WarningCode::NOT_ZERO_RESERVED);
+                set_warning(bmpl::utils::WarningCode::NOT_ZERO_RESERVED);
 
             if (cs_type == bmpl::clr::ELogicalColorSpace::EMBEDDED_COLOR_PROFILE ||
                 cs_type == bmpl::clr::ELogicalColorSpace::LINKED_COLOR_PROFILE)
@@ -342,9 +343,9 @@ namespace bmpl
             }
 
             if (cs_type == bmpl::clr::ELogicalColorSpace::EMBEDDED_COLOR_PROFILE)
-                _set_warning(bmpl::utils::WarningCode::EMBEDDED_PROFILE_NOT_IMPLEMENTED);
+                set_warning(bmpl::utils::WarningCode::EMBEDDED_PROFILE_NOT_IMPLEMENTED);
             else if (cs_type == bmpl::clr::ELogicalColorSpace::LINKED_COLOR_PROFILE)
-                _set_warning(bmpl::utils::WarningCode::LINKED_PROFILE_NOT_IMPLEMENTED);
+                set_warning(bmpl::utils::WarningCode::LINKED_PROFILE_NOT_IMPLEMENTED);
 
             if (bits_per_pixel == 0 && compression_mode != COMPR_EMBEDS_JPEG && compression_mode != COMPR_EMBEDS_PNG)
                 return _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
@@ -357,8 +358,15 @@ namespace bmpl
         //===========================================================================
         const bool BMPInfoHeaderVOS21::load(bmpl::utils::LEInStream& in_stream) noexcept
         {
-            // TODO: implement this
-            return _set_err(bmpl::utils::ErrorCode::NOT_YET_IMPLEMENTED_BMP_FORMAT);
+            if (failed())
+                return false;  // notice: error code has already been set
+
+            if (bits_per_pixel != 1 && bits_per_pixel != 4 && bits_per_pixel != 8 && bits_per_pixel != 24)
+                return _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
+
+            used_colors_count = (1 << std::uint32_t(bits_per_pixel)) & 0x1ff;  // notice: i.e. 2, 16, 256 or 0 colors for resp. 1-, 4-, 8- and 24-bits per pixel
+
+            return _clr_err();
         }
 
 
@@ -379,7 +387,7 @@ namespace bmpl
 
 
         //===========================================================================
-        const BMPInfoHeaderBase* create_bmp_info_header(bmpl::utils::LEInStream& in_stream) noexcept
+        const BMPInfoHeaderBase* create_bmp_info_header(bmpl::utils::LEInStream& in_stream, bmpl::frmt::BMPFileHeader file_header) noexcept
         {
             // let's first load the size of the info header
             if (in_stream.failed())
@@ -393,7 +401,7 @@ namespace bmpl
             switch (header_size) {
             case 0x0c:
             {   //-- Version 2 or 0S/2.1 of BMP file format --//
-                constexpr size_t header_file_size{ 14 };
+                constexpr size_t header_file_size{ bmpl::frmt::BMPFileHeader::SIZE };
 
                 BMPInfoHeaderV2* header_ptr{ new BMPInfoHeaderV2(in_stream) };
 
@@ -409,6 +417,10 @@ namespace bmpl
                         BMPInfoHeaderVOS21* header_ptr{ new BMPInfoHeaderVOS21(in_stream) };
                         return header_ptr;
                     }
+                    else {
+                        if (in_stream.get_size() != file_header.size)
+                            header_ptr->set_warning(bmpl::utils::WarningCode::BAD_FILE_SIZE_IN_HEADER);
+                    }
                 }
 
                 return header_ptr;
@@ -420,7 +432,7 @@ namespace bmpl
 
             case 0x28:
             {   //-- Version 3 or 3_NT of BMP file format --//
-                constexpr size_t header_file_size{ 14 };
+                constexpr size_t header_file_size{ bmpl::frmt::BMPFileHeader::SIZE };
 
                 BMPInfoHeaderV3* header_ptr{ new BMPInfoHeaderV3(in_stream) };
 

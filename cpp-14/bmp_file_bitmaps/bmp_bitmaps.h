@@ -464,10 +464,10 @@ namespace bmpl
             }
 
             if (img_it != image_content.end()) {
-                this->_set_warning(bmpl::utils::WarningCode::TOO_MANY_INDICES_IN_BITMAP);
+                this->set_warning(bmpl::utils::WarningCode::TOO_MANY_INDICES_IN_BITMAP);
             }
             else if (ndx_it != indexed_content.cend()) {
-                this->_set_warning(bmpl::utils::WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP);
+                this->set_warning(bmpl::utils::WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP);
             }
 
             // once here, everything was fine!
@@ -543,10 +543,10 @@ namespace bmpl
             }
 
             if (img_it != image_content.end()) {
-                this->_set_warning(bmpl::utils::WarningCode::TOO_MANY_INDICES_IN_BITMAP);
+                this->set_warning(bmpl::utils::WarningCode::TOO_MANY_INDICES_IN_BITMAP);
             }
             else if (ndx_it != indexed_content.cend()) {
-                this->_set_warning(bmpl::utils::WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP);
+                this->set_warning(bmpl::utils::WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP);
             }
 
             // once here, everything was fine!
@@ -616,10 +616,10 @@ namespace bmpl
             }
 
             if (img_it != image_content.end()) {
-                this->_set_warning(bmpl::utils::WarningCode::TOO_MANY_INDICES_IN_BITMAP);
+                this->set_warning(bmpl::utils::WarningCode::TOO_MANY_INDICES_IN_BITMAP);
             }
             else if (ndx_it != indexed_content.cend()) {
-                this->_set_warning(bmpl::utils::WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP);
+                this->set_warning(bmpl::utils::WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP);
             }
 
             this->append_warnings(this->color_map);
@@ -671,7 +671,7 @@ namespace bmpl
                         bmp_it++;
 
                     if (x + std::uint32_t(n_rep) > width) {
-                        this->_set_warning(bmpl::utils::WarningCode::DELTA_MODE_MAY_OVERFLOW);
+                        this->set_warning(bmpl::utils::WarningCode::DELTA_MODE_MAY_OVERFLOW);
                         num_line += (x + n_rep) / width;
                         x = (x + n_rep) % width;
                     }
@@ -727,7 +727,7 @@ namespace bmpl
                             delta_lines = *bmp_it++;
                         
                         if (x + delta_pxls > width) {
-                            this->_set_warning(bmpl::utils::WarningCode::DELTA_MODE_MAY_OVERFLOW);
+                            this->set_warning(bmpl::utils::WarningCode::DELTA_MODE_MAY_OVERFLOW);
                             num_line += (x + delta_pxls) / width;
                             x = (x + delta_pxls) % width;
                         }
@@ -750,7 +750,7 @@ namespace bmpl
                         PixelT pxl_value;
 
                         if (x + std::uint32_t(absolute_pixels_count) > width) {
-                            this->_set_warning(bmpl::utils::WarningCode::DELTA_MODE_MAY_OVERFLOW);
+                            this->set_warning(bmpl::utils::WarningCode::DELTA_MODE_MAY_OVERFLOW);
                             num_line += (x + absolute_pixels_count) / width;
                             x = (x + absolute_pixels_count) % width;
                         }
@@ -844,10 +844,10 @@ namespace bmpl
                 bmpl::clr::convert(*img_it++, this->color_map[*ndx_it++]);
 
             if (img_it != image_content.end()) {
-                this->_set_warning(bmpl::utils::WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP);
+                this->set_warning(bmpl::utils::WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP);
             }
             else if (ndx_it != indexed_content.cend()) {
-                this->_set_warning(bmpl::utils::WarningCode::TOO_MANY_INDICES_IN_BITMAP);
+                this->set_warning(bmpl::utils::WarningCode::TOO_MANY_INDICES_IN_BITMAP);
             }
 
             this->append_warnings(this->color_map);
@@ -898,7 +898,7 @@ namespace bmpl
                         bmp_it++;
 
                     if (x + std::uint32_t(n_rep) > width) {
-                        this->_set_warning(bmpl::utils::WarningCode::DELTA_MODE_MAY_OVERFLOW);
+                        this->set_warning(bmpl::utils::WarningCode::DELTA_MODE_MAY_OVERFLOW);
                         num_line += (x + n_rep) / width;
                         x = (x + n_rep) % width;
                     }
@@ -946,7 +946,7 @@ namespace bmpl
                                 delta_lines = *bmp_it++;
 
                             if (x + std::uint32_t(delta_pxls) > width) {
-                                this->_set_warning(bmpl::utils::WarningCode::DELTA_MODE_MAY_OVERFLOW);
+                                this->set_warning(bmpl::utils::WarningCode::DELTA_MODE_MAY_OVERFLOW);
                                 num_line += (x + delta_pxls) / width;
                                 x = (x + delta_pxls) % width;
                             }
@@ -967,7 +967,7 @@ namespace bmpl
                             const bool padding{ absolute_pixels_count % 2 != 0 };
 
                             if (x + std::uint32_t(absolute_pixels_count) > width) {
-                                this->_set_warning(bmpl::utils::WarningCode::DELTA_MODE_MAY_OVERFLOW);
+                                this->set_warning(bmpl::utils::WarningCode::DELTA_MODE_MAY_OVERFLOW);
                                 num_line += (x + absolute_pixels_count) / width;
                                 x = (x + absolute_pixels_count) % width;
                             }
@@ -1050,7 +1050,7 @@ namespace bmpl
             //for (auto pixel_it = image_content.begin(); pixel_it != image_content.end(); ++pixel_it) {
             for (auto& pixel : image_content) {
                 if (mask_it == masked_content.cend()) {
-                    this->_set_warning(bmpl::utils::WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP);
+                    this->set_warning(bmpl::utils::WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP);
                     break;
                 }
 
@@ -1071,7 +1071,7 @@ namespace bmpl
             }
 
             if (mask_it != masked_content.cend()) {
-                this->_set_warning(bmpl::utils::WarningCode::TOO_MANY_INDICES_IN_BITMAP);
+                this->set_warning(bmpl::utils::WarningCode::TOO_MANY_INDICES_IN_BITMAP);
             }
 
             // once here, everything was fine!
@@ -1156,7 +1156,7 @@ namespace bmpl
             //for (auto pixel_it = image_content.begin(); pixel_it != image_content.end(); ++pixel_it) {
             for (auto& pixel : image_content) {
                 if (mask_it == masked_content.cend()) {
-                    this->_set_warning(bmpl::utils::WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP);
+                    this->set_warning(bmpl::utils::WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP);
                     break;
                 }
 
@@ -1173,7 +1173,7 @@ namespace bmpl
             }
 
             if (mask_it != masked_content.cend()) {
-                this->_set_warning(bmpl::utils::WarningCode::TOO_MANY_INDICES_IN_BITMAP);
+                this->set_warning(bmpl::utils::WarningCode::TOO_MANY_INDICES_IN_BITMAP);
             }
 
             // once here, everything was fine!
@@ -1218,14 +1218,14 @@ namespace bmpl
             auto img_it = image_content.begin();
             for (const auto& bitmap_pxl : bitmap) {
                 if (img_it == image_content.end()) {
-                    this->_set_warning(bmpl::utils::WarningCode::TOO_MANY_INDICES_IN_BITMAP);
+                    this->set_warning(bmpl::utils::WarningCode::TOO_MANY_INDICES_IN_BITMAP);
                     break;
                 }
                 bmpl::clr::convert(*img_it++, bitmap_pxl);
             }
 
             if (img_it != image_content.end()) {
-                this->_set_warning(bmpl::utils::WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP);
+                this->set_warning(bmpl::utils::WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP);
             }
 
             // once here, everything was fine!

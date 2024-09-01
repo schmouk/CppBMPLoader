@@ -60,9 +60,9 @@ namespace bmpl
             inline BMPInfo& operator= (BMPInfo&&) noexcept = default;
 
 
-            inline BMPInfo(bmpl::utils::LEInStream& in_stream) noexcept
+            inline BMPInfo(bmpl::utils::LEInStream& in_stream, bmpl::frmt::BMPFileHeader file_header) noexcept
                 : MyErrBaseClass()
-                , info_header_ptr{ bmpl::frmt::create_bmp_info_header(in_stream) }
+                , info_header_ptr{ bmpl::frmt::create_bmp_info_header(in_stream, file_header) }
                 , color_map(in_stream, info_header_ptr)
             {
                 if (in_stream.failed())

@@ -61,10 +61,13 @@ namespace bmpl
             DELTA_MODE_MAY_OVERFLOW,
             EMBEDDED_PROFILE_NOT_IMPLEMENTED,
             FORBIDDEN_TOP_DOWN_ORIENTATION,
+            GAP_BTW_COLORMAP_AND_BITMAP,
+            HOT_POINT_SET,
             INCOHERENT_IMAGE_SIZE,
             INCOHERENT_RESOLUTIONS,
             LINKED_PROFILE_NOT_IMPLEMENTED,
             MISSING_BITFIELDS_MASKS,
+            MISSING_COLORMAP_ENTRIES,
             NOT_ENOUGH_INDICES_IN_BITMAP,
             NOT_ZERO_RESERVED,
             PALETT_WITH_FULL_COLORS,
@@ -131,17 +134,18 @@ namespace bmpl
             void set_unique_warnings();
 
 
+            inline void set_warning(const WarningCode warn_code) noexcept
+            {
+                this->_warnings_list.push_back(warn_code);
+            }
+
+
         protected:
             WarningsList _warnings_list{};
 
             inline void _clr_warnings() noexcept
             {
                 this->_warnings_list.clear();
-            }
-
-            inline void _set_warning(const WarningCode warn_code) noexcept
-            {
-                this->_warnings_list.push_back(warn_code);
             }
 
         };

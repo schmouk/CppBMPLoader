@@ -52,6 +52,7 @@ SOFTWARE.
 #include "utils/colors.h"
 #include "utils/errors.h"
 #include "utils/little_endian_streaming.h"
+#include "utils/warnings.h"
 
 
 namespace bmpl
@@ -113,7 +114,7 @@ namespace bmpl
             , _skipped_mode(mode)
             , _in_stream(filepath)
             , _file_header(_in_stream)
-            , _info(_in_stream)
+            , _info(_in_stream, _file_header)
         {
             _load_image(apply_gamma_corection);
         }
@@ -295,6 +296,25 @@ namespace bmpl
                 return;
             }
 
+            // checks correctness of some specified values in headers
+            int colormap_pixel_size{ 4 };
+            if (this->_info.info_header_ptr->is_vOS21() || this->_info.info_header_ptr->is_vOS22())
+                colormap_pixel_size = 3;
+
+            const std::uint32_t colormap_size{ colormap_pixel_size * this->_info.info_header_ptr->get_colors_count() };
+            const std::uint32_t expected_bitmap_offset{ bmpl::frmt::BMPFileHeader::SIZE + this->_info.info_header_ptr->header_size + colormap_size };
+            if (expected_bitmap_offset < this->_file_header.content_offset)
+                set_warning(bmpl::utils::WarningCode::GAP_BTW_COLORMAP_AND_BITMAP);
+            else if (expected_bitmap_offset > this->_file_header.content_offset)
+                set_warning(bmpl::utils::WarningCode::MISSING_COLORMAP_ENTRIES);
+
+            // loads the image bitmap
+            this->_in_stream.seekg(this->_file_header.content_offset);
+            if (!this->_in_stream.good()) {
+                _set_err(bmpl::utils::ErrorCode::ERRONEOUS_BITMAP_OFFSET);
+                return;
+            }
+
             if (!bitmap_loader_ptr->load(this->image_content)) {
                 _set_err(bitmap_loader_ptr->get_error());
                 return;
@@ -304,10 +324,8 @@ namespace bmpl
             if (apply_gamma_corection) {
                 // yes!
                 if (this->_info.info_header_ptr->bits_per_pixel == 64) {
-                    // this is a specific case for which an HDR image is decalibrated to be shown on displays
-                    constexpr double gamma{ double(1.0 / 2.2) };
-                    for (auto& pxl : this->image_content)
-                        bmpl::clr::gamma_correction(pxl, gamma, gamma, gamma);
+                    // ok, gamma correction is already mebedded in HDR encoding
+                    // nothing to be done
                 }
                 else if (this->_info.info_header_ptr->is_v4()) {
                     const bmpl::frmt::BMPInfoHeaderV4* info_header_ptr = dynamic_cast<const bmpl::frmt::BMPInfoHeaderV4*>(this->_info.info_header_ptr);
@@ -334,6 +352,12 @@ namespace bmpl
                             bmpl::clr::gamma_correction(pxl, 2.2, 2.2, 2.2);  // notice: gamma value 2.2 is an accepted approximation.
                     }
                 }
+            }
+            else if (this->_info.info_header_ptr->bits_per_pixel == 64) {
+                // this is a specific case for which an HDR image is decalibrated to be shown on displays
+                constexpr double gamma{ double(1.0 / 2.2) };
+                for (auto& pxl : this->image_content)
+                    bmpl::clr::gamma_correction(pxl, gamma, gamma, gamma);
             }
 
             // once here, everything was fine

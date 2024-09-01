@@ -34,6 +34,7 @@ SOFTWARE.
 
 #include <cstdint>
 
+#include "bmp_file_header.h"
 #include "../utils/colors.h"
 #include "../utils/errors.h"
 #include "../utils/little_endian_streaming.h"
@@ -46,7 +47,21 @@ namespace bmpl
     namespace frmt
     {
         //===========================================================================
-        struct BMPInfoHeaderBase : public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
+        struct BMPInfoHeaderWithPalette
+        {
+            std::uint32_t used_colors_count{ 0 };
+            std::uint32_t important_colors_count{ 0 };
+
+            inline const std::uint32_t get_colors_count() const noexcept
+            {
+                return this->used_colors_count;;
+            }
+
+        };
+
+
+        //===========================================================================
+        struct BMPInfoHeaderBase : public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus, virtual public BMPInfoHeaderWithPalette
         {
             using MyErrBaseClass = bmpl::utils::ErrorStatus;
             using MyWarnBaseClass = bmpl::utils::WarningStatus;
@@ -80,9 +95,11 @@ namespace bmpl
             inline BMPInfoHeaderBase& operator= (BMPInfoHeaderBase&&) noexcept = default;
 
 
-            inline BMPInfoHeaderBase(bmpl::utils::LEInStream& in_stream) noexcept
+            inline BMPInfoHeaderBase(bmpl::utils::LEInStream& in_stream, const std::uint32_t header_size_) noexcept
                 : MyErrBaseClass()
                 , MyWarnBaseClass()
+                , BMPInfoHeaderWithPalette()
+                , header_size(header_size_)
             {
                 load(in_stream);
             }
@@ -91,12 +108,6 @@ namespace bmpl
             virtual inline const bool load(bmpl::utils::LEInStream& in_stream) noexcept
             {
                 return this->_clr_err();
-            }
-
-
-            virtual inline const std::uint32_t get_colors_count() const noexcept
-            {
-                return 0;
             }
 
 
@@ -195,18 +206,10 @@ namespace bmpl
 
 
         //===========================================================================
-        struct BMPInfoHeaderWithPalette
-        {
-            std::uint32_t used_colors_count{ 0 };
-            std::uint32_t important_colors_count{ 0 };
-        };
-
-
-        //===========================================================================
         struct BMPInfoHeaderV1 : public BMPInfoHeaderBase
         {
             inline BMPInfoHeaderV1(bmpl::utils::LEInStream& in_stream) noexcept
-                : BMPInfoHeaderBase(in_stream)
+                : BMPInfoHeaderBase(in_stream, 0)
             {
                 _set_err(bmpl::utils::ErrorCode::NOT_IMPLEMENTED_BMP_V1);
             }
@@ -219,6 +222,8 @@ namespace bmpl
         //===========================================================================
         struct BMPInfoHeaderV2 : public BMPInfoHeaderBase
         {
+            static constexpr std::uint32_t HEADER_SIZE{ 12 };
+
             std::int16_t width{ 0 };
             std::int16_t height{ 0 };
             std::uint16_t planes_count{ 0 };
@@ -235,7 +240,7 @@ namespace bmpl
 
 
             inline BMPInfoHeaderV2(bmpl::utils::LEInStream& in_stream) noexcept
-                : BMPInfoHeaderBase(in_stream)
+                : BMPInfoHeaderBase(in_stream, HEADER_SIZE)
             {
                 load(in_stream);
             }
@@ -258,8 +263,10 @@ namespace bmpl
 
 
         //===========================================================================
-        struct BMPInfoHeaderV3 : virtual public BMPInfoHeaderWithPalette, virtual public BMPInfoHeaderBase
+        struct BMPInfoHeaderV3 : public BMPInfoHeaderBase
         {
+            static constexpr std::uint32_t HEADER_SIZE{ 40 };
+
             std::int32_t width{ 0 };
             std::int32_t height{ 0 };
             std::uint16_t planes_count{ 0 };
@@ -280,7 +287,7 @@ namespace bmpl
 
             inline BMPInfoHeaderV3(bmpl::utils::LEInStream& in_stream, const bool is_V3_base = true, const bool is_V5_base = false) noexcept
                 : BMPInfoHeaderWithPalette()
-                , BMPInfoHeaderBase(in_stream)
+                , BMPInfoHeaderBase(in_stream, HEADER_SIZE)
             {
                 load(in_stream, is_V3_base, is_V5_base);
             }
@@ -305,11 +312,6 @@ namespace bmpl
                 return true;
             }
 
-            virtual inline const std::uint32_t get_colors_count() const noexcept override
-            {
-                return this->used_colors_count;;
-            }
-
             virtual inline const std::uint32_t get_important_colors_count() const noexcept override
             {
                 return this->important_colors_count;
@@ -321,6 +323,8 @@ namespace bmpl
         //===========================================================================
         struct BMPInfoHeaderV3_NT : public BMPInfoHeaderV3
         {
+            static constexpr std::uint32_t HEADER_SIZE{ 52 };
+
             std::uint32_t red_mask{ 0xffff'ffff };
             std::uint32_t green_mask{ 0xffff'ffff };
             std::uint32_t blue_mask{ 0xffff'ffff };
@@ -337,9 +341,15 @@ namespace bmpl
             inline BMPInfoHeaderV3_NT& operator= (BMPInfoHeaderV3_NT&&) noexcept = default;
 
 
-            inline BMPInfoHeaderV3_NT(bmpl::utils::LEInStream& in_stream, const bool is_V4_base = false, const bool is_V5_base = false) noexcept
+            inline BMPInfoHeaderV3_NT(
+                bmpl::utils::LEInStream& in_stream,
+                const std::uint32_t header_size_ = HEADER_SIZE,
+                const bool is_V4_base = false,
+                const bool is_V5_base = false
+            ) noexcept
                 : BMPInfoHeaderV3(in_stream, false, is_V5_base)
             {
+                this->header_size = header_size_;
                 load(in_stream, is_V4_base || is_V5_base);
             }
 
@@ -372,6 +382,8 @@ namespace bmpl
         //===========================================================================
         struct BMPInfoHeaderV3_NT_4 : public BMPInfoHeaderV3_NT
         {
+            static constexpr std::uint32_t HEADER_SIZE{ 56 };
+
             BMPInfoHeaderV3_NT_4() noexcept = default;
             BMPInfoHeaderV3_NT_4(const BMPInfoHeaderV3_NT_4&) noexcept = default;
             BMPInfoHeaderV3_NT_4(BMPInfoHeaderV3_NT_4&&) noexcept = default;
@@ -382,8 +394,13 @@ namespace bmpl
             inline BMPInfoHeaderV3_NT_4& operator= (BMPInfoHeaderV3_NT_4&&) noexcept = default;
 
 
-            inline BMPInfoHeaderV3_NT_4(bmpl::utils::LEInStream& in_stream, const bool is_V4_base = false, const bool is_V5_base = false) noexcept
-                : BMPInfoHeaderV3_NT(in_stream, is_V4_base, is_V5_base)
+            inline BMPInfoHeaderV3_NT_4(
+                bmpl::utils::LEInStream& in_stream,
+                const std::uint32_t header_size = HEADER_SIZE,
+                const bool is_V4_base = false,
+                const bool is_V5_base = false
+            ) noexcept
+                : BMPInfoHeaderV3_NT(in_stream, header_size, is_V4_base, is_V5_base)
             {
                 load(in_stream);
             }
@@ -405,6 +422,8 @@ namespace bmpl
         //===========================================================================
         struct BMPInfoHeaderV4 : public BMPInfoHeaderV3_NT_4
         {
+            static constexpr std::uint32_t HEADER_SIZE{ 108 };
+
             std::int32_t red_endX{ -1 };
             std::int32_t red_endY{ -1 };
             std::int32_t red_endZ{ -1 };
@@ -429,8 +448,13 @@ namespace bmpl
             inline BMPInfoHeaderV4& operator= (BMPInfoHeaderV4&&) noexcept = default;
 
 
-            inline BMPInfoHeaderV4(bmpl::utils::LEInStream& in_stream, const bool is_V4_base = true, const bool is_V5_base = false) noexcept
-                : BMPInfoHeaderV3_NT_4(in_stream, is_V4_base, is_V5_base)
+            inline BMPInfoHeaderV4(
+                bmpl::utils::LEInStream& in_stream,
+                const std::uint32_t header_size = HEADER_SIZE,
+                const bool is_V4_base = true,
+                const bool is_V5_base = false
+            ) noexcept
+                : BMPInfoHeaderV3_NT_4(in_stream, header_size, is_V4_base, is_V5_base)
             {
                 load(in_stream, is_V4_base);
             }
@@ -470,7 +494,7 @@ namespace bmpl
         //===========================================================================
         struct BMPInfoHeaderV5 : public BMPInfoHeaderV4
         {
-            static constexpr std::uint32_t HEADER_SIZE{ 128 };
+            static constexpr std::uint32_t HEADER_SIZE{ 124 };
 
             static constexpr std::uint32_t LCS_GM_BUSINESS{ 1 };
             static constexpr std::uint32_t LCS_GM_GRAPHICS{ 2 };
@@ -493,7 +517,7 @@ namespace bmpl
 
 
             inline BMPInfoHeaderV5(bmpl::utils::LEInStream& in_stream) noexcept
-                : BMPInfoHeaderV4(in_stream, false, true)
+                : BMPInfoHeaderV4(in_stream, HEADER_SIZE, false, true)
             {
                 load(in_stream);
             }
@@ -507,13 +531,8 @@ namespace bmpl
 
 
         //===========================================================================
-        struct BMPInfoHeaderVOS21 : public BMPInfoHeaderBase
+        struct BMPInfoHeaderVOS21 : public BMPInfoHeaderV2
         {
-            std::uint16_t width{ 0 };
-            std::uint16_t height{ 0 };
-            std::uint16_t planes_count{ 0 };
-
-
             BMPInfoHeaderVOS21() noexcept = default;
             BMPInfoHeaderVOS21(const BMPInfoHeaderVOS21&) noexcept = default;
             BMPInfoHeaderVOS21(BMPInfoHeaderVOS21&&) noexcept = default;
@@ -525,7 +544,8 @@ namespace bmpl
 
 
             inline BMPInfoHeaderVOS21(bmpl::utils::LEInStream& in_stream) noexcept
-                : BMPInfoHeaderBase(in_stream)
+                : BMPInfoHeaderWithPalette()
+                , BMPInfoHeaderV2(in_stream)
             {
                 load(in_stream);
             }
@@ -542,14 +562,21 @@ namespace bmpl
 
             virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
 
+            inline virtual const bool may_embed_color_palette() const override
+            {
+                return true;
+            }
+
             inline virtual const bool is_vOS21() const { return true; }
 
         };
 
 
         //===========================================================================
-        struct BMPInfoHeaderVOS22_16 : virtual public BMPInfoHeaderWithPalette, virtual public BMPInfoHeaderBase
+        struct BMPInfoHeaderVOS22_16 : public BMPInfoHeaderBase
         {
+            static constexpr std::uint32_t HEADER_SIZE{ 16 };
+
             std::int32_t width{ 0 };
             std::int32_t height{ 0 };
             std::uint16_t planes_count{ 0 };
@@ -576,9 +603,9 @@ namespace bmpl
             inline BMPInfoHeaderVOS22_16& operator= (BMPInfoHeaderVOS22_16&&) noexcept = default;
 
 
-            inline BMPInfoHeaderVOS22_16(bmpl::utils::LEInStream& in_stream) noexcept
+            inline BMPInfoHeaderVOS22_16(bmpl::utils::LEInStream& in_stream, const std::uint32_t header_size = HEADER_SIZE) noexcept
                 : BMPInfoHeaderWithPalette()
-                , BMPInfoHeaderBase(in_stream)
+                , BMPInfoHeaderBase(in_stream, header_size)
             {
                 load(in_stream);
             }
@@ -600,15 +627,12 @@ namespace bmpl
                 return true;
             }
 
-            virtual inline const std::uint32_t get_colors_count() const noexcept override
-            {
-                return this->used_colors_count;;
-            }
-
             virtual inline const std::uint32_t get_important_colors_count() const noexcept override
             {
                 return this->important_colors_count;
             }
+
+            inline virtual const bool is_vOS22() const { return true; }
 
         };
 
@@ -616,6 +640,8 @@ namespace bmpl
         //===========================================================================
         struct BMPInfoHeaderVOS22 : public BMPInfoHeaderVOS22_16
         {
+            static constexpr std::uint32_t HEADER_SIZE{ 64 };
+
             BMPInfoHeaderVOS22() noexcept = default;
             BMPInfoHeaderVOS22(const BMPInfoHeaderVOS22&) noexcept = default;
             BMPInfoHeaderVOS22(BMPInfoHeaderVOS22&&) noexcept = default;
@@ -627,20 +653,18 @@ namespace bmpl
 
 
             inline BMPInfoHeaderVOS22(bmpl::utils::LEInStream& in_stream) noexcept
-                : BMPInfoHeaderVOS22_16(in_stream)
+                : BMPInfoHeaderVOS22_16(in_stream, HEADER_SIZE)
             {
                 load(in_stream);
             }
 
             virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
 
-            inline virtual const bool is_vOS22() const { return true; }
-
         };
 
 
         //===========================================================================
-        const BMPInfoHeaderBase* create_bmp_info_header(bmpl::utils::LEInStream& in_stream) noexcept;
+        const BMPInfoHeaderBase* create_bmp_info_header(bmpl::utils::LEInStream& in_stream, bmpl::frmt::BMPFileHeader file_header) noexcept;
 
     }
 }

@@ -44,17 +44,19 @@ namespace bmpl
     namespace frmt
     {
         //===========================================================================
-        class BMPFileHeader : public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
+        struct BMPFileHeader : public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
         {
-        public:
             using MyErrBaseClass = bmpl::utils::ErrorStatus;
             using MyWarnBaseClass = bmpl::utils::WarningStatus;
+
+            static constexpr std::size_t SIZE{ 14 };
 
 
             std::uint32_t size{ 0 };            // bfSize
             std::uint32_t content_offset{ 0 };  // bfOffBits
-            std::uint32_t reserved{ 0 };        // bfReserved1 and bfReserved2
             std::uint16_t type{ 0 };            // bfType "BM"
+            std::int16_t  reserved1{ 0 };       // XHotSpot for icons, pointers, etc. - set to 0 for bitmaps
+            std::int16_t  reserved2{ 0 };       // YHotSpot for icons, pointers, etc. - set to 0 for bitmaps
 
 
             BMPFileHeader() noexcept = default;

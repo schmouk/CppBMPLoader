@@ -57,10 +57,21 @@ namespace bmpl
                 std::size_t to_be_loaded_count{ this->colors_count };
                 if (to_be_loaded_count > 256) {
                     to_be_loaded_count = 256;
-                    _set_warning(bmpl::utils::WarningCode::TOO_BIG_PALETTE);
+                    set_warning(bmpl::utils::WarningCode::TOO_BIG_PALETTE);
                 }
 
-                if (bmpl::utils::PLATFORM_IS_LITTLE_ENDIAN) {
+                if (info_header_ptr->is_vOS21() || info_header_ptr->is_vOS22()) {
+                    // 3 bytes per color map entry
+                    auto cmap_it = MyContainerBaseClass::begin();
+                    bmpl::clr::BGR bgr;
+                    for (std::uint32_t i = 0; i < to_be_loaded_count; ++i) {
+                        in_stream >> bgr.b >> bgr.g >> bgr.r;
+                        bmpl::clr::convert(*cmap_it++, bgr);
+                    }
+                    if (in_stream.failed())
+                        return _set_err(bmpl::utils::ErrorCode::BAD_COLORMAP_ENCODING);
+                }
+                else if (bmpl::utils::PLATFORM_IS_LITTLE_ENDIAN) {
                     if (!in_stream.read(reinterpret_cast<char*>(MyContainerBaseClass::data()), std::streamsize(4 * to_be_loaded_count)))
                         return _set_err(bmpl::utils::ErrorCode::BAD_COLORMAP_ENCODING);
                 }

@@ -66,6 +66,8 @@ namespace bmpl
                 return "corrupted BMP file.";
             case ErrorCode::END_OF_FILE:
                 return "encountered unexpected end-of-file.";
+            case ErrorCode::ERRONEOUS_BITMAP_OFFSET:
+                return "the offset of the bitmap as specified in the file header appears to be invalid.";
             case ErrorCode::FILE_NOT_FOUND:
                 return "file not found.";
             case ErrorCode::FORBIDDEN_BOTTOM_UP_ORIENTATION:

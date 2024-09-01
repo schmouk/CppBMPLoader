@@ -57,6 +57,7 @@ namespace bmpl
             BUFFER_OVERFLOW,
             CORRUPTED_BMP_FILE,
             END_OF_FILE,
+            ERRONEOUS_BITMAP_OFFSET,
             FILE_NOT_FOUND,
             FORBIDDEN_BOTTOM_UP_ORIENTATION,
             INCOHERENT_COMPRESSION_MODE,

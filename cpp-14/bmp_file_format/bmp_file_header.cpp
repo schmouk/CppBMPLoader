@@ -41,7 +41,7 @@ namespace bmpl
             if (in_stream.failed())
                 return _set_err(in_stream.get_error());
 
-            if (!(in_stream >> type >> size >> reserved >> content_offset))
+            if (!(in_stream >> type >> size >> reserved1 >> reserved2 >> content_offset))
                 return _set_err(in_stream.get_error());
 
             if (type != 0x4d42) {  // i.e. "BM" as little-endian encoded on 16 bits
@@ -51,13 +51,8 @@ namespace bmpl
                     return _set_err(bmpl::utils::ErrorCode::NOT_BMP_ENCODING);
             }
 
-            if (in_stream.get_size() != size)
-                _set_warning(bmpl::utils::WarningCode::BAD_FILE_SIZE_IN_HEADER);
-
-            /* notice: removed test for further 0S2 decoding
-            if (content_offset >= size - 14)
-                return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
-            */
+            if (reserved1 != 0 || reserved2 != 0)
+                set_warning(bmpl::utils::WarningCode::HOT_POINT_SET);
 
             return _clr_err();
         }

@@ -69,6 +69,10 @@ namespace bmpl
                 return "ICC embedded profiles are not implemented in CppBMPLoader library which uses plain coded colors instead.";
             case WarningCode::FORBIDDEN_TOP_DOWN_ORIENTATION:
                 return "top-down orientation of image is not allowed with RLE-compression; CppBMPLoader library tries to decode it nevertheless.";
+            case WarningCode::GAP_BTW_COLORMAP_AND_BITMAP:
+                return "some gap exists between colormap and image bitmap; CppBMPLoader decodes the image nevertheless.";
+            case WarningCode::HOT_POINT_SET:
+                return "A hot point X and Y values are set in file header while they should not; CppBMPLoader library nevertheless decodes this file as a BMP one.";
             case WarningCode::INCOHERENT_IMAGE_SIZE:
                 return "image size in info header is incoherent with specified width and height.";
             case WarningCode::INCOHERENT_RESOLUTIONS:
@@ -77,6 +81,8 @@ namespace bmpl
                 return "for security issues, ICC linked profiles are not implemented in CppBMPLoader library which uses plain coded colors instead.";
             case WarningCode::MISSING_BITFIELDS_MASKS:
                 return "at least on color bits mask is missing in bitfields definition.";
+            case WarningCode::MISSING_COLORMAP_ENTRIES:
+                return "a less-than-full-sized colormap has been detected in file; CppBMPLoader library tries to decode it nevertheless.";
             case WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP:
                 return "too small bitmap, last image pixels are set to default value.";
             case WarningCode::NOT_ZERO_RESERVED:
