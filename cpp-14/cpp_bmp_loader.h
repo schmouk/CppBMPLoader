@@ -298,7 +298,7 @@ namespace bmpl
 
             // checks correctness of some specified values in headers
             int colormap_pixel_size{ 4 };
-            if (this->_info.info_header_ptr->is_vOS21() || this->_info.info_header_ptr->is_vOS22())
+            if (this->_info.info_header_ptr->is_vOS21())
                 colormap_pixel_size = 3;
 
             const std::uint32_t colormap_size{ colormap_pixel_size * this->_info.info_header_ptr->get_colors_count() };
@@ -309,8 +309,7 @@ namespace bmpl
                 set_warning(bmpl::utils::WarningCode::MISSING_COLORMAP_ENTRIES);
 
             // loads the image bitmap
-            this->_in_stream.seekg(this->_file_header.content_offset);
-            if (!this->_in_stream.good()) {
+            if (!this->_in_stream.seekg(this->_file_header.content_offset)) {
                 _set_err(bmpl::utils::ErrorCode::ERRONEOUS_BITMAP_OFFSET);
                 return;
             }

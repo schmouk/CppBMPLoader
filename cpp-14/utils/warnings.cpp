@@ -47,6 +47,8 @@ namespace bmpl
                 return "header indicates a bad bitmap size.";
             case WarningCode::BAD_FILE_SIZE_IN_HEADER:
                 return "the file size indicated in header is not the actual size of this file.";
+            case WarningCode::BAD_HALFTONING_MODE_VALUE:
+                return "an invalid value for the halftoning algorithm used on the bitmap data has been detected; CppBMPLoader decodes it nevertheless.";
             case WarningCode::BAD_IMPORTANT_COLORS_COUNT:
                 return "the 'important colors' count appears to be greater than the defined colors count.";
             case WarningCode::BAD_PALETTE_INDICES:
@@ -77,6 +79,12 @@ namespace bmpl
                 return "image size in info header is incoherent with specified width and height.";
             case WarningCode::INCOHERENT_RESOLUTIONS:
                 return "maybe incoherent image resolutions detected in info header - one of them may be too big compared to the other one.";
+            case WarningCode::INVALID_COLOR_ENCODING:
+                return "the specified color encoding is invalid - not an RGB one; CppBMPLoader library nevertheless decodes the bitmap as being RGB encoded.";
+            case WarningCode::INVALID_DAMPING_VALUE:
+                return "the specified damping value for the halftoning error diffusion is invalid (greater than 100%).";
+            case WarningCode::INVALID_RESOLUTION_UNITS:
+                return "a non-zero resolution units value different has been detected - this is invalid; CppBMPLoader library decodes this file nevertheless.";
             case WarningCode::LINKED_PROFILE_NOT_IMPLEMENTED:
                 return "for security issues, ICC linked profiles are not implemented in CppBMPLoader library which uses plain coded colors instead.";
             case WarningCode::MISSING_BITFIELDS_MASKS:

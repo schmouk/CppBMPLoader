@@ -40,7 +40,8 @@ namespace bmpl
     namespace frmt
     {
         //===========================================================================
-        const bool BMPInfoHeaderV2::load(bmpl::utils::LEInStream& in_stream) noexcept
+        template<typename DimsT>
+        const bool BMPInfoHeaderV2<DimsT>::load(bmpl::utils::LEInStream& in_stream) noexcept
         {
             if (!(in_stream >> width >> height >> planes_count >> bits_per_pixel))
                 return _set_err(in_stream.get_error());
@@ -67,7 +68,6 @@ namespace bmpl
         //===========================================================================
         const bool BMPInfoHeaderV3::load(bmpl::utils::LEInStream& in_stream, const bool is_V3_base, const bool is_V5_base) noexcept
         {
-
             if (!(in_stream >> width
                             >> height
                             >> planes_count
@@ -78,7 +78,9 @@ namespace bmpl
                             >> device_y_resolution
                             >> used_colors_count
                             >> important_colors_count))
+            {
                 return _set_err(in_stream.get_error());
+            }
 
             if (width < 0)
                 return _set_err(bmpl::utils::ErrorCode::NEGATIVE_WIDTH);
@@ -371,18 +373,122 @@ namespace bmpl
 
 
         //===========================================================================
-        const bool BMPInfoHeaderVOS22_16::load(bmpl::utils::LEInStream& in_stream) noexcept
+        const bool BMPInfoHeaderVOS22::load(bmpl::utils::LEInStream& in_stream) noexcept
         {
-            // TODO: implement this
-            return _set_err(bmpl::utils::ErrorCode::NOT_YET_IMPLEMENTED_BMP_FORMAT);
+
+            if (!(in_stream >> width
+                            >> height
+                            >> planes_count
+                            >> bits_per_pixel))
+            {
+                return _set_err(in_stream.get_error());
+            }
+
+            if (this->header_size == 64) {
+                if (!(in_stream >> compression_mode
+                                >> bitmap_size
+                                >> device_x_resolution
+                                >> device_y_resolution
+                                >> used_colors_count
+                                >> important_colors_count
+                                >> resolution_units
+                                >> reserved
+                                >> recording_algorithm
+                                >> halftoning_rendering_algorithm
+                                >> halftoning_param_1
+                                >> halftoning_param_2
+                                >> color_encoding
+                                >> application_identifier))
+                {
+                    return _set_err(in_stream.get_error());
+                }
+            }
+
+            if (width == 0 || height == 0)
+                return _set_err(bmpl::utils::ErrorCode::INVALID_IMAGE_DIMENSIONS);
+
+            if (planes_count != 1)
+                set_warning(bmpl::utils::WarningCode::BAD_PLANES_VALUE);
+
+            if (bits_per_pixel != 1 && bits_per_pixel != 4 && bits_per_pixel != 8 && bits_per_pixel != 24)
+                return _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
+
+            if (compression_mode == COMPR_HUFFMAN_1D)
+                return _set_err(bmpl::utils::ErrorCode::NOT_YET_IMPLEMENTED_HUFFMAN_1D_DECODING);
+
+            if (compression_mode > COMPR_RLE_24)
+                return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
+
+            if (bitmap_size == 0 && compression_mode != COMPR_NO_RLE)
+                return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
+
+            if (device_x_resolution > 2.5 * device_y_resolution || device_y_resolution > 2.5 * device_x_resolution)
+                // notice: factor 2.5 is per pure convention and has nothing to do with the BMP format
+                set_warning(bmpl::utils::WarningCode::INCOHERENT_RESOLUTIONS);
+
+            if (used_colors_count == 0) {
+                if (bits_per_pixel < 16)
+                    used_colors_count = 1 << bits_per_pixel;
+            }
+            else {
+                if (bits_per_pixel >= 16)
+                    set_warning(bmpl::utils::WarningCode::UNUSED_PALETTE);
+            }
+
+            if (important_colors_count > used_colors_count && bits_per_pixel < 16)
+                set_warning(bmpl::utils::WarningCode::BAD_IMPORTANT_COLORS_COUNT);
+
+            if (resolution_units != 0)
+                set_warning(bmpl::utils::WarningCode::INVALID_RESOLUTION_UNITS);
+
+            if (reserved != 0)
+                set_warning(bmpl::utils::WarningCode::NOT_ZERO_RESERVED);
+
+            if (recording_algorithm != 0)
+                _set_err(bmpl::utils::ErrorCode::INVALID_OS2_BITMAP_RECORDING);
+
+            if (halftoning_rendering_algorithm < HALFTONING_NO_ALGORITHM ||
+                halftoning_rendering_algorithm > HALFTONING_SUPER_CIRCLE_ALGORITHM)
+            {
+                set_warning(bmpl::utils::WarningCode::BAD_HALFTONING_MODE_VALUE);
+            }
+
+            if (halftoning_rendering_algorithm == HALFTONING_DIFFUSION_ALGORITHM &&
+                halftoning_param_1 > 100)
+            {
+                set_warning(bmpl::utils::WarningCode::INVALID_DAMPING_VALUE);
+            }
+
+            if (color_encoding != COLOR_ENCODING_RGB)
+                set_warning(bmpl::utils::WarningCode::INVALID_COLOR_ENCODING);
+
+            return _clr_err();
         }
 
 
         //===========================================================================
-        const bool BMPInfoHeaderVOS22::load(bmpl::utils::LEInStream& in_stream) noexcept
+        inline const std::uint16_t BMPInfoHeaderVOS22::get_halftoning_x_size() const noexcept
         {
-            // TODO: implement this
-            return _set_err(bmpl::utils::ErrorCode::NOT_YET_IMPLEMENTED_BMP_FORMAT);
+            if (halftoning_rendering_algorithm == HALFTONING_PANDA_ALGORITHM ||
+                halftoning_rendering_algorithm == HALFTONING_SUPER_CIRCLE_ALGORITHM)
+            {
+                return get_halftoning_param_1();
+            }
+            else
+                return 0;
+        }
+
+
+        //===========================================================================
+        inline const std::uint16_t BMPInfoHeaderVOS22::get_halftoning_y_size() const noexcept
+        {
+            if (halftoning_rendering_algorithm == HALFTONING_PANDA_ALGORITHM ||
+                halftoning_rendering_algorithm == HALFTONING_SUPER_CIRCLE_ALGORITHM)
+            {
+                return get_halftoning_param_2();
+            }
+            else
+                return 0;
         }
 
 
@@ -400,10 +506,10 @@ namespace bmpl
             // then, select the correct class to instantiate
             switch (header_size) {
             case 0x0c:
-            {   //-- Version 2 or 0S/2.1 of BMP file format --//
+            {   //-- Version 2 or 0S/2 1.x of BMP file format --//
                 constexpr size_t header_file_size{ bmpl::frmt::BMPFileHeader::SIZE };
 
-                BMPInfoHeaderV2* header_ptr{ new BMPInfoHeaderV2(in_stream) };
+                BMPInfoHeaderV2<>* header_ptr{ new BMPInfoHeaderV2<>(in_stream) };
 
                 if (header_ptr != nullptr && header_ptr->is_ok()) {
                     const std::size_t file_size{ std::size_t(in_stream.get_size()) };
@@ -427,11 +533,11 @@ namespace bmpl
             }
 
             case 0x10:
-                //-- Version OS/2 2.x part 16 of BMP fie format --//
-                return new BMPInfoHeaderVOS22_16(in_stream);
+                //-- Version OS/2 2.x part 16 of BMP file format --//
+                return new BMPInfoHeaderVOS22(in_stream, 0x10);
 
             case 0x28:
-            {   //-- Version 3 or 3_NT of BMP file format --//
+            {   //-- Version 3, 3_NT or OS/2 2.x part 40 of BMP file format --//
                 constexpr size_t header_file_size{ bmpl::frmt::BMPFileHeader::SIZE };
 
                 BMPInfoHeaderV3* header_ptr{ new BMPInfoHeaderV3(in_stream) };
@@ -460,7 +566,7 @@ namespace bmpl
 
             case 0x40:
                 //-- Version OS/2 2.x of BMP file format --//
-                return new BMPInfoHeaderVOS22(in_stream);
+                return new BMPInfoHeaderVOS22(in_stream, 0x40);
 
             case 0x6c:
                 //-- Version 4 of BMP file format --//

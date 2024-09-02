@@ -60,7 +60,7 @@ namespace bmpl
                     set_warning(bmpl::utils::WarningCode::TOO_BIG_PALETTE);
                 }
 
-                if (info_header_ptr->is_vOS21() || info_header_ptr->is_vOS22()) {
+                if (info_header_ptr->is_vOS21()) {
                     // 3 bytes per color map entry
                     auto cmap_it = MyContainerBaseClass::begin();
                     bmpl::clr::BGR bgr;

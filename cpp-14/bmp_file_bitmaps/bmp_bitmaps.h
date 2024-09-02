@@ -298,6 +298,30 @@ namespace bmpl
 
         //===========================================================================
         template<typename PixelT>
+        class BitmapLoader24bitsRLE : public BitmapLoaderBase<PixelT>
+        {
+        public:
+
+            using MyBaseClass = BitmapLoaderBase<PixelT>;
+
+            inline BitmapLoader24bitsRLE(
+                bmpl::utils::LEInStream& in_stream,
+                bmpl::frmt::BMPFileHeader& file_header,
+                const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
+                bmpl::frmt::BMPColorMap& color_map,
+                const std::int32_t image_width,
+                const std::int32_t image_height
+            ) noexcept
+                : MyBaseClass(in_stream, file_header, info_header_ptr, color_map, image_width, image_height)
+            {}
+
+            virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
+
+        };
+
+
+        //===========================================================================
+        template<typename PixelT>
         class BitmapLoader32bits : public BitmapLoaderBase<PixelT>
         {
         public:
@@ -383,7 +407,10 @@ namespace bmpl
                 return new BitmapLoader16bits<PixelT>(in_stream, file_header, info_header_ptr, color_map, image_width, image_height);
 
             case 24:
-                return new BitmapLoader24bits<PixelT>(in_stream, file_header, info_header_ptr, color_map, image_width, image_height);
+                if (info_header_ptr->compression_mode == info_header_ptr->COMPR_NO_RLE)
+                    return new BitmapLoader24bits<PixelT>(in_stream, file_header, info_header_ptr, color_map, image_width, image_height);
+                else
+                    return new BitmapLoader24bitsRLE<PixelT>(in_stream, file_header, info_header_ptr, color_map, image_width, image_height);
 
             case 32:
                 return new BitmapLoader32bits<PixelT>(in_stream, file_header, info_header_ptr, color_map, image_width, image_height);
@@ -1110,6 +1137,159 @@ namespace bmpl
                     return this->_set_err(bmpl::utils::ErrorCode::END_OF_FILE);
                 }
             }
+
+            // once here, everything was fine!
+            return this->_clr_err();
+        }
+
+
+        //===========================================================================
+        template<typename PixelT>
+        const bool BitmapLoader24bitsRLE<PixelT>::load(std::vector<PixelT>& image_content) noexcept
+        {
+            if (this->info_header_ptr == nullptr)
+                return this->_set_err(bmpl::utils::ErrorCode::BAD_INFO_HEADER);
+
+            if (this->info_header_ptr->compression_mode != this->info_header_ptr->COMPR_RLE_24) {
+                return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
+            }
+
+            // loads the RLE-24 bitmap
+            const bmpl::utils::LEInStream::pos_type bitmap_size{ this->in_stream.get_size() - this->in_stream.tellg()};
+            std::vector<std::uint8_t> bitmap;
+            bitmap.assign(bitmap_size, std::uint8_t(0));
+            if (!(this->in_stream.read(reinterpret_cast<char*>(bitmap.data()), bitmap_size))) {
+                if (this->in_stream.eof())
+                    return this->_set_err(bmpl::utils::ErrorCode::END_OF_FILE);
+                else
+                    return this->_set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
+            }
+
+            // parses then the RLE-8 bitmap
+            std::uint32_t width{ std::uint32_t(this->image_width) };
+            std::uint32_t num_line{ 0 };
+            std::uint32_t x{ 0 };
+            bool encountered_eof{ false };
+
+            auto img_it{ image_content.begin() };
+            auto bmp_it{ bitmap.cbegin() };
+
+            while (bmp_it != bitmap.cend()) {
+                if (*bmp_it > 0) {
+                    // encoded mode, repetition of same pixel value n-times
+                    std::uint8_t n_rep{ *bmp_it++ };
+                    PixelT pxl_value;
+                    if (bmp_it != bitmap.cend())
+                        pxl_value.b = *bmp_it++;
+                    if (bmp_it != bitmap.cend())
+                        pxl_value.g = *bmp_it++;
+                    if (bmp_it != bitmap.cend())
+                        pxl_value.r = *bmp_it++;
+
+                    if (x + std::uint32_t(n_rep) > width) {
+                        this->set_warning(bmpl::utils::WarningCode::DELTA_MODE_MAY_OVERFLOW);
+                        num_line += (x + n_rep) / width;
+                        x = (x + n_rep) % width;
+                    }
+                    else
+                        x += n_rep;
+
+                    while (n_rep--) {
+                        if (img_it == image_content.end()) {
+                            return this->_set_err(bmpl::utils::ErrorCode::BUFFER_OVERFLOW);
+                        }
+                        *img_it++ = pxl_value;
+                    }
+                }
+                else if (bmp_it != bitmap.cend()) {
+                    bmp_it++;
+                    if (bmp_it != bitmap.cend()) {
+                        switch (*bmp_it++)
+                        {
+                        case 0:
+                            // end of line
+                            ++num_line;
+                            x = 0;
+                            if (num_line == this->image_height) {
+                                return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
+                            }
+                            img_it = image_content.begin() + std::size_t(num_line * width);
+                            break;
+
+                        case 1:
+                            // end of bitmap
+                            encountered_eof = true;
+                            if (bmp_it != bitmap.cend()) {
+                                return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
+                            }
+                            break;
+
+                        case 2:
+                            // delta-mode
+                        {
+                            std::uint8_t delta_pxls{ 0 };
+                            std::uint8_t delta_lines{ 0 };
+                            if (bmp_it != bitmap.cend())
+                                delta_pxls = *bmp_it++;
+                            if (bmp_it != bitmap.cend())
+                                delta_lines = *bmp_it++;
+
+                            if (x + std::uint32_t(delta_pxls) > width) {
+                                this->set_warning(bmpl::utils::WarningCode::DELTA_MODE_MAY_OVERFLOW);
+                                num_line += (x + delta_pxls) / width;
+                                x = (x + delta_pxls) % width;
+                            }
+                            else
+                                x += delta_pxls;
+
+                            const std::size_t offset{ std::size_t(delta_pxls) + width * std::size_t(delta_lines) };
+                            if ((img_it - image_content.begin()) + offset > width * std::size_t(this->image_height)) {
+                                return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_DELTA_MODE_VALUES);
+                            }
+                            img_it += offset;
+                        }
+                        break;
+
+                        default:
+                            // absolute mode
+                            std::uint8_t absolute_pixels_count{ *(bmp_it - 1) };
+                            const bool padding{ absolute_pixels_count % 2 != 0 };
+
+                            if (x + std::uint32_t(absolute_pixels_count) > width) {
+                                this->set_warning(bmpl::utils::WarningCode::DELTA_MODE_MAY_OVERFLOW);
+                                num_line += (x + absolute_pixels_count) / width;
+                                x = (x + absolute_pixels_count) % width;
+                            }
+                            else
+                                x += absolute_pixels_count;
+
+                            while (absolute_pixels_count-- && bmp_it != bitmap.cend()) {
+                                PixelT pxl_value;
+                                if (bmp_it != bitmap.cend())
+                                    pxl_value.b = *bmp_it++;
+                                if (bmp_it != bitmap.cend())
+                                    pxl_value.g = *bmp_it++;
+                                if (bmp_it != bitmap.cend())
+                                    pxl_value.r = *bmp_it++;
+
+                                if (img_it == image_content.end()) {
+                                    return this->_set_err(bmpl::utils::ErrorCode::BUFFER_OVERFLOW);
+                                }
+                                *img_it++ = pxl_value;
+                            }
+                            if (padding && bmp_it != bitmap.cend())
+                                bmp_it++;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!encountered_eof) {
+                return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
+            }
+
+            this->append_warnings(this->color_map);
 
             // once here, everything was fine!
             return this->_clr_err();

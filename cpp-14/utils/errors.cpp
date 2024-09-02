@@ -92,6 +92,8 @@ namespace bmpl
                 return "the specified size for the info header is invalid.";
             case ErrorCode::INVALID_IMAGE_DIMENSIONS:
                 return "some dimension of image is set to zero.";
+            case ErrorCode::INVALID_OS2_BITMAP_RECORDING:
+                return "A non-zero recording mode in OS/2 bitmap has been detected; this is invalid.";
             case ErrorCode::INVALID_PROFILE_DATA_OFFSET:
                 return "The specified offset for profile data is invalid.";
             case ErrorCode::IRRECOVERABLE_STREAM_ERROR:
@@ -114,6 +116,8 @@ namespace bmpl
                 return "this is a BA file, a format for which the decoding of first image in list is not yet implemented in library CppBMPLoader.";
             case ErrorCode::NOT_YET_IMPLEMENTED_BMP_FORMAT:
                 return "this BMP file is not of a currently implemented format by library CppBMPLoader.";
+            case ErrorCode::NOT_YET_IMPLEMENTED_HUFFMAN_1D_DECODING:
+                return "Library CppBMPLoader does not yet implement embedded Huffman-1D decoding.";
             case ErrorCode::NOT_YET_IMPLEMENTED_JPEG_DECODING:
                 return "Library CppBMPLoader does not yet implement embedded JPEG decoding.";
             case ErrorCode::NOT_YET_IMPLEMENTED_PNG_DECODING:

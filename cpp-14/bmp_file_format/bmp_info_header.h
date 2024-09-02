@@ -68,19 +68,23 @@ namespace bmpl
 
             std::uint32_t header_size{ 0 };
             std::uint32_t compression_mode{ 0 };
-            std::uint16_t bits_per_pixel{ 0 };
+            std::int16_t  bits_per_pixel{ 0 };
             bmpl::clr::ELogicalColorSpace cs_type{ bmpl::clr::DEFAULT_CS_TYPE };
             bool bmp_v4{ false };
 
 
-            static constexpr int COMPR_NO_RLE{ 0 };
-            static constexpr int COMPR_RLE_8{ 1 };
-            static constexpr int COMPR_RLE_4{ 2 };
-            static constexpr int COMPR_RLE_COLOR_BITMASKS{ 3 };
-            static constexpr int COMPR_EMBEDS_JPEG{ 4 };
-            static constexpr int COMPR_EMBEDS_PNG{ 5 };
-            static constexpr int COMPR_BITFIELDS{ 3 };
-            static constexpr int COMPR_ALPHABITFIELDS{ 6 };
+            static constexpr std::uint32_t COMPR_NO_RLE{ 0 };
+            static constexpr std::uint32_t COMPR_RLE_8{ 1 };
+            static constexpr std::uint32_t COMPR_RLE_4{ 2 };
+            static constexpr std::uint32_t COMPR_RLE_COLOR_BITMASKS{ 3 };
+            static constexpr std::uint32_t COMPR_EMBEDS_JPEG{ 4 };
+            static constexpr std::uint32_t COMPR_EMBEDS_PNG{ 5 };
+
+            static constexpr std::uint32_t COMPR_BITFIELDS{ 3 };
+            static constexpr std::uint32_t COMPR_ALPHABITFIELDS{ 6 };
+
+            static constexpr std::uint32_t COMPR_HUFFMAN_1D{ 3 };
+            static constexpr std::uint32_t COMPR_RLE_24{ 4 };
 
             bool top_down_encoding{ false };
 
@@ -220,12 +224,13 @@ namespace bmpl
 
 
         //===========================================================================
+        template<typename DimsT = std::int16_t>
         struct BMPInfoHeaderV2 : public BMPInfoHeaderBase
         {
             static constexpr std::uint32_t HEADER_SIZE{ 12 };
 
-            std::int16_t width{ 0 };
-            std::int16_t height{ 0 };
+            DimsT width{ 0 };
+            DimsT height{ 0 };
             std::uint16_t planes_count{ 0 };
 
 
@@ -255,7 +260,7 @@ namespace bmpl
                 return std::int32_t(width);
             }
 
-            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;
 
             inline virtual const bool is_v2() const { return true; }
 
@@ -405,7 +410,7 @@ namespace bmpl
                 load(in_stream);
             }
 
-            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;
 
             virtual inline const std::uint32_t get_alpha_mask() const noexcept override
             {
@@ -522,7 +527,7 @@ namespace bmpl
                 load(in_stream);
             }
 
-            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;
 
             inline virtual const bool is_v4() const { return false; }
             inline virtual const bool is_v5() const { return true; }
@@ -531,8 +536,11 @@ namespace bmpl
 
 
         //===========================================================================
-        struct BMPInfoHeaderVOS21 : public BMPInfoHeaderV2
+        struct BMPInfoHeaderVOS21 : public BMPInfoHeaderV2<std::uint16_t>
         {
+            using MyBaseClass = BMPInfoHeaderV2<std::uint16_t>;
+
+
             BMPInfoHeaderVOS21() noexcept = default;
             BMPInfoHeaderVOS21(const BMPInfoHeaderVOS21&) noexcept = default;
             BMPInfoHeaderVOS21(BMPInfoHeaderVOS21&&) noexcept = default;
@@ -544,8 +552,7 @@ namespace bmpl
 
 
             inline BMPInfoHeaderVOS21(bmpl::utils::LEInStream& in_stream) noexcept
-                : BMPInfoHeaderWithPalette()
-                , BMPInfoHeaderV2(in_stream)
+                : MyBaseClass(in_stream)
             {
                 load(in_stream);
             }
@@ -560,7 +567,7 @@ namespace bmpl
                 return std::int32_t(width);
             }
 
-            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;
 
             inline virtual const bool may_embed_color_palette() const override
             {
@@ -573,13 +580,11 @@ namespace bmpl
 
 
         //===========================================================================
-        struct BMPInfoHeaderVOS22_16 : public BMPInfoHeaderBase
+        struct BMPInfoHeaderVOS22 : public BMPInfoHeaderBase
         {
-            static constexpr std::uint32_t HEADER_SIZE{ 16 };
-
-            std::int32_t width{ 0 };
-            std::int32_t height{ 0 };
-            std::uint16_t planes_count{ 0 };
+            std::uint32_t width{ 0 };
+            std::uint32_t height{ 0 };
+            std::int16_t planes_count{ 0 };
             std::uint32_t bitmap_size{ 0 };
             std::uint32_t device_x_resolution{ 0 };
             std::uint32_t device_y_resolution{ 0 };
@@ -587,28 +592,67 @@ namespace bmpl
             std::int16_t reserved{ 0 };
             std::int16_t recording_algorithm{ 0 };
             std::int16_t halftoning_rendering_algorithm{ 0 };
-            std::uint16_t halftoning_reserved_1{ 0 };
-            std::uint16_t halftoning_reserved_2{ 0 };
+            std::uint32_t halftoning_param_1{ 0 };
+            std::uint32_t halftoning_param_2{ 0 };
             std::uint32_t color_encoding{ 0 };
             std::uint32_t application_identifier{ 0 };
 
+            static constexpr std::int16_t HALFTONING_NO_ALGORITHM{ 0 };
+            static constexpr std::int16_t HALFTONING_DIFFUSION_ALGORITHM{ 1 };
+            static constexpr std::int16_t HALFTONING_PANDA_ALGORITHM{ 2 };
+            static constexpr std::int16_t HALFTONING_SUPER_CIRCLE_ALGORITHM{ 3 };
 
-            BMPInfoHeaderVOS22_16() noexcept = default;
-            BMPInfoHeaderVOS22_16(const BMPInfoHeaderVOS22_16&) noexcept = default;
-            BMPInfoHeaderVOS22_16(BMPInfoHeaderVOS22_16&&) noexcept = default;
-            virtual ~BMPInfoHeaderVOS22_16() noexcept = default;
-
-
-            inline BMPInfoHeaderVOS22_16& operator= (const BMPInfoHeaderVOS22_16&) noexcept = default;
-            inline BMPInfoHeaderVOS22_16& operator= (BMPInfoHeaderVOS22_16&&) noexcept = default;
+            static constexpr std::uint32_t COLOR_ENCODING_RGB{ 0 };
 
 
-            inline BMPInfoHeaderVOS22_16(bmpl::utils::LEInStream& in_stream, const std::uint32_t header_size = HEADER_SIZE) noexcept
+            BMPInfoHeaderVOS22() noexcept = default;
+            BMPInfoHeaderVOS22(const BMPInfoHeaderVOS22&) noexcept = default;
+            BMPInfoHeaderVOS22(BMPInfoHeaderVOS22&&) noexcept = default;
+            virtual ~BMPInfoHeaderVOS22() noexcept = default;
+
+
+            inline BMPInfoHeaderVOS22& operator= (const BMPInfoHeaderVOS22&) noexcept = default;
+            inline BMPInfoHeaderVOS22& operator= (BMPInfoHeaderVOS22&&) noexcept = default;
+
+
+            inline BMPInfoHeaderVOS22(bmpl::utils::LEInStream& in_stream, const std::uint32_t header_size) noexcept
                 : BMPInfoHeaderWithPalette()
                 , BMPInfoHeaderBase(in_stream, header_size)
             {
                 load(in_stream);
             }
+
+            inline const std::uint32_t get_application_identifier() const noexcept
+            {
+                return application_identifier;
+            }
+
+            inline const std::int16_t get_halftoning_mode() const noexcept
+            {
+                return halftoning_rendering_algorithm;
+            }
+
+            inline const std::uint16_t get_halftoning_error_diffusion_damping() const noexcept
+            {
+                if (halftoning_rendering_algorithm == HALFTONING_DIFFUSION_ALGORITHM)
+                    return get_halftoning_param_1();
+                else
+                    return 0;  // notice: indicates no diffusion of errors
+            }
+
+            inline const std::uint16_t get_halftoning_param_1() const noexcept
+            {
+                return halftoning_param_1;
+            }
+
+            inline const std::uint16_t get_halftoning_param_2() const noexcept
+            {
+                return halftoning_param_2;
+            }
+
+            inline const std::uint16_t get_halftoning_x_size() const noexcept;
+
+            inline const std::uint16_t get_halftoning_y_size() const noexcept;
 
             virtual inline const std::int32_t get_height() const noexcept override
             {
@@ -620,7 +664,12 @@ namespace bmpl
                 return width;
             }
 
-            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+            inline const bool has_halftoning() const noexcept
+            {
+                return halftoning_rendering_algorithm != HALFTONING_NO_ALGORITHM;
+            }
+
+            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;
 
             inline virtual const bool may_embed_color_palette() const override
             {
@@ -633,32 +682,6 @@ namespace bmpl
             }
 
             inline virtual const bool is_vOS22() const { return true; }
-
-        };
-
-
-        //===========================================================================
-        struct BMPInfoHeaderVOS22 : public BMPInfoHeaderVOS22_16
-        {
-            static constexpr std::uint32_t HEADER_SIZE{ 64 };
-
-            BMPInfoHeaderVOS22() noexcept = default;
-            BMPInfoHeaderVOS22(const BMPInfoHeaderVOS22&) noexcept = default;
-            BMPInfoHeaderVOS22(BMPInfoHeaderVOS22&&) noexcept = default;
-            virtual ~BMPInfoHeaderVOS22() noexcept = default;
-
-
-            inline BMPInfoHeaderVOS22& operator= (const BMPInfoHeaderVOS22&) noexcept = default;
-            inline BMPInfoHeaderVOS22& operator= (BMPInfoHeaderVOS22&&) noexcept = default;
-
-
-            inline BMPInfoHeaderVOS22(bmpl::utils::LEInStream& in_stream) noexcept
-                : BMPInfoHeaderVOS22_16(in_stream, HEADER_SIZE)
-            {
-                load(in_stream);
-            }
-
-            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
 
         };
 

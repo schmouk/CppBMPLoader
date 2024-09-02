@@ -62,6 +62,8 @@ namespace bmpl
             using MyBaseClass = std::ifstream;
             using MyErrClass = bmpl::utils::ErrorStatus;
 
+            using pos_type = MyBaseClass::pos_type;
+
 
             inline LEInStream() noexcept = default;
 
