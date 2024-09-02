@@ -691,7 +691,7 @@ namespace bmpl
                 if (*bmp_it > 0) {
                     // encoded mode, repetition of same pixel value n-times
                     std::uint8_t n_rep{ *bmp_it++ };
-                    PixelT pxl_value_0, pxl_value_1;
+                    PixelT pxl_value_0{}, pxl_value_1{};
                     bmpl::clr::convert(pxl_value_0, this->color_map[*bmp_it >> 4]);
                     bmpl::clr::convert(pxl_value_1, this->color_map[*bmp_it & 0x0f]);
                     if (bmp_it != bitmap.cend())
@@ -774,7 +774,7 @@ namespace bmpl
                         std::uint8_t absolute_pixels_count{ *(bmp_it - 1) };
                         const int mod4{ absolute_pixels_count % 4 };
                         const bool padding{ mod4 == 1 || mod4 == 2 };
-                        PixelT pxl_value;
+                        PixelT pxl_value{};
 
                         if (x + std::uint32_t(absolute_pixels_count) > width) {
                             this->set_warning(bmpl::utils::WarningCode::DELTA_MODE_MAY_OVERFLOW);
@@ -1178,7 +1178,7 @@ namespace bmpl
                 if (*bmp_it > 0) {
                     // encoded mode, repetition of same pixel value n-times
                     std::uint8_t n_rep{ *bmp_it++ };
-                    PixelT pxl_value;
+                    PixelT pxl_value{};
                     if (bmp_it != bitmap.cend())
                         pxl_value.b = *bmp_it++;
                     if (bmp_it != bitmap.cend())
@@ -1264,7 +1264,7 @@ namespace bmpl
                                 x += absolute_pixels_count;
 
                             while (absolute_pixels_count-- && bmp_it != bitmap.cend()) {
-                                PixelT pxl_value;
+                                PixelT pxl_value{};
                                 if (bmp_it != bitmap.cend())
                                     pxl_value.b = *bmp_it++;
                                 if (bmp_it != bitmap.cend())

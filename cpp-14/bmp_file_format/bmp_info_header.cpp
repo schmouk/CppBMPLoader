@@ -329,7 +329,7 @@ namespace bmpl
             if (profile_data != 0 && (profile_data < 128 || profile_data >= in_stream.get_size()))
                 return _set_err(bmpl::utils::ErrorCode::BAD_PROFILE_DATA_OFFSET);
 
-            if (profile_data + profile_size > in_stream.get_size())
+            if (bmpl::utils::LEInStream::pos_type(profile_data + profile_size) > in_stream.get_size())
                 return _set_err(bmpl::utils::ErrorCode::BAD_PROFILE_SIZE);
 
             if (reserved != 0)

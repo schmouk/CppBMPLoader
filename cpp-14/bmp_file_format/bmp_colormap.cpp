@@ -63,7 +63,7 @@ namespace bmpl
                 if (info_header_ptr->is_vOS21()) {
                     // 3 bytes per color map entry
                     auto cmap_it = MyContainerBaseClass::begin();
-                    bmpl::clr::BGR bgr;
+                    bmpl::clr::BGR bgr{};
                     for (std::uint32_t i = 0; i < to_be_loaded_count; ++i) {
                         in_stream >> bgr.b >> bgr.g >> bgr.r;
                         bmpl::clr::convert(*cmap_it++, bgr);
