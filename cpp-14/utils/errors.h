@@ -77,7 +77,6 @@ namespace bmpl
             MISSING_PROFILE_DATA_OFFSET,
             NEGATIVE_WIDTH,
             NOT_BMP_ENCODING,
-            NOT_IMPLEMENTED_BMP_V1,
             NOT_INITIALIZED,
             NOT_WINDOWS_BMP,
             NOT_YET_IMPLEMENTED_BA_FORMAT,
