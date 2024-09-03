@@ -212,10 +212,18 @@ namespace bmpl
         //===========================================================================
         struct BMPInfoHeaderV1 : public BMPInfoHeaderBase
         {
+            using MyBaseClass = BMPInfoHeaderBase;
+
+
             inline BMPInfoHeaderV1(bmpl::utils::LEInStream& in_stream) noexcept
-                : BMPInfoHeaderBase(in_stream, 0)
+                : MyBaseClass()
             {
-                _set_err(bmpl::utils::ErrorCode::NOT_IMPLEMENTED_BMP_V1);
+                load(in_stream);
+            }
+
+            inline const bool load(bmpl::utils::LEInStream& in_stream) noexcept
+            {
+                return _clr_err();
             }
 
             inline virtual const bool is_v1() const { return true; }

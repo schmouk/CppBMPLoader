@@ -47,6 +47,8 @@ namespace bmpl
             if (type != 0x4d42) {  // i.e. "BM" as little-endian encoded on 16 bits
                 if (type == 0x4142)  // i.e. "BA" as little-endian encoding on 16 bits
                     return _set_err(bmpl::utils::ErrorCode::NOT_YET_IMPLEMENTED_BA_FORMAT);
+                else if (type == 0)  // i.e. BMP version 1
+                    return _set_err(bmpl::utils::ErrorCode::NOT_YET_IMPLEMENTED_V1_FORMAT);
                 else
                     return _set_err(bmpl::utils::ErrorCode::NOT_BMP_ENCODING);
             }

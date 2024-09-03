@@ -40,6 +40,41 @@ namespace bmpl
     namespace frmt
     {
         //===========================================================================
+        BMPColorMap::BMPColorMap(bmpl::utils::LEInStream& in_stream, const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr) noexcept
+            : MyErrBaseClass()
+            , MyWarnBaseClass()
+            , MyContainerBaseClass()
+        {
+            if (info_header_ptr != nullptr && info_header_ptr->failed()) {
+                _set_err(info_header_ptr->get_error());
+            }
+            else if (info_header_ptr == nullptr || !info_header_ptr->may_embed_color_palette()) {
+                _set_err(bmpl::utils::ErrorCode::INCOHERENT_BMP_LOADER_IMPLEMENTATION);
+            }
+            else {
+                load(in_stream, info_header_ptr);
+            }
+        }
+
+
+        //===========================================================================
+        BMPColorMap::pixel_type& BMPColorMap::operator[] (const std::uint32_t index) noexcept
+        {
+            if (index >= this->colors_count) {
+                if (!_bad_index_warn_already_set) {
+                    set_warning(bmpl::utils::WarningCode::BAD_PALETTE_INDICES);
+                    _bad_index_warn_already_set = true;
+                }
+                // notice: we use entry 0 as the default color for bad indices
+                return MyContainerBaseClass::operator[](0);
+            }
+            else {
+                return MyContainerBaseClass::operator[](index);
+            }
+        }
+
+
+        //===========================================================================
         const bool BMPColorMap::load(bmpl::utils::LEInStream& in_stream, const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr) noexcept
         {
             if (in_stream.failed())

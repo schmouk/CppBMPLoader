@@ -54,12 +54,12 @@ namespace bmpl
         {
         public:
 
-            bmpl::utils::LEInStream& in_stream;
-            bmpl::frmt::BMPFileHeader file_header;
+            bmpl::utils::LEInStream&             in_stream;
+            bmpl::frmt::BMPFileHeader            file_header;
             const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr;
-            bmpl::frmt::BMPColorMap color_map;
-            const std::int32_t image_width;
-            const std::int32_t image_height;
+            bmpl::frmt::BMPColorMap              color_map;
+            const std::int32_t                   image_width;
+            const std::int32_t                   image_height;
 
 
             using MyErrBaseClass = bmpl::utils::ErrorStatus;
@@ -101,6 +101,7 @@ namespace bmpl
                 const std::size_t mod4{ line_width % 4 };
                 return (mod4 > 0) ? (4 - mod4) : 0;
             }
+
         };
 
 

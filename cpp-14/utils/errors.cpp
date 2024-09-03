@@ -106,8 +106,6 @@ namespace bmpl
                 return "info header specifies a negative width for final image, which is forbidden.";
             case ErrorCode::NOT_BMP_ENCODING:
                 return "file is not a BMP file.";
-            case ErrorCode::NOT_IMPLEMENTED_BMP_V1:
-                return "this file is of BMP format version 1 which is not and which will not be implemented in library CppBMPLoader.";
             case ErrorCode::NOT_INITIALIZED:
                 return "file is currently not initialized.";
             case ErrorCode::NOT_WINDOWS_BMP:
@@ -122,6 +120,8 @@ namespace bmpl
                 return "Library CppBMPLoader does not yet implement embedded JPEG decoding.";
             case ErrorCode::NOT_YET_IMPLEMENTED_PNG_DECODING:
                 return "Library CppBMPLoader does not yet implement embedded PNG decoding'.";
+            case ErrorCode::NOT_YET_IMPLEMENTED_V1_FORMAT:
+                return "Library CppBMPLoader does not yet implement very old Version 1 of BMP files.";
             case ErrorCode::OVERLAPPING_BITFIELD_MASKS:
                 return "some bitfield masks are overlapping.";
             case ErrorCode::RLE_INPUT_OPERATION_FAILED:

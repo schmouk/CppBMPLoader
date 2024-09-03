@@ -148,7 +148,7 @@ namespace bmpl
         std::string _filepath{};
         ESkippedPixelsMode _skipped_mode{ ESkippedPixelsMode::BLACK };
 
-        // notice: do not modify the ordering of next declarations
+        // notice: do not modify the ordering of next three declarations
         bmpl::utils::LEInStream _in_stream;
         bmpl::frmt::BMPFileHeader _file_header;
         bmpl::frmt::BMPInfo _info;
@@ -170,7 +170,6 @@ namespace bmpl
     {
         using MyBaseClass = BMPBottomUpLoader<PixelT>;
 
-
         inline BMPLoader(
             const std::string& filepath,
             const ESkippedPixelsMode mode = ESkippedPixelsMode::BLACK,
@@ -185,11 +184,9 @@ namespace bmpl
             }
         }
 
-
         virtual inline ~BMPLoader() noexcept = default;
 
     };
-
 
 
     //===========================================================================
