@@ -468,7 +468,7 @@ namespace bmpl
                             return this->_set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
                     }
 
-                    if (padding_size > 0 && !(this->in_stream.seekg(padding_size, std::ios_base::cur))) {
+                    if (padding_size > 0 && (this->in_stream.seekg(padding_size, std::ios_base::cur)).fail()) {
                         return this->_set_err(bmpl::utils::ErrorCode::END_OF_FILE);
                     }
 
@@ -547,7 +547,7 @@ namespace bmpl
                             return this->_set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
                     }
 
-                    if (padding_size > 0 && !(this->in_stream.seekg(padding_size, std::ios_base::cur))) {
+                    if (padding_size > 0 && (this->in_stream.seekg(padding_size, std::ios_base::cur)).fail()) {
                         return this->_set_err(bmpl::utils::ErrorCode::END_OF_FILE);
                     }
 
@@ -618,7 +618,7 @@ namespace bmpl
                             return this->_set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
                     }
 
-                    if (padding_size > 0 && !(this->in_stream.seekg(padding_size, std::ios_base::cur))) {
+                    if (padding_size > 0 && (this->in_stream.seekg(padding_size, std::ios_base::cur)).fail()) {
                         return  this->_set_err(bmpl::utils::ErrorCode::END_OF_FILE);
                     }
 
@@ -857,7 +857,7 @@ namespace bmpl
                             return this->_set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
                     }
 
-                    if (padding_size > 0 && !(this->in_stream.seekg(padding_size, std::ios_base::cur))) {
+                    if (padding_size > 0 && (this->in_stream.seekg(padding_size, std::ios_base::cur)).fail()) {
                         return this->_set_err(bmpl::utils::ErrorCode::END_OF_FILE);
                     }
 
@@ -1134,7 +1134,7 @@ namespace bmpl
                 for (auto& bitmap_pxl : bitmap_line)
                     bmpl::clr::convert(*img_it++, bitmap_pxl);  // notice: no need of tests on image content overflow
 
-                if (padding_size > 0 && !(this->in_stream.seekg(padding_size, std::ios_base::cur))) {
+                if (padding_size > 0 && (this->in_stream.seekg(padding_size, std::ios_base::cur)).fail()) {
                     return this->_set_err(bmpl::utils::ErrorCode::END_OF_FILE);
                 }
             }

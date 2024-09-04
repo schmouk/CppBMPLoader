@@ -322,27 +322,27 @@ namespace bmpl
     template<typename PixelT>
     void BMPBottomUpLoader<PixelT>::_load_image(const bool apply_gamma_corection) noexcept
     {
-        if (_in_stream.failed()) {
+        if (this->_in_stream.failed()) {
             _set_err(_in_stream.get_error());
             return;
         }
 
-        if (_file_header_ptr == nullptr) {
+        if (this->_file_header_ptr == nullptr) {
             _set_err(bmpl::utils::ErrorCode::BAD_FILE_HEADER);
             return;
         }
 
-        if (_file_header_ptr->failed()) {
+        if (this->_file_header_ptr->failed()) {
             _set_err(_file_header_ptr->get_error());
         }
 
-        if (_info.failed()) {
+        if (this->_info.failed()) {
             _set_err(_info.get_error());
             return;
         }
 
         // let's set the file cursor position to the starting point of the image coding
-        if (!_in_stream.seekg(_file_header_ptr->get_content_offset())) {
+        if (this->_in_stream.seekg(_file_header_ptr->get_content_offset()).fail()) {
             _set_err(bmpl::utils::ErrorCode::IRRECOVERABLE_STREAM_ERROR);
             return;
         }
@@ -369,7 +369,7 @@ namespace bmpl
         }
 
         // loads the image bitmap
-        if (!this->_in_stream.seekg(this->_file_header_ptr->get_content_offset())) {
+        if (this->_in_stream.seekg(this->_file_header_ptr->get_content_offset()).fail()) {
             _set_err(bmpl::utils::ErrorCode::ERRONEOUS_BITMAP_OFFSET);
             return;
         }
