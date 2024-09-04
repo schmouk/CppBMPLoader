@@ -695,7 +695,10 @@ namespace bmpl
 
 
         //===========================================================================
-        const BMPInfoHeaderBase* create_bmp_info_header(bmpl::utils::LEInStream& in_stream, bmpl::frmt::BMPFileHeader file_header) noexcept;
+        const BMPInfoHeaderBase* create_bmp_info_header(
+            bmpl::utils::LEInStream& in_stream,
+            const bmpl::frmt::BMPFileHeaderBase* file_header_ptr
+        ) noexcept;
 
     }
 }

@@ -57,6 +57,8 @@ namespace bmpl
                 return "header indicates a bad color palett size - bigger than expected, for instance.";
             case WarningCode::BAD_PLANES_VALUE:
                 return "header indicates a planes count value different from 1.";
+            case WarningCode::BAD_SCANLINE_BYTES_WIDTH:
+                return "the specified width for scan lines is incoherent with the expected true width; CppBMPLibrary tries to decode this image file nevertheless.";
             case WarningCode::BITFIELDS_AND_PALETT:
                 return "a color palett is encoded while bitfields masks are defined.";
             case WarningCode::CORRECTED_GAMMA_BLUE:

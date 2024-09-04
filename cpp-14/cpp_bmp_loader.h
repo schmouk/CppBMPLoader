@@ -150,7 +150,7 @@ namespace bmpl
 
         // notice: do not modify the ordering of next three declarations
         bmpl::utils::LEInStream _in_stream;
-        bmpl::frmt::BMPFileHeader _file_header;
+        const bmpl::frmt::BMPFileHeaderBase* _file_header_ptr{ nullptr };;
         bmpl::frmt::BMPInfo _info;
 
         void _reverse_lines_ordering() noexcept;
@@ -204,8 +204,8 @@ namespace bmpl
         , _filepath(filepath)
         , _skipped_mode(mode)
         , _in_stream(filepath)
-        , _file_header(_in_stream)
-        , _info(_in_stream, _file_header)
+        , _file_header_ptr{ bmpl::frmt::create_file_header(_in_stream) }
+        , _info(_in_stream, _file_header_ptr)
     {
         _load_image(apply_gamma_corection);
     }
@@ -327,9 +327,13 @@ namespace bmpl
             return;
         }
 
-        if (_file_header.failed()) {
-            _set_err(_file_header.get_error());
+        if (_file_header_ptr == nullptr) {
+            _set_err(bmpl::utils::ErrorCode::BAD_FILE_HEADER);
             return;
+        }
+
+        if (_file_header_ptr->failed()) {
+            _set_err(_file_header_ptr->get_error());
         }
 
         if (_info.failed()) {
@@ -338,7 +342,7 @@ namespace bmpl
         }
 
         // let's set the file cursor position to the starting point of the image coding
-        if (_in_stream.seekg(_file_header.content_offset).fail()) {
+        if (!_in_stream.seekg(_file_header_ptr->get_content_offset())) {
             _set_err(bmpl::utils::ErrorCode::IRRECOVERABLE_STREAM_ERROR);
             return;
         }
@@ -351,7 +355,7 @@ namespace bmpl
         bmpl::bmpf::BitmapLoaderBase<pixel_type>* bitmap_loader_ptr{
             bmpl::bmpf::create_bitmap_loader<pixel_type>(
                 this->_in_stream,
-                this->_file_header,
+                this->_file_header_ptr,
                 this->_info.info_header_ptr,
                 this->_info.color_map,
                 this->width(),
@@ -370,14 +374,14 @@ namespace bmpl
             colormap_pixel_size = 3;
 
         const std::uint32_t colormap_size{ colormap_pixel_size * this->_info.info_header_ptr->get_colors_count() };
-        const std::uint32_t expected_bitmap_offset{ bmpl::frmt::BMPFileHeader::SIZE + this->_info.info_header_ptr->header_size + colormap_size };
-        if (expected_bitmap_offset < this->_file_header.content_offset)
+        const std::uint32_t expected_bitmap_offset{ std::uint32_t(_file_header_ptr->get_header_size()) + this->_info.info_header_ptr->header_size + colormap_size};
+        if (expected_bitmap_offset < this->_file_header_ptr->get_content_offset())
             set_warning(bmpl::utils::WarningCode::GAP_BTW_COLORMAP_AND_BITMAP);
-        else if (expected_bitmap_offset > this->_file_header.content_offset)
+        else if (expected_bitmap_offset > this->_file_header_ptr->get_content_offset())
             set_warning(bmpl::utils::WarningCode::MISSING_COLORMAP_ENTRIES);
 
         // loads the image bitmap
-        if (!this->_in_stream.seekg(this->_file_header.content_offset)) {
+        if (!this->_in_stream.seekg(this->_file_header_ptr->get_content_offset())) {
             _set_err(bmpl::utils::ErrorCode::ERRONEOUS_BITMAP_OFFSET);
             return;
         }
@@ -431,7 +435,7 @@ namespace bmpl
         _clr_err();
 
         // let's finally append any maybe warning detected during processing
-        this->append_warnings(this->_file_header);
+        this->append_warnings(*this->_file_header_ptr);
         this->append_warnings(*this->_info.info_header_ptr);
         this->append_warnings(this->_info.color_map);
         this->append_warnings(*bitmap_loader_ptr);

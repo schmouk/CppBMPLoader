@@ -44,40 +44,206 @@ namespace bmpl
     namespace frmt
     {
         //===========================================================================
-        struct BMPFileHeader : public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
+        struct BMPFileHeaderBase : public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
         {
             using MyErrBaseClass = bmpl::utils::ErrorStatus;
             using MyWarnBaseClass = bmpl::utils::WarningStatus;
 
-            static constexpr std::size_t SIZE{ 14 };
+            std::uint32_t file_size{ 0 };
+
+            BMPFileHeaderBase() noexcept = default;
+            BMPFileHeaderBase(const BMPFileHeaderBase&) noexcept = default;
+            BMPFileHeaderBase(BMPFileHeaderBase&&) noexcept = default;
+            virtual ~BMPFileHeaderBase() noexcept = default;
+
+            inline BMPFileHeaderBase& operator= (const BMPFileHeaderBase&) noexcept = default;
+            inline BMPFileHeaderBase& operator= (BMPFileHeaderBase&&) noexcept = default;
 
 
-            std::uint32_t size{ 0 };            // bfSize
-            std::uint32_t content_offset{ 0 };  // bfOffBits
-            std::uint16_t type{ 0 };            // bfType "BM"
-            std::int16_t  reserved1{ 0 };       // XHotSpot for icons, pointers, etc. - set to 0 for bitmaps
-            std::int16_t  reserved2{ 0 };       // YHotSpot for icons, pointers, etc. - set to 0 for bitmaps
-
-
-            BMPFileHeader() noexcept = default;
-            BMPFileHeader(const BMPFileHeader&) noexcept = default;
-            BMPFileHeader(BMPFileHeader&&) noexcept = default;
-            virtual ~BMPFileHeader() noexcept = default;
-
-            inline BMPFileHeader& operator= (const BMPFileHeader&) noexcept = default;
-            inline BMPFileHeader& operator= (BMPFileHeader&&) noexcept = default;
-
-
-            inline BMPFileHeader(bmpl::utils::LEInStream& in_stream) noexcept
+            inline BMPFileHeaderBase(bmpl::utils::LEInStream& in_stream) noexcept
                 : MyErrBaseClass()
                 , MyWarnBaseClass()
             {
                 load(in_stream);
             }
 
+            virtual inline const std::uint32_t get_content_offset() const noexcept
+            {
+                return 0;
+            }
+
+            virtual inline const std::size_t get_file_size() const noexcept
+            {
+                return file_size;
+            }
+
+            virtual inline const std::size_t get_header_size() const noexcept
+            {
+                return 0;
+            }
+
+            virtual inline const bool load(bmpl::utils::LEInStream& in_stream) noexcept
+            {
+                return _clr_err();
+            }
+
+            virtual inline const bool is_BA_file() const noexcept
+            {
+                return false;
+            }
+
+            virtual inline const bool is_BM_file() const noexcept
+            {
+                return false;
+            }
+
+            virtual inline const bool is_V1_file() const noexcept
+            {
+                return false;
+            }
+
+        };
+
+
+        //===========================================================================
+        struct BMPFileHeaderBA : public BMPFileHeaderBase
+        {
+            using MyBaseClass = BMPFileHeaderBase;
+
+            static constexpr std::size_t SIZE{ 14 };
+
+            std::uint32_t offset_to_next{ 0 };
+            std::int16_t  screen_width{ 0 };
+            std::int16_t  screen_height{ 0 };
+
+            BMPFileHeaderBA() noexcept = default;
+            BMPFileHeaderBA(const BMPFileHeaderBA&) noexcept = default;
+            BMPFileHeaderBA(BMPFileHeaderBA&&) noexcept = default;
+            virtual ~BMPFileHeaderBA() noexcept = default;
+
+            inline BMPFileHeaderBA& operator= (const BMPFileHeaderBA&) noexcept = default;
+            inline BMPFileHeaderBA& operator= (BMPFileHeaderBA&&) noexcept = default;
+
+            inline BMPFileHeaderBA(bmpl::utils::LEInStream& in_stream) noexcept
+                : MyBaseClass()
+            {
+                load(in_stream);
+            }
+
+            virtual inline const std::uint32_t get_content_offset() const noexcept override
+            {
+                return offset_to_next;
+            }
+
+            virtual inline const std::size_t get_header_size() const noexcept override
+            {
+                return SIZE;
+            }
+
+            inline const bool is_last_image() const noexcept
+            {
+                return offset_to_next == 0;
+            }
 
             const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
 
+            virtual inline const bool is_BA_file() const noexcept override
+            {
+                return true;
+            }
+
         };
+
+
+        //===========================================================================
+        struct BMPFileHeaderBM : public BMPFileHeaderBase
+        {
+            using MyBaseClass = BMPFileHeaderBase;
+
+            static constexpr std::size_t SIZE{ 14 };
+
+            std::int16_t  reserved1{ 0 };
+            std::int16_t  reserved2{ 0 };
+            std::uint32_t content_offset{ 0 };
+
+            BMPFileHeaderBM() noexcept = default;
+            BMPFileHeaderBM(const BMPFileHeaderBM&) noexcept = default;
+            BMPFileHeaderBM(BMPFileHeaderBM&&) noexcept = default;
+            virtual ~BMPFileHeaderBM() noexcept = default;
+
+            inline BMPFileHeaderBM& operator= (const BMPFileHeaderBM&) noexcept = default;
+            inline BMPFileHeaderBM& operator= (BMPFileHeaderBM&&) noexcept = default;
+
+            inline BMPFileHeaderBM(bmpl::utils::LEInStream& in_stream) noexcept
+                : MyBaseClass()
+            {
+                load(in_stream);
+            }
+
+            virtual inline const std::uint32_t get_content_offset() const noexcept override
+            {
+                return content_offset;
+            }
+
+            virtual inline const std::size_t get_header_size() const noexcept override
+            {
+                return SIZE;
+            }
+
+            const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+
+            virtual inline const bool is_BM_file() const noexcept override
+            {
+                return true;
+            }
+
+        };
+
+
+        //===========================================================================
+        struct BMPFileHeaderV1 : public BMPFileHeaderBase
+        {
+            using MyBaseClass = BMPFileHeaderBase;
+
+            static constexpr std::size_t SIZE{ 10 };
+
+            std::int16_t bitmap_width{ 0 };
+            std::int16_t bitmap_height{ 0 };
+            std::int16_t bitmap_bytes_width{ 0 };
+            std::uint8_t planes_count{ 0 };
+            std::uint8_t bits_per_pixel{ 0 };
+
+            BMPFileHeaderV1() noexcept = default;
+            BMPFileHeaderV1(const BMPFileHeaderV1&) noexcept = default;
+            BMPFileHeaderV1(BMPFileHeaderV1&&) noexcept = default;
+            virtual ~BMPFileHeaderV1() noexcept = default;
+
+            inline BMPFileHeaderV1& operator= (const BMPFileHeaderV1&) noexcept = default;
+            inline BMPFileHeaderV1& operator= (BMPFileHeaderV1&&) noexcept = default;
+
+            inline BMPFileHeaderV1(bmpl::utils::LEInStream& in_stream) noexcept
+                : MyBaseClass()
+            {
+                load(in_stream);
+            }
+
+            virtual inline const std::size_t get_header_size() const noexcept override
+            {
+                return SIZE;
+            }
+
+            const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+
+            virtual inline const bool is_V1_file() const noexcept override
+            {
+                return true;
+            }
+
+        };
+
+
+        //===========================================================================
+        const BMPFileHeaderBase* create_file_header(bmpl::utils::LEInStream& in_stream) noexcept;
+
     }
 }

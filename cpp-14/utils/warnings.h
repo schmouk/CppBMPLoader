@@ -55,6 +55,7 @@ namespace bmpl
             BAD_PALETTE_INDICES,
             BAD_PALETTE_SIZE_IN_HEADER,
             BAD_PLANES_VALUE,
+            BAD_SCANLINE_BYTES_WIDTH,
             BITFIELDS_AND_PALETT,
             CORRECTED_GAMMA_BLUE,
             CORRECTED_GAMMA_GREEN,

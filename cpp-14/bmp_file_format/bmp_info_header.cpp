@@ -493,8 +493,14 @@ namespace bmpl
 
 
         //===========================================================================
-        const BMPInfoHeaderBase* create_bmp_info_header(bmpl::utils::LEInStream& in_stream, bmpl::frmt::BMPFileHeader file_header) noexcept
+        const BMPInfoHeaderBase* create_bmp_info_header(
+            bmpl::utils::LEInStream& in_stream,
+            const bmpl::frmt::BMPFileHeaderBase* file_header_ptr
+        ) noexcept
         {
+            if (file_header_ptr == nullptr || file_header_ptr->failed())
+                return nullptr;
+
             // let's first load the size of the info header
             if (in_stream.failed())
                 return nullptr;
@@ -507,7 +513,7 @@ namespace bmpl
             switch (header_size) {
             case 0x0c:
             {   //-- Version 2 or 0S/2 1.x of BMP file format --//
-                constexpr size_t header_file_size{ bmpl::frmt::BMPFileHeader::SIZE };
+                const std::size_t header_file_size{ file_header_ptr->get_header_size() };
 
                 BMPInfoHeaderV2<>* header_ptr{ new BMPInfoHeaderV2<>(in_stream) };
 
@@ -524,7 +530,7 @@ namespace bmpl
                         return header_ptr;
                     }
                     else {
-                        if (in_stream.get_size() != file_header.size)
+                        if (in_stream.get_size() != file_header_ptr->get_file_size())
                             header_ptr->set_warning(bmpl::utils::WarningCode::BAD_FILE_SIZE_IN_HEADER);
                     }
                 }
@@ -538,7 +544,7 @@ namespace bmpl
 
             case 0x28:
             {   //-- Version 3, 3_NT or OS/2 2.x part 40 of BMP file format --//
-                constexpr size_t header_file_size{ bmpl::frmt::BMPFileHeader::SIZE };
+                const size_t header_file_size{ file_header_ptr->get_header_size() };
 
                 BMPInfoHeaderV3* header_ptr{ new BMPInfoHeaderV3(in_stream) };
 

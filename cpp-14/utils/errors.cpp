@@ -52,6 +52,10 @@ namespace bmpl
                 return "bad default value.";
             case ErrorCode::BAD_COLORMAP_ENCODING:
                 return "bad encoding for colors map.";
+            case ErrorCode::BAD_FILE_HEADER:
+                return "bad encoding of file header.";
+            case ErrorCode::BAD_INFO_HEADER:
+                return "bad encoding of info header.";
             case ErrorCode::BAD_INTENT_VALUE:
                 return "bad intent value.";
             case ErrorCode::BAD_PROFILE_DATA_OFFSET:
@@ -86,6 +90,8 @@ namespace bmpl
                 return "incoherent Run Length Encoding control value.";
             case ErrorCode::INPUT_OPERATION_FAILED:
                 return "some imput operation failed on file.";
+            case ErrorCode::INVALID_BITMAP_OFFSET:
+                return "the specified bitmap offset in file is invalid - gets a bigger value than the file size.";
             case ErrorCode::INVALID_DEVICE_RESOLUTION:
                 return "some device resolution is invalid (maybe negative, for instance).";
             case ErrorCode::INVALID_HEADER_SIZE:
