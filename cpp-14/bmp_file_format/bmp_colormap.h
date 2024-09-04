@@ -69,9 +69,17 @@ namespace bmpl
             inline BMPColorMap& operator= (const BMPColorMap&) noexcept = default;
             inline BMPColorMap& operator= (BMPColorMap&&) noexcept = default;
 
-            BMPColorMap(bmpl::utils::LEInStream& in_stream, const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr) noexcept;
+            BMPColorMap(
+                bmpl::utils::LEInStream& in_stream,
+                const bmpl::frmt::BMPFileHeaderBase* file_header_ptr,
+                const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr
+            ) noexcept;
 
-            const bool load(bmpl::utils::LEInStream& in_stream, const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr) noexcept;
+            const bool load(
+                bmpl::utils::LEInStream& in_stream,
+                const bmpl::frmt::BMPFileHeaderBase* file_header_ptr,
+                const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr
+            ) noexcept;
 
             pixel_type& operator[] (const std::uint32_t index) noexcept;
 

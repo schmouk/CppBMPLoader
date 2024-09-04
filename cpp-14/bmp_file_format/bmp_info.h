@@ -63,7 +63,7 @@ namespace bmpl
             inline BMPInfo(bmpl::utils::LEInStream& in_stream, const bmpl::frmt::BMPFileHeaderBase* file_header_ptr) noexcept
                 : MyErrBaseClass()
                 , info_header_ptr{ bmpl::frmt::create_bmp_info_header(in_stream, file_header_ptr) }
-                , color_map(in_stream, info_header_ptr)
+                , color_map(in_stream, file_header_ptr, info_header_ptr)
             {
                 if (in_stream.failed())
                     _set_err(in_stream.get_error());

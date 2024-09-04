@@ -40,20 +40,16 @@ namespace bmpl
     namespace frmt
     {
         //===========================================================================
-        BMPColorMap::BMPColorMap(bmpl::utils::LEInStream& in_stream, const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr) noexcept
+        BMPColorMap::BMPColorMap(
+            bmpl::utils::LEInStream& in_stream,
+            const bmpl::frmt::BMPFileHeaderBase* file_header_ptr,
+            const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr
+        ) noexcept
             : MyErrBaseClass()
             , MyWarnBaseClass()
             , MyContainerBaseClass()
         {
-            if (info_header_ptr != nullptr && info_header_ptr->failed()) {
-                _set_err(info_header_ptr->get_error());
-            }
-            else if (info_header_ptr == nullptr || !info_header_ptr->may_embed_color_palette()) {
-                _set_err(bmpl::utils::ErrorCode::INCOHERENT_BMP_LOADER_IMPLEMENTATION);
-            }
-            else {
-                load(in_stream, info_header_ptr);
-            }
+            load(in_stream, file_header_ptr, info_header_ptr);
         }
 
 
@@ -75,10 +71,19 @@ namespace bmpl
 
 
         //===========================================================================
-        const bool BMPColorMap::load(bmpl::utils::LEInStream& in_stream, const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr) noexcept
+        const bool BMPColorMap::load(
+            bmpl::utils::LEInStream& in_stream,
+            const bmpl::frmt::BMPFileHeaderBase* file_header_ptr,
+            const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr) noexcept
         {
             if (in_stream.failed())
                 return _set_err(in_stream.get_error());
+
+            if (file_header_ptr == nullptr)
+                return _set_err(bmpl::utils::ErrorCode::BAD_FILE_HEADER);
+
+            if (file_header_ptr->failed())
+                _set_err(file_header_ptr->get_error());
 
             if (info_header_ptr == nullptr)
                 return _set_err(bmpl::utils::ErrorCode::BAD_INFO_HEADER);
@@ -86,9 +91,16 @@ namespace bmpl
             if (info_header_ptr->failed())
                 return _set_err(info_header_ptr->get_error());
 
+            if (!info_header_ptr->may_embed_color_palette())
+                _set_err(bmpl::utils::ErrorCode::INCOHERENT_BMP_LOADER_IMPLEMENTATION);
+
             this->colors_count = info_header_ptr->get_colors_count();
 
             if (this->colors_count > 0) {
+                const std::size_t palette_size{ file_header_ptr->get_content_offset() - file_header_ptr->get_header_size() - info_header_ptr->header_size };
+                std::size_t expected_colors_count{ palette_size / 4 };
+                std::uint32_t bytes_per_palette_color{ 4 };
+
                 std::size_t to_be_loaded_count{ this->colors_count };
                 if (to_be_loaded_count > 256) {
                     to_be_loaded_count = 256;
@@ -97,33 +109,55 @@ namespace bmpl
 
                 if (info_header_ptr->is_vOS21()) {
                     // 3 bytes per color map entry
+                    bytes_per_palette_color = 3;
+                    expected_colors_count = palette_size / 3;
+
+                    if (to_be_loaded_count > expected_colors_count) {
+                        to_be_loaded_count = expected_colors_count;
+                        set_warning(bmpl::utils::WarningCode::TOO_BIG_PALETTE);
+                    }
+
                     auto cmap_it = MyContainerBaseClass::begin();
                     bmpl::clr::BGR bgr{};
-                    for (std::uint32_t i = 0; i < to_be_loaded_count; ++i) {
-                        in_stream >> bgr.b >> bgr.g >> bgr.r;
+                    for (std::size_t i = 0; i < to_be_loaded_count; ++i) {
+                        if ((in_stream >> bgr.b >> bgr.g >> bgr.r).failed())
+                            break;
                         bmpl::clr::convert(*cmap_it++, bgr);
                     }
                     if (in_stream.failed())
                         return _set_err(bmpl::utils::ErrorCode::BAD_COLORMAP_ENCODING);
                 }
                 else if (bmpl::utils::PLATFORM_IS_LITTLE_ENDIAN) {
-                    if (!in_stream.read(reinterpret_cast<char*>(MyContainerBaseClass::data()), std::streamsize(4 * to_be_loaded_count)))
+                    if (to_be_loaded_count > expected_colors_count) {
+                        to_be_loaded_count = expected_colors_count;
+                        set_warning(bmpl::utils::WarningCode::TOO_BIG_PALETTE);
+                    }
+                    if (!in_stream.read(reinterpret_cast<char*>(MyContainerBaseClass::data()), std::streamsize(bytes_per_palette_color * to_be_loaded_count)))
                         return _set_err(bmpl::utils::ErrorCode::BAD_COLORMAP_ENCODING);
                 }
                 else {
+                    if (to_be_loaded_count > expected_colors_count) {
+                        to_be_loaded_count = expected_colors_count;
+                        set_warning(bmpl::utils::WarningCode::TOO_BIG_PALETTE);
+                    }
                     bmpl::clr::BGRA bgra;
                     auto cmap_it = MyContainerBaseClass::begin();
-                    for (std::uint32_t i = 0; i < to_be_loaded_count; ++i) {
-                        in_stream >> bgra;
+                    for (std::size_t i = 0; i < to_be_loaded_count; ++i) {
+                        if ((in_stream >> bgra).failed())
+                            break;;
                         bmpl::clr::convert(*cmap_it++, bgra);
                     }
                     if (in_stream.failed())
                         return _set_err(bmpl::utils::ErrorCode::BAD_COLORMAP_ENCODING);
                 }
 
-                if (to_be_loaded_count < this->colors_count)
-                    if (!in_stream.seekg(4 * (this->colors_count - to_be_loaded_count), std::ios_base::cur))
-                        return _set_err(bmpl::utils::ErrorCode::BAD_COLORMAP_ENCODING);
+                const std::size_t expected_palette_size{ bytes_per_palette_color * expected_colors_count };
+                const std::size_t expected_bitmap_offset{ file_header_ptr->get_header_size() + info_header_ptr->header_size + expected_palette_size };
+                if (expected_bitmap_offset < file_header_ptr->get_content_offset())
+                    set_warning(bmpl::utils::WarningCode::GAP_BTW_COLORMAP_AND_BITMAP);
+                else if (expected_bitmap_offset > file_header_ptr->get_content_offset())
+                    set_warning(bmpl::utils::WarningCode::MISSING_COLORMAP_ENTRIES);
+
             }
 
             // once here, everything was fine

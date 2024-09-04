@@ -67,14 +67,14 @@ namespace bmpl
                 load(in_stream);
             }
 
-            virtual inline const std::uint32_t get_content_offset() const noexcept
+            virtual inline const std::size_t get_content_offset() const noexcept
             {
                 return 0;
             }
 
-            virtual inline const std::size_t get_file_size() const noexcept
+            inline const std::size_t get_file_size() const noexcept
             {
-                return file_size;
+                return std::size_t(file_size);
             }
 
             virtual inline const std::size_t get_header_size() const noexcept
@@ -130,9 +130,9 @@ namespace bmpl
                 load(in_stream);
             }
 
-            virtual inline const std::uint32_t get_content_offset() const noexcept override
+            virtual inline const std::size_t get_content_offset() const noexcept override
             {
-                return offset_to_next;
+                return std::size_t(offset_to_next);
             }
 
             virtual inline const std::size_t get_header_size() const noexcept override
@@ -145,7 +145,7 @@ namespace bmpl
                 return offset_to_next == 0;
             }
 
-            const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;
 
             virtual inline const bool is_BA_file() const noexcept override
             {
@@ -180,9 +180,9 @@ namespace bmpl
                 load(in_stream);
             }
 
-            virtual inline const std::uint32_t get_content_offset() const noexcept override
+            virtual inline const std::size_t get_content_offset() const noexcept override
             {
-                return content_offset;
+                return std::size_t(content_offset);
             }
 
             virtual inline const std::size_t get_header_size() const noexcept override
@@ -190,7 +190,7 @@ namespace bmpl
                 return SIZE;
             }
 
-            const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;
 
             virtual inline const bool is_BM_file() const noexcept override
             {
@@ -232,7 +232,7 @@ namespace bmpl
                 return SIZE;
             }
 
-            const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
+            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;
 
             virtual inline const bool is_V1_file() const noexcept override
             {
