@@ -50,20 +50,26 @@ namespace bmpl
             using Default16Palette  = std::array<bmpl::clr::RGB, 16>;
             using Default256Palette = std::array<bmpl::clr::RGB, 256>;
 
+            static const Default2Palette   win_2;
+            static const Default16Palette  win95_16;
+            static const Default16Palette  winNT_16;
+            static const Default16Palette  win10_16;
+            static const Default256Palette win95_256;
 
-            inline const Default2Palette& get_default_2() const noexcept
+
+            inline static const Default2Palette& get_default_2() noexcept
             {
-                return this->_default_2_palette;
+                return _default_2_palette;
             }
 
-            inline const Default16Palette& get_default_16() const noexcept
+            inline static const Default16Palette& get_default_16() noexcept
             {
-                return this->_default_16_palette;
+                return _default_16_palette;
             }
 
-            inline const Default256Palette& get_default_256() const noexcept
+            inline static const Default256Palette& get_default_256() noexcept
             {
-                return this->_default_256_palette;
+                return _default_256_palette;
             }
 
             inline void set_default_2(const Default2Palette& default_2) noexcept
@@ -83,13 +89,8 @@ namespace bmpl
 
 
         private:
-            static const Default2Palette _win_2;
-            static const Default16Palette _win95_16;
-            static const Default16Palette _winNT_16;
-            static const Default16Palette _win10_16;
-            static const Default256Palette _win95_256;
 
-            static Default2Palette _default_2_palette;
+            static Default2Palette   _default_2_palette;
             static Default16Palette  _default_16_palette;
             static Default256Palette _default_256_palette;
 

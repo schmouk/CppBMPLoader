@@ -33,6 +33,7 @@ SOFTWARE.
 
 
 #include "bmp_colormap.h"
+#include "../utils/default_palettes.h"
 
 
 namespace bmpl
@@ -96,7 +97,25 @@ namespace bmpl
 
             this->colors_count = info_header_ptr->get_colors_count();
 
-            if (this->colors_count > 0) {
+            if (info_header_ptr->is_v1()) {
+                // this is a V1.X BMP format
+                auto cmap_it = MyContainerBaseClass::begin();
+
+                for (std::uint32_t i = 0; i < info_header_ptr->used_colors_count; ++i) {
+                    switch (info_header_ptr->used_colors_count) {
+                    case 2:
+                        bmpl::clr::convert(*cmap_it++, bmpl::clr::WindowsDefaultPalettes::get_default_2()[i]);
+                        break;
+                    case 16:
+                        bmpl::clr::convert(*cmap_it++, bmpl::clr::WindowsDefaultPalettes::get_default_16()[i]);
+                        break;
+                    default:
+                        bmpl::clr::convert(*cmap_it++, bmpl::clr::WindowsDefaultPalettes::get_default_256()[i]);
+                        break;
+                    }
+                }
+            }
+            else if (this->colors_count > 0) {
                 const std::size_t palette_size{ file_header_ptr->get_content_offset() - file_header_ptr->get_header_size() - info_header_ptr->header_size };
                 std::size_t expected_colors_count{ palette_size / 4 };
                 std::uint32_t bytes_per_palette_color{ 4 };

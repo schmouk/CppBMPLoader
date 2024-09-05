@@ -53,6 +53,7 @@ namespace bmpl
                 this->height = file_header_ptr->bitmap_height;
                 this->planes_count = file_header_ptr->planes_count;
                 this->bits_per_pixel = file_header_ptr->bits_per_pixel;
+                this->used_colors_count = 1 << this->bits_per_pixel;
                 this->bitmap_size = file_header_ptr->bitmap_bytes_width * file_header_ptr->bitmap_bytes_width;
 
                 _clr_err();
