@@ -214,17 +214,12 @@ namespace bmpl
         {
             using MyBaseClass = BMPInfoHeaderBase;
 
+            std::int32_t width{ 0 };
+            std::int32_t height{ 0 };
+            std::uint16_t planes_count{ 0 };
+            std::uint32_t bitmap_size{ 0 };
 
-            inline BMPInfoHeaderV1(bmpl::utils::LEInStream& in_stream) noexcept
-                : MyBaseClass()
-            {
-                load(in_stream);
-            }
-
-            inline const bool load(bmpl::utils::LEInStream& in_stream) noexcept
-            {
-                return _clr_err();
-            }
+            inline BMPInfoHeaderV1(const bmpl::frmt::BMPFileHeaderV1* file_header_ptr) noexcept;
 
             inline virtual const bool is_v1() const { return true; }
 

@@ -40,6 +40,28 @@ namespace bmpl
     namespace frmt
     {
         //===========================================================================
+        BMPInfoHeaderV1::BMPInfoHeaderV1(const bmpl::frmt::BMPFileHeaderV1* file_header_ptr) noexcept
+            : MyBaseClass()
+        {
+            if (file_header_ptr == nullptr)
+                _set_err(bmpl::utils::ErrorCode::BAD_FILE_HEADER);
+            else if (file_header_ptr->failed())
+                _set_err(file_header_ptr->get_error());
+            else {
+                this->compression_mode = COMPR_NO_RLE;
+                this->width = file_header_ptr->bitmap_width;
+                this->height = file_header_ptr->bitmap_height;
+                this->planes_count = file_header_ptr->planes_count;
+                this->bits_per_pixel = file_header_ptr->bits_per_pixel;
+                this->bitmap_size = file_header_ptr->bitmap_bytes_width * file_header_ptr->bitmap_bytes_width;
+
+                _clr_err();
+            }
+
+        }
+
+
+        //===========================================================================
         template<typename DimsT>
         const bool BMPInfoHeaderV2<DimsT>::load(bmpl::utils::LEInStream& in_stream) noexcept
         {
@@ -500,6 +522,10 @@ namespace bmpl
         {
             if (file_header_ptr == nullptr || file_header_ptr->failed())
                 return nullptr;
+
+            // info header of BMP version 1.X is empty
+            if (file_header_ptr->is_V1_file())
+                return new BMPInfoHeaderV1(dynamic_cast<const BMPFileHeaderV1*>(file_header_ptr));
 
             // let's first load the size of the info header
             if (in_stream.failed())

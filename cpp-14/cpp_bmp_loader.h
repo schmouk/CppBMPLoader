@@ -413,8 +413,8 @@ namespace bmpl
             }
         }
         else if (this->_info.info_header_ptr->bits_per_pixel == 64) {
-            // this is a specific case for which an HDR image is decalibrated to be shown on displays
-            constexpr double gamma{ double(1.0 / 2.2) };
+            // this is a specific case for which an HDR image has to be decalibrated to be shown on displays
+            constexpr double gamma{ double(1.0 / 2.2) };  // notice: 2.2 is a very common value that suits most cases
             for (auto& pxl : this->image_content)
                 bmpl::clr::gamma_correction(pxl, gamma, gamma, gamma);
         }
