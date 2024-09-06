@@ -72,19 +72,19 @@ namespace bmpl
                 return _default_256_palette;
             }
 
-            inline void set_default_2(const Default2Palette& default_2) noexcept
+            inline static void set_default_2(const Default2Palette& default_2) noexcept
             {
-                this->_default_2_palette = default_2;
+                _default_2_palette = default_2;
             }
 
-            inline void set_default_16(const Default16Palette& default_16) noexcept
+            inline static void set_default_16(const Default16Palette& default_16) noexcept
             {
-                this->_default_16_palette = default_16;
+                _default_16_palette = default_16;
             }
 
-            inline void set_default_256(const Default256Palette& default_256) noexcept
+            inline static void set_default_256(const Default256Palette& default_256) noexcept
             {
-                this->_default_256_palette = default_256;
+                _default_256_palette = default_256;
             }
 
 

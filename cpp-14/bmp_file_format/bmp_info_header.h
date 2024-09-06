@@ -221,6 +221,18 @@ namespace bmpl
 
             inline BMPInfoHeaderV1(const bmpl::frmt::BMPFileHeaderV1* file_header_ptr) noexcept;
 
+
+            virtual inline const std::int32_t get_height() const noexcept override
+            {
+                return height;
+            }
+
+
+            virtual inline const std::int32_t get_width() const noexcept override
+            {
+                return width;
+            }
+
             inline virtual const bool is_v1() const { return true; }
 
         };

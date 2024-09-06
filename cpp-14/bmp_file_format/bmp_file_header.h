@@ -234,6 +234,11 @@ namespace bmpl
 
             virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;
 
+            virtual inline const std::size_t get_content_offset() const noexcept override
+            {
+                return SIZE;
+            }
+
             virtual inline const bool is_V1_file() const noexcept override
             {
                 return true;

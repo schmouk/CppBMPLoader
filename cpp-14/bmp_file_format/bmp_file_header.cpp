@@ -114,7 +114,7 @@ namespace bmpl
             if (bits_per_pixel != 1 && bits_per_pixel != 4 && bits_per_pixel != 8)
                 return _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
 
-            const std::int16_t scanline_width{ bitmap_width / bits_per_pixel };
+            const std::int16_t scanline_width{ bitmap_width / (8 / bits_per_pixel) };
             const std::int16_t padding{ std::int16_t(bmpl::bmpf::evaluate_padding(scanline_width)) };
             if (bitmap_bytes_width != scanline_width + padding)
                 set_warning(bmpl::utils::WarningCode::BAD_SCANLINE_BYTES_WIDTH);
