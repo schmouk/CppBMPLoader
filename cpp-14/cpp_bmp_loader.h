@@ -48,6 +48,7 @@ SOFTWARE.
 #include "bmp_file_bitmaps/bmp_bitmaps.h"
 
 #include "bmp_file_format/bmp_file_header.h"
+#include "bmp_image.h"
 #include "bmp_file_format/bmp_info.h"
 #include "utils/colors.h"
 #include "utils/errors.h"
