@@ -61,7 +61,27 @@ namespace bmpl
 
 
         //===========================================================================
-        struct BMPInfoHeaderBase : public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus, virtual public BMPInfoHeaderWithPalette
+        template<typename DimsT>
+        struct BMPDims
+        {
+            DimsT height{ 0 };
+            DimsT width{ 0 };
+
+            inline const std::uint32_t get_height() const noexcept
+            {
+                return std::uint32_t(height);
+            }
+
+            inline const std::uint32_t get_width() const noexcept
+            {
+                return std::uint32_t(width);
+            }
+
+        };
+
+
+        //===========================================================================
+        struct BMPInfoHeaderBase : public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus, public BMPInfoHeaderWithPalette
         {
             using MyErrBaseClass = bmpl::utils::ErrorStatus;
             using MyWarnBaseClass = bmpl::utils::WarningStatus;
@@ -121,13 +141,13 @@ namespace bmpl
             }
 
 
-            virtual inline const std::int32_t get_height() const noexcept
+            virtual inline const std::uint32_t get_height() const noexcept
             {
                 return 0;
             }
 
 
-            virtual inline const std::int32_t get_width() const noexcept
+            virtual inline const std::uint32_t get_width() const noexcept
             {
                 return 0;
             }
@@ -210,28 +230,12 @@ namespace bmpl
 
 
         //===========================================================================
-        struct BMPInfoHeaderV1 : public BMPInfoHeaderBase
+        struct BMPInfoHeaderV1 : virtual public BMPDims<std::int32_t>, virtual public BMPInfoHeaderBase
         {
-            using MyBaseClass = BMPInfoHeaderBase;
-
-            std::int32_t width{ 0 };
-            std::int32_t height{ 0 };
             std::uint16_t planes_count{ 0 };
             std::uint32_t bitmap_size{ 0 };
 
             inline BMPInfoHeaderV1(const bmpl::frmt::BMPFileHeaderV1* file_header_ptr) noexcept;
-
-
-            virtual inline const std::int32_t get_height() const noexcept override
-            {
-                return height;
-            }
-
-
-            virtual inline const std::int32_t get_width() const noexcept override
-            {
-                return width;
-            }
 
             inline virtual const bool is_v1() const { return true; }
 
@@ -240,12 +244,10 @@ namespace bmpl
 
         //===========================================================================
         template<typename DimsT = std::int16_t>
-        struct BMPInfoHeaderV2 : public BMPInfoHeaderBase
+        struct BMPInfoHeaderV2 : virtual public BMPDims<DimsT>, virtual public BMPInfoHeaderBase
         {
             static constexpr std::uint32_t HEADER_SIZE{ 12 };
 
-            DimsT width{ 0 };
-            DimsT height{ 0 };
             std::uint16_t planes_count{ 0 };
 
 
@@ -260,19 +262,10 @@ namespace bmpl
 
 
             inline BMPInfoHeaderV2(bmpl::utils::LEInStream& in_stream) noexcept
-                : BMPInfoHeaderBase(in_stream, HEADER_SIZE)
+                : BMPDims<DimsT>()
+                , BMPInfoHeaderBase(in_stream, HEADER_SIZE)
             {
                 load(in_stream);
-            }
-
-            virtual inline const std::int32_t get_height() const noexcept override
-            {
-                return std::int32_t(height);
-            }
-
-            virtual inline const std::int32_t get_width() const noexcept override
-            {
-                return std::int32_t(width);
             }
 
             virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;
@@ -283,12 +276,10 @@ namespace bmpl
 
 
         //===========================================================================
-        struct BMPInfoHeaderV3 : public BMPInfoHeaderBase
+        struct BMPInfoHeaderV3 : virtual public BMPDims<std::int32_t>, virtual public BMPInfoHeaderBase
         {
             static constexpr std::uint32_t HEADER_SIZE{ 40 };
 
-            std::int32_t width{ 0 };
-            std::int32_t height{ 0 };
             std::uint16_t planes_count{ 0 };
             std::uint32_t bitmap_size{ 0 };
             std::int32_t device_x_resolution{ 0 };
@@ -306,20 +297,10 @@ namespace bmpl
 
 
             inline BMPInfoHeaderV3(bmpl::utils::LEInStream& in_stream, const bool is_V3_base = true, const bool is_V5_base = false) noexcept
-                : BMPInfoHeaderWithPalette()
+                : BMPDims<std::int32_t>()
                 , BMPInfoHeaderBase(in_stream, HEADER_SIZE)
             {
                 load(in_stream, is_V3_base, is_V5_base);
-            }
-
-            virtual inline const std::int32_t get_height() const noexcept override
-            {
-                return height;
-            }
-
-            virtual inline const std::int32_t get_width() const noexcept override
-            {
-                return width;
             }
 
             virtual const bool load(bmpl::utils::LEInStream& in_stream, const bool is_V3_base, const bool is_V5_base) noexcept;
@@ -551,7 +532,7 @@ namespace bmpl
 
 
         //===========================================================================
-        struct BMPInfoHeaderVOS21 : public BMPInfoHeaderV2<std::uint16_t>
+        struct BMPInfoHeaderVOS21 : virtual public BMPDims<std::uint16_t>, virtual public BMPInfoHeaderV2<std::uint16_t>
         {
             using MyBaseClass = BMPInfoHeaderV2<std::uint16_t>;
 
@@ -567,19 +548,10 @@ namespace bmpl
 
 
             inline BMPInfoHeaderVOS21(bmpl::utils::LEInStream& in_stream) noexcept
-                : MyBaseClass(in_stream)
+                : BMPDims<std::uint16_t>()
+                , MyBaseClass(in_stream)
             {
                 load(in_stream);
-            }
-
-            virtual inline const std::int32_t get_height() const noexcept override
-            {
-                return std::int32_t(height);
-            }
-
-            virtual inline const std::int32_t get_width() const noexcept override
-            {
-                return std::int32_t(width);
             }
 
             virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;
@@ -595,10 +567,8 @@ namespace bmpl
 
 
         //===========================================================================
-        struct BMPInfoHeaderVOS22 : public BMPInfoHeaderBase
+        struct BMPInfoHeaderVOS22 : virtual public BMPDims<std::uint32_t>, virtual public BMPInfoHeaderBase
         {
-            std::uint32_t width{ 0 };
-            std::uint32_t height{ 0 };
             std::int16_t planes_count{ 0 };
             std::uint32_t bitmap_size{ 0 };
             std::uint32_t device_x_resolution{ 0 };
@@ -631,7 +601,7 @@ namespace bmpl
 
 
             inline BMPInfoHeaderVOS22(bmpl::utils::LEInStream& in_stream, const std::uint32_t header_size) noexcept
-                : BMPInfoHeaderWithPalette()
+                : BMPDims<std::uint32_t>()
                 , BMPInfoHeaderBase(in_stream, header_size)
             {
                 load(in_stream);
@@ -669,16 +639,6 @@ namespace bmpl
 
             inline const std::uint16_t get_halftoning_y_size() const noexcept;
 
-            virtual inline const std::int32_t get_height() const noexcept override
-            {
-                return height;
-            }
-
-            virtual inline const std::int32_t get_width() const noexcept override
-            {
-                return width;
-            }
-
             inline const bool has_halftoning() const noexcept
             {
                 return halftoning_rendering_algorithm != HALFTONING_NO_ALGORITHM;
@@ -706,6 +666,36 @@ namespace bmpl
             bmpl::utils::LEInStream& in_stream,
             const bmpl::frmt::BMPFileHeaderBase* file_header_ptr
         ) noexcept;
+
+
+
+        //===========================================================================
+        // Local implementations
+
+        //---------------------------------------------------------------------------
+        template<typename DimsT>
+        const bool BMPInfoHeaderV2<DimsT>::load(bmpl::utils::LEInStream& in_stream) noexcept
+        {
+            if (!(in_stream >> this->width >> this->height >> planes_count >> bits_per_pixel))
+                return _set_err(in_stream.get_error());
+
+            if (this->width < 0)
+                return _set_err(bmpl::utils::ErrorCode::NEGATIVE_WIDTH);
+
+            if (this->width == 0 || this->height == 0)
+                return _set_err(bmpl::utils::ErrorCode::INVALID_IMAGE_DIMENSIONS);
+
+            if (this->height < 0) {
+                // top-down encoding
+                this->height = -this->height;
+                top_down_encoding = true;
+            }
+
+            if (planes_count != 1)
+                set_warning(bmpl::utils::WarningCode::BAD_PLANES_VALUE);
+
+            return _clr_err();
+        }
 
     }
 }

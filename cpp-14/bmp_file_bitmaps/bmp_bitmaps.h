@@ -66,8 +66,8 @@ namespace bmpl
             const bmpl::frmt::BMPFileHeaderBase* file_header_ptr{ nullptr };
             const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr{ nullptr };
             bmpl::frmt::BMPColorMap              color_map{};
-            const std::int32_t                   image_width{ 0 };
-            const std::int32_t                   image_height{ 0 };
+            const std::uint32_t                  image_width{ 0 };
+            const std::uint32_t                  image_height{ 0 };
 
 
             using MyErrBaseClass = bmpl::utils::ErrorStatus;
@@ -82,9 +82,7 @@ namespace bmpl
                 bmpl::utils::LEInStream& in_stream_,
                 const bmpl::frmt::BMPFileHeaderBase* file_header_ptr_,
                 const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr_,
-                bmpl::frmt::BMPColorMap& color_map_,
-                const std::int32_t image_width_,
-                const std::int32_t image_height_
+                bmpl::frmt::BMPColorMap& color_map_
             )
                 : MyErrBaseClass()
                 , MyWarnBaseClass()
@@ -92,9 +90,14 @@ namespace bmpl
                 , file_header_ptr(file_header_ptr_)
                 , info_header_ptr(info_header_ptr_)
                 , color_map(color_map_)
-                , image_width(image_width_)
-                , image_height(image_height_)
-            {}
+                , image_width(0)
+                , image_height(0)
+            {
+                if (info_header_ptr != nullptr) {
+                    image_width = info_header_ptr->get_width();
+                    image_height = info_header_ptr->get_height();
+                }
+            }
 
 
             inline virtual const bool load(std::vector<PixelT>& image_content) noexcept
@@ -117,11 +120,9 @@ namespace bmpl
                 bmpl::utils::LEInStream& in_stream,
                 const bmpl::frmt::BMPFileHeaderBase* file_header_ptr,
                 const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
-                bmpl::frmt::BMPColorMap& color_map,
-                const std::int32_t image_width,
-                const std::int32_t image_height
+                bmpl::frmt::BMPColorMap& color_map
             ) noexcept
-                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height)
+                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map)
             {}
 
             virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
@@ -141,11 +142,9 @@ namespace bmpl
                 bmpl::utils::LEInStream& in_stream,
                 const bmpl::frmt::BMPFileHeaderBase* file_header_ptr,
                 const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
-                bmpl::frmt::BMPColorMap& color_map,
-                const std::int32_t image_width,
-                const std::int32_t image_height
+                bmpl::frmt::BMPColorMap& color_map
             ) noexcept
-                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height)
+                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map)
             {}
 
             virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
@@ -165,11 +164,9 @@ namespace bmpl
                 bmpl::utils::LEInStream& in_stream,
                 const bmpl::frmt::BMPFileHeaderBase* file_header_ptr,
                 const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
-                bmpl::frmt::BMPColorMap& color_map,
-                const std::int32_t image_width,
-                const std::int32_t image_height
+                bmpl::frmt::BMPColorMap& color_map
             ) noexcept
-                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height)
+                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map)
             {}
 
             virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
@@ -189,11 +186,9 @@ namespace bmpl
                 bmpl::utils::LEInStream& in_stream,
                 const bmpl::frmt::BMPFileHeaderBase* file_header_ptr,
                 const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
-                bmpl::frmt::BMPColorMap& color_map,
-                const std::int32_t image_width,
-                const std::int32_t image_height
+                bmpl::frmt::BMPColorMap& color_map
             ) noexcept
-                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height)
+                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map)
             {}
 
             virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
@@ -213,11 +208,9 @@ namespace bmpl
                 bmpl::utils::LEInStream& in_stream,
                 const bmpl::frmt::BMPFileHeaderBase* file_header_ptr,
                 const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
-                bmpl::frmt::BMPColorMap& color_map,
-                const std::int32_t image_width,
-                const std::int32_t image_height
+                bmpl::frmt::BMPColorMap& color_map
             ) noexcept
-                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height)
+                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map)
             {}
 
             virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
@@ -237,11 +230,9 @@ namespace bmpl
                 bmpl::utils::LEInStream& in_stream,
                 const bmpl::frmt::BMPFileHeaderBase* file_header_ptr,
                 const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
-                bmpl::frmt::BMPColorMap& color_map,
-                const std::int32_t image_width,
-                const std::int32_t image_height
+                bmpl::frmt::BMPColorMap& color_map
             ) noexcept
-                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height)
+                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map)
             {}
 
             virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
@@ -261,11 +252,9 @@ namespace bmpl
                 bmpl::utils::LEInStream& in_stream,
                 const bmpl::frmt::BMPFileHeaderBase* file_header_ptr,
                 const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
-                bmpl::frmt::BMPColorMap& color_map,
-                const std::int32_t image_width,
-                const std::int32_t image_height
+                bmpl::frmt::BMPColorMap& color_map
             ) noexcept
-                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height)
+                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map)
             {}
 
             virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
@@ -285,11 +274,9 @@ namespace bmpl
                 bmpl::utils::LEInStream& in_stream,
                 const bmpl::frmt::BMPFileHeaderBase* file_header_ptr,
                 const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
-                bmpl::frmt::BMPColorMap& color_map,
-                const std::int32_t image_width,
-                const std::int32_t image_height
+                bmpl::frmt::BMPColorMap& color_map
             ) noexcept
-                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height)
+                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map)
             {}
 
             virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
@@ -309,11 +296,9 @@ namespace bmpl
                 bmpl::utils::LEInStream& in_stream,
                 const bmpl::frmt::BMPFileHeaderBase* file_header_ptr,
                 const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
-                bmpl::frmt::BMPColorMap& color_map,
-                const std::int32_t image_width,
-                const std::int32_t image_height
+                bmpl::frmt::BMPColorMap& color_map
             ) noexcept
-                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height)
+                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map)
             {}
 
             virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
@@ -333,11 +318,9 @@ namespace bmpl
                 bmpl::utils::LEInStream& in_stream,
                 const bmpl::frmt::BMPFileHeaderBase* file_header_ptr,
                 const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
-                bmpl::frmt::BMPColorMap& color_map,
-                const std::int32_t image_width,
-                const std::int32_t image_height
+                bmpl::frmt::BMPColorMap& color_map
             ) noexcept
-                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height)
+                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map)
             {}
 
             virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
@@ -357,11 +340,9 @@ namespace bmpl
                 bmpl::utils::LEInStream& in_stream,
                 const bmpl::frmt::BMPFileHeaderBase* file_header_ptr,
                 const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
-                bmpl::frmt::BMPColorMap& color_map,
-                const std::int32_t image_width,
-                const std::int32_t image_height
+                bmpl::frmt::BMPColorMap& color_map
             ) noexcept
-                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height)
+                : MyBaseClass(in_stream, file_header_ptr, info_header_ptr, color_map)
             {}
 
             virtual const bool load(std::vector<PixelT>& image_content) noexcept override;
@@ -375,9 +356,7 @@ namespace bmpl
             bmpl::utils::LEInStream& in_stream,
             const bmpl::frmt::BMPFileHeaderBase* file_header_ptr,
             const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr,
-            bmpl::frmt::BMPColorMap& color_map,
-            const std::int32_t image_width,
-            const std::int32_t image_height
+            bmpl::frmt::BMPColorMap& color_map
         ) noexcept
         {
             if (info_header_ptr == nullptr) {
@@ -387,37 +366,37 @@ namespace bmpl
             switch (info_header_ptr->bits_per_pixel)
             {
             case 1:
-                return new BitmapLoader1bit<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height);
+                return new BitmapLoader1bit<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map);
 
             case 2:
-                return new BitmapLoader2bits<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height);
+                return new BitmapLoader2bits<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map);
 
             case 4:
                 if (info_header_ptr->compression_mode == info_header_ptr->COMPR_NO_RLE)
-                    return new BitmapLoader4bits<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height);
+                    return new BitmapLoader4bits<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map);
                 else
-                    return new BitmapLoader4bitsRLE<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height);
+                    return new BitmapLoader4bitsRLE<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map);
 
             case  8:
                 if (info_header_ptr->compression_mode == info_header_ptr->COMPR_NO_RLE)
-                    return new BitmapLoader8bits<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height);
+                    return new BitmapLoader8bits<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map);
                 else
-                    return new BitmapLoader8bitsRLE<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height);
+                    return new BitmapLoader8bitsRLE<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map);
 
             case 16:
-                return new BitmapLoader16bits<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height);
+                return new BitmapLoader16bits<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map);
 
             case 24:
                 if (info_header_ptr->compression_mode == info_header_ptr->COMPR_NO_RLE)
-                    return new BitmapLoader24bits<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height);
+                    return new BitmapLoader24bits<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map);
                 else
-                    return new BitmapLoader24bitsRLE<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height);
+                    return new BitmapLoader24bitsRLE<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map);
 
             case 32:
-                return new BitmapLoader32bits<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height);
+                return new BitmapLoader32bits<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map);
 
             case 64:
-                return new BitmapLoader64bits<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map, image_width, image_height);
+                return new BitmapLoader64bits<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map);
 
             default:
                 return nullptr;

@@ -41,7 +41,8 @@ namespace bmpl
     {
         //===========================================================================
         BMPInfoHeaderV1::BMPInfoHeaderV1(const bmpl::frmt::BMPFileHeaderV1* file_header_ptr) noexcept
-            : MyBaseClass()
+            : BMPDims<std::int32_t>()
+            , BMPInfoHeaderBase()
         {
             if (file_header_ptr == nullptr)
                 _set_err(bmpl::utils::ErrorCode::BAD_FILE_HEADER);
@@ -59,32 +60,6 @@ namespace bmpl
                 _clr_err();
             }
 
-        }
-
-
-        //===========================================================================
-        template<typename DimsT>
-        const bool BMPInfoHeaderV2<DimsT>::load(bmpl::utils::LEInStream& in_stream) noexcept
-        {
-            if (!(in_stream >> width >> height >> planes_count >> bits_per_pixel))
-                return _set_err(in_stream.get_error());
-
-            if (width < 0)
-                return _set_err(bmpl::utils::ErrorCode::NEGATIVE_WIDTH);
-
-            if (width == 0 || height == 0)
-                return _set_err(bmpl::utils::ErrorCode::INVALID_IMAGE_DIMENSIONS);
-
-            if (height < 0) {
-                // top-down encoding
-                height = -height;
-                top_down_encoding = true;
-            }
-
-            if (planes_count != 1)
-                set_warning(bmpl::utils::WarningCode::BAD_PLANES_VALUE);
-
-            return _clr_err();
         }
 
 
