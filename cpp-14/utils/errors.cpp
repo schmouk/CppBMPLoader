@@ -116,6 +116,8 @@ namespace bmpl
                 return "file is currently not initialized.";
             case ErrorCode::NOT_WINDOWS_BMP:
                 return "file is not a Windows BMP file.";
+            case ErrorCode::NOT_YET_IMPLEMENTED_METHOD:
+                return "Library CppBMPLoader internally has called a not-yet-implemented function or method.";
             case ErrorCode::NOT_YET_IMPLEMENTED_BA_FORMAT:
                 return "this is a BA file, a format for which the decoding of first image in list is not yet implemented in library CppBMPLoader.";
             case ErrorCode::NOT_YET_IMPLEMENTED_BMP_FORMAT:

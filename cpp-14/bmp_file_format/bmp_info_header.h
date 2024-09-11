@@ -66,17 +66,6 @@ namespace bmpl
         {
             DimsT height{ 0 };
             DimsT width{ 0 };
-
-            inline const std::uint32_t get_height() const noexcept
-            {
-                return std::uint32_t(height);
-            }
-
-            inline const std::uint32_t get_width() const noexcept
-            {
-                return std::uint32_t(width);
-            }
-
         };
 
 
@@ -237,6 +226,16 @@ namespace bmpl
 
             inline BMPInfoHeaderV1(const bmpl::frmt::BMPFileHeaderV1* file_header_ptr) noexcept;
 
+            virtual inline const std::uint32_t get_height() const noexcept override
+            {
+                return this->height;
+            }
+
+            virtual inline const std::uint32_t get_width() const noexcept override
+            {
+                return this->width;
+            }
+
             inline virtual const bool is_v1() const { return true; }
 
         };
@@ -266,6 +265,16 @@ namespace bmpl
                 , BMPInfoHeaderBase(in_stream, HEADER_SIZE)
             {
                 load(in_stream);
+            }
+
+            virtual inline const std::uint32_t get_height() const noexcept override
+            {
+                return this->height;
+            }
+
+            virtual inline const std::uint32_t get_width() const noexcept override
+            {
+                return this->width;
             }
 
             virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;
@@ -303,8 +312,17 @@ namespace bmpl
                 load(in_stream, is_V3_base, is_V5_base);
             }
 
-            virtual const bool load(bmpl::utils::LEInStream& in_stream, const bool is_V3_base, const bool is_V5_base) noexcept;
+            virtual inline const std::uint32_t get_height() const noexcept override
+            {
+                return this->height;
+            }
 
+            virtual inline const std::uint32_t get_width() const noexcept override
+            {
+                return this->width;
+            }
+
+            virtual const bool load(bmpl::utils::LEInStream& in_stream, const bool is_V3_base, const bool is_V5_base) noexcept;
 
             inline virtual const bool is_v3() const { return true; }
 
@@ -554,6 +572,16 @@ namespace bmpl
                 load(in_stream);
             }
 
+            virtual inline const std::uint32_t get_height() const noexcept override
+            {
+                return this->height;
+            }
+
+            virtual inline const std::uint32_t get_width() const noexcept override
+            {
+                return this->width;
+            }
+
             virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;
 
             inline virtual const bool may_embed_color_palette() const override
@@ -642,6 +670,16 @@ namespace bmpl
             inline const bool has_halftoning() const noexcept
             {
                 return halftoning_rendering_algorithm != HALFTONING_NO_ALGORITHM;
+            }
+
+            virtual inline const std::uint32_t get_height() const noexcept override
+            {
+                return this->height;
+            }
+
+            virtual inline const std::uint32_t get_width() const noexcept override
+            {
+                return this->width;
             }
 
             virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;

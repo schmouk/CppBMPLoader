@@ -50,23 +50,24 @@ SOFTWARE.
 namespace bmpl
 {   //===========================================================================
     template<typename PixelT>
-    class BMPImage : public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
+    struct BMPImage : public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
     {
-    public:
         using MyErrBaseClass = bmpl::utils::ErrorStatus;
         using MyWarnBaseClass = bmpl::utils::WarningStatus;
 
         using pixel_type = PixelT;
 
 
-        const std::uint32_t width{ 0 };
-        const std::uint32_t height{ 0 };
-        const std::uint32_t resolution_x{ 0 };
-        const std::uint32_t resolution_y{ 0 };
-        const std::vector<pixel_type> image_content{};
-        const std::string filepath{};
+        std::vector<pixel_type> image_content{};
+        std::string filepath{};
+        std::uint32_t width{ 0 };
+        std::uint32_t height{ 0 };
+        std::uint32_t resolution_x{ 0 };
+        std::uint32_t resolution_y{ 0 };
+        std::uint32_t colors_count{ 0 };
 
 
+        /*
         BMPImage() noexcept = default;
         BMPImage(const BMPImage&) noexcept = default;
         BMPImage(BMPImage&&) noexcept = default;
@@ -75,17 +76,29 @@ namespace bmpl
 
         BMPImage& operator= (const BMPImage&) noexcept = default;
         BMPImage& operator= (BMPImage&&) noexcept = default;
+        */
+
+        inline BMPImage(
+            const std::string& filepath_,
+            const bmpl::utils::ErrorStatus error_status_
+        ) noexcept;
 
 
         inline BMPImage(
             const std::string& filepath_,
-            const std::int32_t width_,
-            const std::int32_t height_,
+            const std::uint32_t width_,
+            const std::uint32_t height_,
+            const std::uint32_t colors_count_,
             std::vector<pixel_type> image_content_,
             const bmpl::utils::ErrorStatus& error_status_,
             const bmpl::utils::WarningStatus& warning_status_
         ) noexcept;
 
+        [[nodiscard]]
+        inline operator bool() const noexcept
+        {
+            return is_ok();
+        }
 
         [[nodiscard]]
         inline const std::string get_error_msg() const noexcept
@@ -109,7 +122,7 @@ namespace bmpl
         const std::vector<std::string> get_warnings_msg() const noexcept;
 
         [[nodiscard]]
-        inline pixel_type* image_content_ptr() noexcept
+        inline pixel_type* get_content_ptr() noexcept
         {
             return image_content.data();
         }
@@ -119,6 +132,8 @@ namespace bmpl
         {
             return this->height * this->width;
         }
+
+        void reverse_lines_ordering() noexcept;
 
     };
 
@@ -139,19 +154,28 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
+    inline BMPImage<PixelT>::BMPImage(const std::string& filepath_, const bmpl::utils::ErrorStatus error_status_) noexcept
+        : MyErrBaseClass(error_status_)
+        , filepath(filepath_)
+    {}
+
+    //---------------------------------------------------------------------------
+    template<typename PixelT>
     inline BMPImage<PixelT>::BMPImage(
         const std::string& filepath_,
-        const std::int32_t width_,
-        const std::int32_t height_,
+        const std::uint32_t width_,
+        const std::uint32_t height_,
+        const std::uint32_t colors_count_,
         std::vector<PixelT> image_content_,
         const bmpl::utils::ErrorStatus& error_status_,
         const bmpl::utils::WarningStatus& warning_status_
     ) noexcept
         : MyErrBaseClass(error_status_)
         , MyWarnBaseClass(warning_status_)
-        , filepath(filepath)
+        , filepath(filepath_)
         , width(width_)
         , height(height_)
+        , colors_count(colors_count_)
         , image_content{ std::move(image_content_) }
     {}
 
@@ -164,6 +188,32 @@ namespace bmpl
         for (const bmpl::utils::WarningCode warning_code : this->get_warnings())
             msg_res.push_back(bmpl::utils::warning_msg(this->filepath, warning_code));
         return msg_res;
+    }
+
+
+    //---------------------------------------------------------------------------
+    template<typename PixelT>
+    void BMPImage<PixelT>::reverse_lines_ordering() noexcept
+    {
+        if (this->is_ok()) {
+            const std::size_t line_width{ this->width * sizeof PixelT };
+
+            std::vector<std::uint8_t> tmp_line;
+            tmp_line.assign(line_width, '\0');
+
+            std::uint8_t* upline_ptr{ reinterpret_cast<std::uint8_t*>(this->image_content.data()) };
+            std::uint8_t* botline_ptr{ reinterpret_cast<std::uint8_t*>(this->image_content.data() + (this->height - 1) * this->width) };
+            std::uint8_t* tmpline_ptr{ tmp_line.data() };
+
+            for (std::size_t i = 0; i < this->height / 2; ++i) {
+                std::memcpy(tmpline_ptr, upline_ptr, line_width);
+                std::memcpy(upline_ptr, botline_ptr, line_width);
+                std::memcpy(botline_ptr, tmpline_ptr, line_width);
+
+                upline_ptr += line_width;
+                botline_ptr -= line_width;
+            }
+        }
     }
 
 }

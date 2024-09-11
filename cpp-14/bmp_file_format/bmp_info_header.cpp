@@ -104,7 +104,7 @@ namespace bmpl
             if (planes_count != 1)
                 set_warning(bmpl::utils::WarningCode::BAD_PLANES_VALUE);
 
-            if (is_V3_base && compression_mode > COMPR_RLE_4)
+            if (is_V3_base && compression_mode > COMPR_BITFIELDS)
                 return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
 
             if (is_V5_base) {
@@ -181,7 +181,7 @@ namespace bmpl
             if ((red_mask & green_mask) || (red_mask & blue_mask) || (green_mask & blue_mask))
                 return _set_err(bmpl::utils::ErrorCode::OVERLAPPING_BITFIELD_MASKS);
 
-            if (compression_mode > COMPR_RLE_COLOR_BITMASKS)
+            if (compression_mode > COMPR_RLE_COLOR_BITMASKS && compression_mode != COMPR_ALPHABITFIELDS)
                 return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
 
             if (compression_mode == COMPR_RLE_COLOR_BITMASKS) {
@@ -190,7 +190,7 @@ namespace bmpl
             }
             else {
                 // checks pixels depth in bits count
-                if (bits_per_pixel != 1 && bits_per_pixel != 4 && bits_per_pixel != 8 &&
+                if (bits_per_pixel != 1 && bits_per_pixel != 2 && bits_per_pixel != 4 && bits_per_pixel != 8 &&
                     bits_per_pixel != 16 && bits_per_pixel != 24 && bits_per_pixel != 32 && bits_per_pixel != 64)
                     return _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
             }
@@ -531,10 +531,6 @@ namespace bmpl
                         BMPInfoHeaderVOS21* header_ptr{ new BMPInfoHeaderVOS21(in_stream) };
                         return header_ptr;
                     }
-                    else {
-                        if (in_stream.get_size() != file_header_ptr->get_file_size())
-                            header_ptr->set_warning(bmpl::utils::WarningCode::BAD_FILE_SIZE_IN_HEADER);
-                    }
                 }
 
                 return header_ptr;
@@ -551,8 +547,9 @@ namespace bmpl
                 BMPInfoHeaderV3* header_ptr{ new BMPInfoHeaderV3(in_stream) };
 
                 if (header_ptr != nullptr && header_ptr->failed()) {
-                    if (header_ptr->compression_mode == BMPInfoHeaderV3_NT::COMPR_RLE_COLOR_BITMASKS ||
-                        header_ptr->compression_mode == BMPInfoHeaderV3_NT::COMPR_NO_RLE)
+                    if (header_ptr->compression_mode == BMPInfoHeaderBase::COMPR_RLE_COLOR_BITMASKS ||
+                        header_ptr->compression_mode == BMPInfoHeaderBase::COMPR_NO_RLE  ||
+                        header_ptr->compression_mode == BMPInfoHeaderBase::COMPR_ALPHABITFIELDS)
                     {
                         // well, this finally appears to be a version 3-NT BMP file
                         in_stream.seekg(header_file_size + 4);  // let's go back to the starting position of this info header, right after its size encoding on 32 bits

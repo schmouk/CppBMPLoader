@@ -66,8 +66,6 @@ namespace bmpl
             const bmpl::frmt::BMPFileHeaderBase* file_header_ptr{ nullptr };
             const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr{ nullptr };
             bmpl::frmt::BMPColorMap              color_map{};
-            const std::uint32_t                  image_width{ 0 };
-            const std::uint32_t                  image_height{ 0 };
 
 
             using MyErrBaseClass = bmpl::utils::ErrorStatus;
@@ -90,13 +88,39 @@ namespace bmpl
                 , file_header_ptr(file_header_ptr_)
                 , info_header_ptr(info_header_ptr_)
                 , color_map(color_map_)
-                , image_width(0)
-                , image_height(0)
             {
-                if (info_header_ptr != nullptr) {
-                    image_width = info_header_ptr->get_width();
-                    image_height = info_header_ptr->get_height();
-                }
+                if (in_stream.failed())
+                    _set_err(in_stream.get_error());
+                else if (file_header_ptr_ == nullptr)
+                    _set_err(bmpl::utils::ErrorCode::BAD_FILE_HEADER);
+                else if (file_header_ptr->failed())
+                    _set_err(file_header_ptr->get_error());
+                else if (info_header_ptr == nullptr)
+                    _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
+                else if (info_header_ptr->failed())
+                    _set_err(info_header_ptr->get_error());
+                else if (color_map.failed())
+                    _set_err(color_map.get_error());
+                else
+                    _clr_err();
+            }
+
+
+            inline const std::uint32_t get_height() const noexcept
+            {
+                if (info_header_ptr != nullptr)
+                    return info_header_ptr->get_height();
+                else
+                    return 0;
+            }
+
+
+            inline const std::uint32_t get_width() const noexcept
+            {
+                if (info_header_ptr != nullptr)
+                    return info_header_ptr->get_width();
+                else
+                    return 0;
             }
 
 
@@ -417,13 +441,13 @@ namespace bmpl
                 return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
             }
 
-            const std::size_t width{ std::size_t(this->image_width) };
+            const std::size_t width{ std::size_t(this->get_width()) };
             const std::size_t index_width{ std::size_t(std::ceil(width / 8.0f)) };
-            const std::size_t index_height{ std::size_t(this->image_height) };
+            const std::size_t index_height{ std::size_t(this->get_height()) };
 
             std::vector<std::uint8_t> indexed_content;
             indexed_content.assign(index_width * index_height, 0);
-
+            
             // loads the indexed content
             if (index_width % 4 == 0) {
                 // cool, no padding at end of each line
@@ -462,7 +486,7 @@ namespace bmpl
             auto ndx_it = indexed_content.cbegin();
             while (ndx_it != indexed_content.cend()) {
                 for (std::uint8_t mask = 0x80; line_remaining_pixels > 0 && mask > 0 && img_it != image_content.end(); mask >>= 1) {
-                    bmpl::clr::convert(*img_it++, this->color_map[(*ndx_it & mask) != 0]);  // notice: "!= 0" optimization to avoid bits shifting
+                    bmpl::clr::convert(*img_it++, this->color_map[(*ndx_it & mask) != 0]);  // notice: "!= 0" is an optimization to avoid bits shifting
                     --line_remaining_pixels;
                 }
                 ++ndx_it;
@@ -496,9 +520,9 @@ namespace bmpl
                 return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
             }
 
-            const std::size_t width{ std::size_t(this->image_width) };
+            const std::size_t width{ std::size_t(this->get_width()) };
             const std::size_t index_width{ std::size_t(std::ceil(width / 4.0f)) };
-            const std::size_t index_height{ std::size_t(this->image_height) };
+            const std::size_t index_height{ std::size_t(this->get_height()) };
 
             std::vector<std::uint8_t> indexed_content;
             indexed_content.assign(index_width * index_height, 0);
@@ -566,9 +590,9 @@ namespace bmpl
         template<typename PixelT>
         const bool BitmapLoader4bits<PixelT>::load(std::vector<PixelT>& image_content) noexcept
         {
-            const std::size_t width{ std::size_t(this->image_width) };
+            const std::size_t width{ std::size_t(this->get_width()) };
             const std::size_t index_width{ std::size_t(std::ceil(width / 2.0f)) };
-            const std::size_t index_height{ std::size_t(this->image_height) };
+            const std::size_t index_height{ std::size_t(this->get_height()) };
 
             std::vector<std::uint8_t> indexed_content;
             indexed_content.assign(index_width * index_height, 0);
@@ -659,7 +683,7 @@ namespace bmpl
             }
 
             // parses then the RLE-4 bitmap
-            std::uint32_t width{ std::uint32_t(this->image_width) };
+            std::uint32_t width{ std::uint32_t(this->get_width()) };
             std::uint32_t num_line{ 0 };
             std::uint32_t x{ 0 };
             bool encountered_eof{ false };
@@ -709,7 +733,7 @@ namespace bmpl
                         // end of line
                         ++num_line;
                         x = 0;
-                        if (num_line == this->image_height) {
+                        if (num_line == this->get_height()) {
                             return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
                         }
                         img_it = image_content.begin() + std::size_t(num_line * width);
@@ -742,7 +766,7 @@ namespace bmpl
                             x += delta_pxls;
 
                         const std::size_t offset{ std::size_t(delta_pxls) + std::size_t(width) * std::size_t(delta_lines) };
-                        if ((img_it - image_content.begin()) + offset > std::size_t(width) * this->image_height) {
+                        if ((img_it - image_content.begin()) + offset > std::size_t(width) * this->get_height()) {
                             return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_DELTA_MODE_VALUES);
                         }
                         img_it += offset;
@@ -805,8 +829,8 @@ namespace bmpl
         template<typename PixelT>
         const bool BitmapLoader8bits<PixelT>::load(std::vector<PixelT>& image_content) noexcept
         {
-            const std::size_t width{ std::size_t(this->image_width) };
-            const std::size_t height{ std::size_t(this->image_height) };
+            const std::size_t width{ std::size_t(this->get_width()) };
+            const std::size_t height{ std::size_t(this->get_height()) };
 
             //-- no Run Length Encoding --//
             std::vector<std::uint8_t> indexed_content;
@@ -887,7 +911,7 @@ namespace bmpl
             }
 
             // parses then the RLE-8 bitmap
-            std::uint32_t width{ std::uint32_t(this->image_width) };
+            std::uint32_t width{ std::uint32_t(this->get_width()) };
             std::uint32_t num_line{ 0 };
             std::uint32_t x{ 0 };
             bool encountered_eof{ false };
@@ -928,7 +952,7 @@ namespace bmpl
                             // end of line
                             ++num_line;
                             x = 0;
-                            if (num_line == this->image_height) {
+                            if (num_line == this->get_height()) {
                                 return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
                             }
                             img_it = image_content.begin() + std::size_t(num_line * width);
@@ -961,7 +985,7 @@ namespace bmpl
                                 x += delta_pxls;
 
                             const std::size_t offset{ std::size_t(delta_pxls) + width * std::size_t(delta_lines) };
-                            if ((img_it - image_content.begin()) + offset > width * std::size_t(this->image_height)) {
+                            if ((img_it - image_content.begin()) + offset > width * std::size_t(this->get_height())) {
                                 return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_DELTA_MODE_VALUES);
                             }
                             img_it += offset;
@@ -1013,8 +1037,8 @@ namespace bmpl
             if (this->info_header_ptr == nullptr)
                 return this->_set_err(bmpl::utils::ErrorCode::BAD_INFO_HEADER);
 
-            const std::size_t width{ std::size_t(this->image_width) };
-            const std::size_t height{ std::size_t(this->image_height) };
+            const std::size_t width{ std::size_t(this->get_width()) };
+            const std::size_t height{ std::size_t(this->get_height()) };
             const std::size_t padding{ (width % 2) != 0 ? std::size_t(1) : std::size_t(0) };
             const std::size_t line_width{ width + padding };
             const std::size_t mask_size{ line_width * height };
@@ -1090,8 +1114,8 @@ namespace bmpl
         template<typename PixelT>
         const bool BitmapLoader24bits<PixelT>::load(std::vector<PixelT>& image_content) noexcept
         {
-            const std::size_t width{ std::size_t(this->image_width) };
-            const std::size_t height{ std::size_t(this->image_height) };
+            const std::size_t width{ std::size_t(this->get_width()) };
+            const std::size_t height{ std::size_t(this->get_height()) };
 
             // let's load the image content line after line
             const std::size_t line_width{ width * 3 };
@@ -1146,7 +1170,7 @@ namespace bmpl
             }
 
             // parses then the RLE-8 bitmap
-            std::uint32_t width{ std::uint32_t(this->image_width) };
+            std::uint32_t width{ std::uint32_t(this->get_width()) };
             std::uint32_t num_line{ 0 };
             std::uint32_t x{ 0 };
             bool encountered_eof{ false };
@@ -1190,7 +1214,7 @@ namespace bmpl
                             // end of line
                             ++num_line;
                             x = 0;
-                            if (num_line == this->image_height) {
+                            if (num_line == this->get_height()) {
                                 return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
                             }
                             img_it = image_content.begin() + std::size_t(num_line * width);
@@ -1223,7 +1247,7 @@ namespace bmpl
                                 x += delta_pxls;
 
                             const std::size_t offset{ std::size_t(delta_pxls) + width * std::size_t(delta_lines) };
-                            if ((img_it - image_content.begin()) + offset > width * std::size_t(this->image_height)) {
+                            if ((img_it - image_content.begin()) + offset > width * std::size_t(this->get_height())) {
                                 return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_DELTA_MODE_VALUES);
                             }
                             img_it += offset;
@@ -1283,8 +1307,8 @@ namespace bmpl
             if (this->info_header_ptr == nullptr)
                 return this->_set_err(bmpl::utils::ErrorCode::BAD_INFO_HEADER);
 
-                const std::size_t width{ std::size_t(this->image_width) };
-            const std::size_t height{ std::size_t(this->image_height) };
+                const std::size_t width{ std::size_t(this->get_width()) };
+            const std::size_t height{ std::size_t(this->get_height()) };
             const std::size_t mask_size{ width * height };
 
             const bmpl::bmpf::BitfieldMaskBase* red_mask_ptr{ bmpl::bmpf::create_bitfield_mask(this->info_header_ptr->get_red_mask()) };
@@ -1345,7 +1369,7 @@ namespace bmpl
         template<typename PixelT>
         const bool BitmapLoader64bits<PixelT>::load(std::vector<PixelT>& image_content) noexcept
         {
-            const std::size_t bmp_size{ std::size_t(this->image_width) * std::size_t(this->image_height) };
+            const std::size_t bmp_size{ std::size_t(this->get_width()) * std::size_t(this->get_height()) };
 
             std::vector<bmpl::clr::BGRA_HDR> bitmap;
             bitmap.assign(bmp_size, bmpl::clr::BGRA_HDR());

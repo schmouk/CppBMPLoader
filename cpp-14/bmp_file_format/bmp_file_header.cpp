@@ -83,6 +83,9 @@ namespace bmpl
             if (!(in_stream >> file_size >> reserved1 >> reserved2 >> content_offset))
                 return _set_err(in_stream.get_error());
             
+            if (in_stream.get_size() != file_size)
+                set_warning(bmpl::utils::WarningCode::BAD_FILE_SIZE_IN_HEADER);
+
             if (reserved1 != 0 || reserved2 != 0)
                 set_warning(bmpl::utils::WarningCode::HOT_POINT_SET);
 

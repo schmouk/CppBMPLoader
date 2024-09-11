@@ -59,6 +59,15 @@ namespace bmpl
 
 
         //===========================================================================
+        enum class ESkippedPixelsMode : std::uint8_t
+        {
+            BLACK = 0,
+            TRANSPARENCY,
+            PALETTE_INDEX_0
+        };
+
+
+        //===========================================================================
         using BGRA = union uBGRA {
             std::uint32_t value{ 0 };
             struct {
