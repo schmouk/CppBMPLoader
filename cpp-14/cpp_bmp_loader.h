@@ -44,10 +44,9 @@ SOFTWARE.
 #include <string>
 #include <vector>
 
+#include "bmp_file_format/ba_header.h"
 #include "bmp_file_bitmaps/bitfield_mask.h"
 #include "bmp_file_bitmaps/bmp_bitmaps.h"
-
-#include "bmp_file_format/ba_header.h"
 #include "bmp_file_format/bmp_file_header.h"
 #include "bmp_image.h"
 #include "bmp_file_format/bmp_info.h"
@@ -250,7 +249,7 @@ namespace bmpl
 
 
     //===========================================================================
-    // Local implementations  -  BMPLoader<PixelT>
+    // Local implementations  -  BMPBottomUpLoader<PixelT>
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
