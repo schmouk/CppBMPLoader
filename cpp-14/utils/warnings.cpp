@@ -76,11 +76,13 @@ namespace bmpl
             case WarningCode::GAP_BTW_COLORMAP_AND_BITMAP:
                 return "some gap exists between colormap and image bitmap; CppBMPLoader decodes the image nevertheless.";
             case WarningCode::HOT_POINT_SET:
-                return "A hot point X and Y values are set in file header while they should not; CppBMPLoader library nevertheless decodes this file as a BMP one.";
+                return "a hot point X and Y values are set in file header while they should not; CppBMPLoader library nevertheless decodes this file as a BMP one.";
             case WarningCode::INCOHERENT_IMAGE_SIZE:
                 return "image size in info header is incoherent with specified width and height.";
             case WarningCode::INCOHERENT_RESOLUTIONS:
                 return "maybe incoherent image resolutions detected in info header - one of them may be too big compared to the other one.";
+            case WarningCode::INVALID_BA_FILE_HEADER_SIZE:
+                return "an invalid file header size has beend detected in a bitmap array header; CppBMPLoader library tries to decode images nevertheless.";
             case WarningCode::INVALID_COLOR_ENCODING:
                 return "the specified color encoding is invalid - not an RGB one; CppBMPLoader library nevertheless decodes the bitmap as being RGB encoded.";
             case WarningCode::INVALID_DAMPING_VALUE:

@@ -73,7 +73,7 @@ namespace bmpl
                     _set_err(file_header_ptr->get_error());
                 else if (info_header_ptr == nullptr)
                     _set_err(bmpl::utils::ErrorCode::BAD_INFO_HEADER);
-                else if (info_header_ptr->failed())
+                else if (info_header_ptr->failed() && !file_header_ptr->is_BA_file())
                     _set_err(info_header_ptr->get_error());
                 else if (color_map.failed())
                     _set_err(color_map.get_error());

@@ -66,11 +66,16 @@ namespace bmpl
         //===========================================================================
         const bool BMPFileHeaderBA::load(bmpl::utils::LEInStream& in_stream) noexcept
         {
-            if (in_stream.failed())
+            if (in_stream.failed() || !(in_stream >> header_size >> offset_to_next >> screen_width >> screen_height))
                 return _set_err(in_stream.get_error());
 
-            // TODO: implement this
-            return _set_err(bmpl::utils::ErrorCode::NOT_YET_IMPLEMENTED_BA_FORMAT);
+            if (offset_to_next != 0 && offset_to_next < BMPFileHeaderBA::SIZE + 14 + 12)
+                return _set_err(bmpl::utils::ErrorCode::INVALID_NEXT_OFFSET);
+
+            if (offset_to_next > in_stream.get_size())
+                return _set_err(bmpl::utils::ErrorCode::INVALID_NEXT_OFFSET_TOO_BIG);
+
+            return _clr_err();
         }
 
 

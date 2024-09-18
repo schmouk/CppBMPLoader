@@ -112,6 +112,7 @@ namespace bmpl
 
             static constexpr std::size_t SIZE{ 14 };
 
+            std::uint32_t header_size{ 0 };
             std::uint32_t offset_to_next{ 0 };
             std::int16_t  screen_width{ 0 };
             std::int16_t  screen_height{ 0 };
@@ -137,7 +138,7 @@ namespace bmpl
 
             virtual inline const std::size_t get_header_size() const noexcept override
             {
-                return SIZE;
+                return std::size_t(header_size);
             }
 
             inline const bool is_last_image() const noexcept

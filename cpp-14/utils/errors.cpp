@@ -68,8 +68,12 @@ namespace bmpl
                 return "incoherent run length encoding creates a buffer overflow";
             case ErrorCode::CORRUPTED_BMP_FILE:
                 return "corrupted BMP file.";
+            case ErrorCode::END_OF_BITMAP_ARRAY:
+                return "no more BMP image to be loaded from file.";
             case ErrorCode::END_OF_FILE:
                 return "encountered unexpected end-of-file.";
+            case ErrorCode::END_OF_BA_HEADERS_LIST:
+                return "the end of BA headers list has been reached.";
             case ErrorCode::ERRONEOUS_BITMAP_OFFSET:
                 return "the offset of the bitmap as specified in the file header appears to be invalid.";
             case ErrorCode::FILE_NOT_FOUND:
@@ -98,10 +102,14 @@ namespace bmpl
                 return "the specified size for the info header is invalid.";
             case ErrorCode::INVALID_IMAGE_DIMENSIONS:
                 return "some dimension of image is set to zero.";
+            case ErrorCode::INVALID_NEXT_OFFSET:
+                return "a specified offset to the next array header has been detected as invalid - too small value.";
+            case ErrorCode::INVALID_NEXT_OFFSET_TOO_BIG:
+                return "a specified offset to the next array header has been detected as invalid - too big value.";
             case ErrorCode::INVALID_OS2_BITMAP_RECORDING:
-                return "A non-zero recording mode in OS/2 bitmap has been detected; this is invalid.";
+                return "a non-zero recording mode in OS/2 bitmap has been detected; this is invalid.";
             case ErrorCode::INVALID_PROFILE_DATA_OFFSET:
-                return "The specified offset for profile data is invalid.";
+                return "the specified offset for profile data is invalid.";
             case ErrorCode::IRRECOVERABLE_STREAM_ERROR:
                 return "encountered some irrecoverable file streaming error.";
             case ErrorCode::MISSING_PROFILE_DATA:
@@ -112,24 +120,20 @@ namespace bmpl
                 return "info header specifies a negative width for final image, which is forbidden.";
             case ErrorCode::NOT_BMP_ENCODING:
                 return "file is not a BMP file.";
+            case ErrorCode::NOT_BITMAP_ARRAY_FILE_HEADER:
+                return "a bad type for a bitmap array file header has been detected.";
             case ErrorCode::NOT_INITIALIZED:
                 return "file is currently not initialized.";
+            case ErrorCode::NOT_OS2_BITMAP_FORMAT:
+                return "a not OS/2 bitmap format has been detected in this bitmap multi-image data file, which is forbidden.";
             case ErrorCode::NOT_WINDOWS_BMP:
                 return "file is not a Windows BMP file.";
-            case ErrorCode::NOT_YET_IMPLEMENTED_METHOD:
-                return "Library CppBMPLoader internally has called a not-yet-implemented function or method.";
-            case ErrorCode::NOT_YET_IMPLEMENTED_BA_FORMAT:
-                return "this is a BA file, a format for which the decoding of first image in list is not yet implemented in library CppBMPLoader.";
-            case ErrorCode::NOT_YET_IMPLEMENTED_BMP_FORMAT:
-                return "this BMP file is not of a currently implemented format by library CppBMPLoader.";
             case ErrorCode::NOT_YET_IMPLEMENTED_HUFFMAN_1D_DECODING:
                 return "Library CppBMPLoader does not yet implement embedded Huffman-1D decoding.";
             case ErrorCode::NOT_YET_IMPLEMENTED_JPEG_DECODING:
                 return "Library CppBMPLoader does not yet implement embedded JPEG decoding.";
             case ErrorCode::NOT_YET_IMPLEMENTED_PNG_DECODING:
                 return "Library CppBMPLoader does not yet implement embedded PNG decoding'.";
-            case ErrorCode::NOT_YET_IMPLEMENTED_V1_FORMAT:
-                return "Library CppBMPLoader does not yet implement very old Version 1 of BMP files.";
             case ErrorCode::OVERLAPPING_BITFIELD_MASKS:
                 return "some bitfield masks are overlapping.";
             case ErrorCode::RLE_INPUT_OPERATION_FAILED:

@@ -79,7 +79,6 @@ namespace bmpl
             std::uint32_t compression_mode{ 0 };
             std::int16_t  bits_per_pixel{ 0 };
             bmpl::clr::ELogicalColorSpace cs_type{ bmpl::clr::DEFAULT_CS_TYPE };
-            bool bmp_v4{ false };
 
 
             static constexpr std::uint32_t COMPR_NO_RLE{ 0 };
@@ -121,6 +120,18 @@ namespace bmpl
             virtual inline const bool load(bmpl::utils::LEInStream& in_stream) noexcept
             {
                 return this->_clr_err();
+            }
+
+
+            virtual inline const std::int32_t get_device_x_resolution() const noexcept
+            {
+                return 2835;  // notice: default value for 72 dpi extended to the standadrd default unit (1 meter)
+            }
+
+
+            virtual inline const std::int32_t get_device_y_resolution() const noexcept
+            {
+                return 2835;  // notice: default value for 72 dpi extended to the standadrd default unit (1 meter)
             }
 
 
@@ -289,10 +300,10 @@ namespace bmpl
         {
             static constexpr std::uint32_t HEADER_SIZE{ 40 };
 
-            std::uint16_t planes_count{ 0 };
             std::uint32_t bitmap_size{ 0 };
             std::int32_t device_x_resolution{ 0 };
             std::int32_t device_y_resolution{ 0 };
+            std::int16_t planes_count{ 0 };
 
 
             BMPInfoHeaderV3() noexcept = default;
@@ -310,6 +321,16 @@ namespace bmpl
                 , BMPInfoHeaderBase(in_stream, HEADER_SIZE)
             {
                 load(in_stream, is_V3_base, is_V5_base);
+            }
+
+            virtual inline const std::int32_t get_device_x_resolution() const noexcept override
+            {
+                return this->device_x_resolution;
+            }
+
+            virtual inline const std::int32_t get_device_y_resolution() const noexcept override
+            {
+                return this->device_y_resolution;
             }
 
             virtual inline const std::uint32_t get_height() const noexcept override
@@ -504,7 +525,7 @@ namespace bmpl
                 std::int32_t& blue_endX_, std::int32_t& blue_endY_, std::int32_t& blue_endZ_
             ) const noexcept;
 
-            inline virtual const bool is_v3_NT() const { return false; }
+            inline virtual const bool is_v3_NT_4() const { return false; }
             inline virtual const bool is_v4() const { return true; }
 
         };
@@ -589,6 +610,7 @@ namespace bmpl
                 return true;
             }
 
+            inline virtual const bool is_v2() const { return false; }
             inline virtual const bool is_vOS21() const { return true; }
 
         };
@@ -638,6 +660,16 @@ namespace bmpl
             inline const std::uint32_t get_application_identifier() const noexcept
             {
                 return application_identifier;
+            }
+
+            virtual inline const std::int32_t get_device_x_resolution() const noexcept override
+            {
+                return this->device_x_resolution;
+            }
+
+            virtual inline const std::int32_t get_device_y_resolution() const noexcept override
+            {
+                return this->device_y_resolution;
             }
 
             inline const std::int16_t get_halftoning_mode() const noexcept
@@ -700,7 +732,7 @@ namespace bmpl
 
 
         //===========================================================================
-        const BMPInfoHeaderBase* create_bmp_info_header(
+        BMPInfoHeaderBase* create_bmp_info_header(
             bmpl::utils::LEInStream& in_stream,
             const bmpl::frmt::BMPFileHeaderBase* file_header_ptr
         ) noexcept;

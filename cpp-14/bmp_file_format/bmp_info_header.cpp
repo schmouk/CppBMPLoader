@@ -491,7 +491,7 @@ namespace bmpl
 
 
         //===========================================================================
-        const BMPInfoHeaderBase* create_bmp_info_header(
+        BMPInfoHeaderBase* create_bmp_info_header(
             bmpl::utils::LEInStream& in_stream,
             const bmpl::frmt::BMPFileHeaderBase* file_header_ptr
         ) noexcept
@@ -502,6 +502,12 @@ namespace bmpl
             // info header of BMP version 1.X is empty
             if (file_header_ptr->is_V1_file())
                 return new BMPInfoHeaderV1(dynamic_cast<const BMPFileHeaderV1*>(file_header_ptr));
+
+            /*
+            // info header of BA file has not to be read
+            if (file_header_ptr->is_BA_file())
+                return new BMPInfoHeaderBase();
+            */
 
             // let's first load the size of the info header
             if (in_stream.failed())
@@ -516,6 +522,7 @@ namespace bmpl
             case 0x0c:
             {   //-- Version 2 or 0S/2 1.x of BMP file format --//
                 const std::size_t header_file_size{ file_header_ptr->get_header_size() };
+                const auto current_pos{ in_stream.tellg() };
 
                 BMPInfoHeaderV2<>* header_ptr{ new BMPInfoHeaderV2<>(in_stream) };
 
@@ -527,7 +534,8 @@ namespace bmpl
 
                     if (expected_bitmap_size < actual_bitmap_size) {
                         // well, this finally appears to be an OS/2 1.x BMP file
-                        in_stream.seekg(header_file_size + 4);  // let's go back to the starting position of this info header, right after its size encoding on 32 bits 
+                        //in_stream.seekg(header_file_size + 4);  // let's go back to the starting position of this info header, right after its size encoding on 32 bits 
+                        in_stream.seekg(current_pos);  // let's go back to the starting position of this info header, right after its size encoding on 32 bits 
                         BMPInfoHeaderVOS21* header_ptr{ new BMPInfoHeaderVOS21(in_stream) };
                         return header_ptr;
                     }

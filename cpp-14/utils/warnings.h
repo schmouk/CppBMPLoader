@@ -67,6 +67,7 @@ namespace bmpl
             HOT_POINT_SET,
             INCOHERENT_IMAGE_SIZE,
             INCOHERENT_RESOLUTIONS,
+            INVALID_BA_FILE_HEADER_SIZE,
             INVALID_COLOR_ENCODING,
             INVALID_DAMPING_VALUE,
             INVALID_RESOLUTION_UNITS,

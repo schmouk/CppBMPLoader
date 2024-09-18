@@ -86,6 +86,9 @@ namespace bmpl
             if (file_header_ptr->failed())
                 _set_err(file_header_ptr->get_error());
 
+            if (file_header_ptr->is_BA_file())
+                return _clr_err();
+
             if (info_header_ptr == nullptr)
                 return _set_err(bmpl::utils::ErrorCode::BAD_INFO_HEADER);
 

@@ -97,7 +97,7 @@ namespace bmpl
                     _set_err(file_header_ptr->get_error());
                 else if (info_header_ptr == nullptr)
                     _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
-                else if (info_header_ptr->failed())
+                else if (info_header_ptr->failed() && !file_header_ptr->is_BA_file())
                     _set_err(info_header_ptr->get_error());
                 else if (color_map.failed())
                     _set_err(color_map.get_error());
@@ -126,7 +126,7 @@ namespace bmpl
 
             inline virtual const bool load(std::vector<PixelT>& image_content) noexcept
             {
-                return _set_err(bmpl::utils::ErrorCode::NOT_YET_IMPLEMENTED_BMP_FORMAT);
+                return false;
             }
 
         };
@@ -383,9 +383,11 @@ namespace bmpl
             bmpl::frmt::BMPColorMap& color_map
         ) noexcept
         {
-            if (info_header_ptr == nullptr) {
+            if (file_header_ptr->is_BA_file())
+                return new BitmapLoaderBase<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map);
+
+            if (info_header_ptr == nullptr)
                 return nullptr;
-            }
 
             switch (info_header_ptr->bits_per_pixel)
             {

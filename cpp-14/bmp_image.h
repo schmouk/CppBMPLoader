@@ -66,18 +66,6 @@ namespace bmpl
         std::uint32_t resolution_y{ 0 };
         std::uint32_t colors_count{ 0 };
 
-
-        /*
-        BMPImage() noexcept = default;
-        BMPImage(const BMPImage&) noexcept = default;
-        BMPImage(BMPImage&&) noexcept = default;
-
-        virtual inline ~BMPImage() noexcept = default;
-
-        BMPImage& operator= (const BMPImage&) noexcept = default;
-        BMPImage& operator= (BMPImage&&) noexcept = default;
-        */
-
         inline BMPImage(
             const std::string& filepath_,
             const bmpl::utils::ErrorStatus error_status_
