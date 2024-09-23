@@ -130,7 +130,7 @@ namespace bmpl
     // Template specializations
     //
     using RGBBMPImage = BMPImage<bmpl::clr::RGB>;
-    using RGBABMPImage = BMPImage<bmpl::clr::RGB>;
+    using RGBABMPImage = BMPImage<bmpl::clr::RGBA>;
 
     using BGRBMPImage = BMPImage<bmpl::clr::BGR>;
     using BGRABMPImage = BMPImage<bmpl::clr::BGRA>;
