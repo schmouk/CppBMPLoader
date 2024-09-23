@@ -45,5 +45,5 @@ and offering more advanced programming concepts (e.g. programmed in the form
 of c++ modules).
 
 ## Notice
-Notice: by April and May 2024, the original library **OGLFW** is still under 
-development.
+Notice: by September and October 2024, the original library **OGLFW** is still 
+under development.
