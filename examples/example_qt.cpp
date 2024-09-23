@@ -265,21 +265,21 @@ int main()
     // RGB image
     // we'll use the test image with 8 bits per pixel, a 256 color palette and RLE compression
     // the default values no-gamma-correction and set-to-black-missing-pixels are used in this call.
-    load_RGB_image("./images/bmpsuite-2.8/g/pal8rle.bmp");
+    load_RGB_image("../images/bmpsuite-2.8/g/pal8rle.bmp");
 
     // RGBA image
     // we'll use a 64-bits per pixel BMP image with gamma correction
     // the default value set-to-black-missing-pixels is used in this call.
-    load_RGBA_image("./images/bmpsuite-2.8/q/rgba64.bmp", APPLY_GAMMA_CORRECTION);
+    load_RGBA_image("../images/bmpsuite-2.8/q/rgba64.bmp", APPLY_GAMMA_CORRECTION);
 
     // BGR image
     // we'll use a 16 colors palette image with RLE compression and missing definitions of pixels
     // we force no-gamma-correction and missing pixels will be set to the 0-indexed color in the palette (blue color here)
-    load_BGR_image("./images/bmpsuite-2.8/q/pal4rletrns.bmp", !APPLY_GAMMA_CORRECTION, bmpl::clr::ESkippedPixelsMode::PALETTE_INDEX_0);
+    load_BGR_image("../images/bmpsuite-2.8/q/pal4rletrns.bmp", !APPLY_GAMMA_CORRECTION, bmpl::clr::ESkippedPixelsMode::PALETTE_INDEX_0);
 
     // BGRA image
     // we'll use a special OS/2 Bitmap Array file, first image in file will be shown
     // the default values no-gamma-correction and set-to-black-missing-pixels are used in this call.
-    load_BGRA_image("./images/bmpsuite-2.8/x/ba-bm.bmp");
+    load_BGRA_image("../images/bmpsuite-2.8/x/ba-bm.bmp");
 
 }

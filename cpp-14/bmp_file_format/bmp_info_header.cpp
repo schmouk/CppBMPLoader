@@ -496,6 +496,9 @@ namespace bmpl
             const bmpl::frmt::BMPFileHeaderBase* file_header_ptr
         ) noexcept
         {
+            if (in_stream.failed())
+                return nullptr;
+
             if (file_header_ptr == nullptr || file_header_ptr->failed())
                 return nullptr;
 
@@ -503,16 +506,7 @@ namespace bmpl
             if (file_header_ptr->is_V1_file())
                 return new BMPInfoHeaderV1(dynamic_cast<const BMPFileHeaderV1*>(file_header_ptr));
 
-            /*
-            // info header of BA file has not to be read
-            if (file_header_ptr->is_BA_file())
-                return new BMPInfoHeaderBase();
-            */
-
             // let's first load the size of the info header
-            if (in_stream.failed())
-                return nullptr;
-
             std::uint32_t header_size{ 0 };
             if (!(in_stream >> header_size))
                 return nullptr;

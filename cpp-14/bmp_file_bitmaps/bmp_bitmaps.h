@@ -383,6 +383,9 @@ namespace bmpl
             bmpl::frmt::BMPColorMap& color_map
         ) noexcept
         {
+            if (file_header_ptr == nullptr)
+                return nullptr;
+
             if (file_header_ptr->is_BA_file())
                 return new BitmapLoaderBase<PixelT>(in_stream, file_header_ptr, info_header_ptr, color_map);
 

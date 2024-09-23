@@ -42,6 +42,10 @@ namespace bmpl
         {
             std::int16_t file_type{ 0 };
 
+            if (in_stream.failed())
+                // file not found
+                return nullptr;
+
             if (!(in_stream >> file_type))
                 // streaming error
                 return nullptr;
