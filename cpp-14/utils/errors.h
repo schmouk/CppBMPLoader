@@ -55,6 +55,7 @@ namespace bmpl
             BAD_PROFILE_DATA_OFFSET,
             BAD_PROFILE_SIZE,
             BMP_BAD_ENCODING,
+            BMP_LOADER_INSTANTIATION_FAILED,
             BUFFER_OVERFLOW,
             CORRUPTED_BMP_FILE,
             END_OF_BITMAP_ARRAY,
@@ -128,6 +129,12 @@ namespace bmpl
             inline operator bool() const noexcept
             {
                 return is_ok();
+            }
+
+
+            virtual inline const bool operator!() const noexcept
+            {
+                return failed();
             }
 
 

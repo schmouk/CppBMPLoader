@@ -746,7 +746,7 @@ namespace bmpl
         template<typename DimsT>
         const bool BMPInfoHeaderV2<DimsT>::load(bmpl::utils::LEInStream& in_stream) noexcept
         {
-            if (!(in_stream >> this->width >> this->height >> planes_count >> bits_per_pixel))
+            if ((in_stream >> this->width >> this->height >> planes_count >> bits_per_pixel).failed())
                 return _set_err(in_stream.get_error());
 
             if (this->width < 0)

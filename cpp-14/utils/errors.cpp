@@ -64,6 +64,8 @@ namespace bmpl
                 return "bad specified size for data profile.";
             case ErrorCode::BMP_BAD_ENCODING:
                 return "bad BMP format encoding.";
+            case ErrorCode::BMP_LOADER_INSTANTIATION_FAILED:
+                return "no BMP Loader can be instantiated, maybe because of memory resource lacking.";
             case ErrorCode::BUFFER_OVERFLOW:
                 return "incoherent run length encoding creates a buffer overflow";
             case ErrorCode::CORRUPTED_BMP_FILE:

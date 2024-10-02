@@ -195,7 +195,7 @@ namespace bmpl
 
 
         LEInStream& LEInStream::operator>>(std::uint64_t& value)
-       {
+        {
             _clr_err();
 
             if (PLATFORM_IS_LITTLE_ENDIAN) {

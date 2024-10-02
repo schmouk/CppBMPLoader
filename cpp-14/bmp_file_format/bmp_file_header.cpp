@@ -46,7 +46,7 @@ namespace bmpl
                 // file not found
                 return nullptr;
 
-            if (!(in_stream >> file_type))
+            if ((in_stream >> file_type).failed())
                 // streaming error
                 return nullptr;
 
@@ -70,7 +70,7 @@ namespace bmpl
         //===========================================================================
         const bool BMPFileHeaderBA::load(bmpl::utils::LEInStream& in_stream) noexcept
         {
-            if (in_stream.failed() || !(in_stream >> header_size >> offset_to_next >> screen_width >> screen_height))
+            if (in_stream.failed() || (in_stream >> header_size >> offset_to_next >> screen_width >> screen_height).failed())
                 return _set_err(in_stream.get_error());
 
             if (offset_to_next != 0 && offset_to_next < BMPFileHeaderBA::SIZE + 14 + 12)
@@ -89,7 +89,7 @@ namespace bmpl
             if (in_stream.failed())
                 return _set_err(in_stream.get_error());
 
-            if (!(in_stream >> file_size >> reserved1 >> reserved2 >> content_offset))
+            if ((in_stream >> file_size >> reserved1 >> reserved2 >> content_offset).failed())
                 return _set_err(in_stream.get_error());
             
             if (in_stream.get_size() != file_size)
@@ -111,7 +111,7 @@ namespace bmpl
             if (in_stream.failed())
                 return _set_err(in_stream.get_error());
 
-            if (!(in_stream >> bitmap_width >> bitmap_height >> bitmap_bytes_width >> planes_count >> bits_per_pixel))
+            if ((in_stream >> bitmap_width >> bitmap_height >> bitmap_bytes_width >> planes_count >> bits_per_pixel).failed())
                 return _set_err(in_stream.get_error());
 
             if (bitmap_width < 0)

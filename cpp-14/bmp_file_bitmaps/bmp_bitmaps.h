@@ -124,6 +124,12 @@ namespace bmpl
             }
 
 
+            inline const std::size_t get_size() const noexcept
+            {
+                return std::size_t(get_width()) * std::size_t(get_height());
+            }
+
+
             inline virtual const bool load(std::vector<PixelT>& image_content) noexcept
             {
                 return false;
@@ -1066,15 +1072,8 @@ namespace bmpl
             }
             else {
                 // big-endian underlying platform
-                /*
-                for (auto mask_it = masked_content.begin(); mask_it != masked_content.end(); ++mask_it) {
-                    if (!(this->in_stream >> *mask_it)) {
-                        return this->_set_err(this->in_stream.get_error());
-                    }
-                }
-                */
                 for (auto& mask : masked_content) {
-                    if (!(this->in_stream >> mask)) {
+                    if ((this->in_stream >> mask).failed()) {
                         return this->_set_err(this->in_stream.get_error());
                     }
                 }
@@ -1083,7 +1082,6 @@ namespace bmpl
 
             int line_pixels_count{ 0 };
             auto mask_it{ masked_content.cbegin() };
-            //for (auto pixel_it = image_content.begin(); pixel_it != image_content.end(); ++pixel_it) {
             for (auto& pixel : image_content) {
                 if (mask_it == masked_content.cend()) {
                     this->set_warning(bmpl::utils::WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP);
@@ -1335,7 +1333,7 @@ namespace bmpl
             else {
                 // big-endian underlying platform
                 for (auto& mask : masked_content) {
-                    if (!(this->in_stream >> mask)) {
+                    if ((this->in_stream >> mask).failed()) {
                         return this->_set_err(this->in_stream.get_error());
                     }
                 }
@@ -1389,16 +1387,16 @@ namespace bmpl
             }
             else {
                 for (auto bmp_it = bitmap.begin(); bmp_it != bitmap.end(); ++bmp_it) {
-                    if (!(this->in_stream >> bmp_it->b)) {
+                    if ((this->in_stream >> bmp_it->b).failed()) {
                         return this->_set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
                     }
-                    if (!(this->in_stream >> bmp_it->g)) {
+                    if ((this->in_stream >> bmp_it->g).failed()) {
                         return this->_set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
                     }
-                    if (!(this->in_stream >> bmp_it->r)) {
+                    if ((this->in_stream >> bmp_it->r).failed()) {
                         return this->_set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
                     }
-                    if (!(this->in_stream >> bmp_it->a)) {
+                    if ((this->in_stream >> bmp_it->a).failed()) {
                         return this->_set_err(bmpl::utils::ErrorCode::INPUT_OPERATION_FAILED);
                     }
                 }
