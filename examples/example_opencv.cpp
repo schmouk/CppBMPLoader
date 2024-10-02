@@ -55,59 +55,35 @@ SOFTWARE.
 * for explanations on the content of each version 1 BMP file that is in there.
 */
 
-
-#include <cstdint>
-#include <fstream>
-#include <iostream>
-#include <string>
-
-
-#include <opencv2/core.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/core/utils/logger.hpp>
-
-
-#include "../cpp-14/cpp_bmp_loader.h"
+#include "example_opencv.h"
 
 
 //===================================================================================
 /* \brief Loading and Displaying an RGB image. */
 void load_and_show_RGB_image(
     const std::string& image_filepath,
-    const bool apply_gamma_correction = false,
-    const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK)
+    const bool apply_gamma_correction,
+    const bmpl::clr::ESkippedPixelsMode skipped_mode) noexcept
 {
-    // first, creates the related BMP loader
-    bmpl::RGBBMPLoader bmp_loader(image_filepath, apply_gamma_correction, skipped_mode);
-    // did creation succeed?
-    if (bmp_loader.failed()) {  // notice: "if (!bmp_loader)" would fit also
+    // let's load the related image
+    bmpl::RGBBMPImage bmp_image(image_filepath, apply_gamma_correction, skipped_mode);
+    // did loading succeed?
+    if (!bmp_image) {  // notice: "if (bmp_image.failed())" would fit also
         // whatever the error, just display it
-        std::cout << bmp_loader.get_error_msg() << std::endl;
+        std::cout << bmp_image.get_error_msg() << std::endl;
     }
     else {
-        // creation of the BMP loader was fine
-        // let's load the related image then
-        bmpl::RGBBMPImage bmp_image{ bmp_loader.load_image() };
-        // did loading succeed?
-        if (!bmp_image) {  // notice: "if (bmp_image.failed())" would fit also
-            // whatever the error, just display it
-            std::cout << bmp_image.get_error_msg() << std::endl;
+        // loading was fine
+        // let's display maybe warnings
+        if (bmp_image.has_warnings()) {
+            for (auto& msg : bmp_image.get_warnings_msg())
+                std::cout << msg << std::endl;
         }
-        else {
-            // loading was fine
-            // let's display maybe warnings
-            if (bmp_loader.has_warnings()) {
-                for (auto& msg : bmp_loader.get_warnings_msg())
-                    std::cout << msg << std::endl;
-            }
-            // then let's show the loaded image and wait for a key press
-            cv::Mat image(cv::Size(bmp_image.width, bmp_image.height), CV_8UC3, bmp_image.get_content_ptr());
-            cv::cvtColor(image, image, cv::COLOR_RGB2BGR);
-            cv::imshow("RGB image", image);
-            cv::waitKey(0);
-        }
+        // then let's show the loaded image and wait for a key press
+        cv::Mat image(cv::Size(bmp_image.get_width(), bmp_image.get_height()), CV_8UC3, bmp_image.get_content_ptr());
+        cv::cvtColor(image, image, cv::COLOR_RGB2BGR);
+        cv::imshow("RGB image", image);
+        cv::waitKey(0);
     }
 }
 
@@ -116,38 +92,28 @@ void load_and_show_RGB_image(
 /* \brief Loading and Displaying an RGBA image. */
 void load_and_show_RGBA_image(
     const std::string& image_filepath,
-    const bool apply_gamma_correction = false,
-    const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK)
+    const bool apply_gamma_correction,
+    const bmpl::clr::ESkippedPixelsMode skipped_mode) noexcept
 {
-    // first, creates the related BMP loader
-    bmpl::RGBABMPLoader bmp_loader(image_filepath, apply_gamma_correction, skipped_mode);
-    // did creation succeed?
-    if (bmp_loader.failed()) {  // notice: "if (!bmp_loader)" would fit also
+    // let's load the related image
+    bmpl::RGBABMPImage bmp_image(image_filepath, apply_gamma_correction, skipped_mode);
+    // did loading succeed?
+    if (!bmp_image) {  // notice: "if (bmp_image.failed())" would fit also
         // whatever the error, just display it
-        std::cout << bmp_loader.get_error_msg() << std::endl;
+        std::cout << bmp_image.get_error_msg() << std::endl;
     }
     else {
-        // creation of the BMP loader was fine
-        // let's load the related image then
-        bmpl::RGBABMPImage bmp_image{ bmp_loader.load_image() };
-        // did loading succeed?
-        if (!bmp_image) {  // notice: "if (bmp_image.failed())" would fit also
-            // whatever the error, just display it
-            std::cout << bmp_image.get_error_msg() << std::endl;
+        // loading was fine
+        // let's display maybe warnings
+        if (bmp_image.has_warnings()) {
+            for (auto& msg : bmp_image.get_warnings_msg())
+                std::cout << msg << std::endl;
         }
-        else {
-            // loading was fine
-            // let's display maybe warnings
-            if (bmp_loader.has_warnings()) {
-                for (auto& msg : bmp_loader.get_warnings_msg())
-                    std::cout << msg << std::endl;
-            }
-            // then let's show the loaded image and wait for a key press
-            cv::Mat image(cv::Size(bmp_image.width, bmp_image.height), CV_8UC4, bmp_image.get_content_ptr());
-            cv::cvtColor(image, image, cv::COLOR_RGBA2BGRA);
-            cv::imshow("RGBA image", image);
-            cv::waitKey(0);
-        }
+        // then let's show the loaded image and wait for a key press
+        cv::Mat image(cv::Size(bmp_image.get_width(), bmp_image.get_height()), CV_8UC4, bmp_image.get_content_ptr());
+        cv::cvtColor(image, image, cv::COLOR_RGBA2BGRA);
+        cv::imshow("RGBA image", image);
+        cv::waitKey(0);
     }
 }
 
@@ -156,36 +122,27 @@ void load_and_show_RGBA_image(
 /* \brief Loading and Displaying a BGR image. */
 void load_and_show_BGR_image(
     const std::string& image_filepath,
-    const bool apply_gamma_correction = false,
-    const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK)
+    const bool apply_gamma_correction,
+    const bmpl::clr::ESkippedPixelsMode skipped_mode) noexcept
 {
-    // first, creates the related BMP loader
-    bmpl::BGRBMPLoader bmp_loader(image_filepath, apply_gamma_correction, skipped_mode);
-    // did creation succeed?
-    if (bmp_loader.failed()) {  // notice: "if (!bmp_loader)" would fit also
-        std::cout << bmp_loader.get_error_msg() << std::endl;
+    // let's load the related image
+    bmpl::BGRBMPImage bmp_image(image_filepath, apply_gamma_correction, skipped_mode);
+    // did loading succeed?
+    if (!bmp_image) {  // notice: "if (bmp_image.failed())" would fit also
+        // whatever the error, just display it
+        std::cout << bmp_image.get_error_msg() << std::endl;
     }
     else {
-        // creation of the BMP loader was fine
-        // let's load the related image then
-        bmpl::BGRBMPImage bmp_image{ bmp_loader.load_image() };
-        // did loading succeed?
-        if (!bmp_image) {  // notice: "if (bmp_image.failed())" would fit also
-            // whatever the error, just display it
-            std::cout << bmp_image.get_error_msg() << std::endl;
+        // loading was fine
+        // let's display maybe warnings
+        if (bmp_image.has_warnings()) {
+            for (auto& msg : bmp_image.get_warnings_msg())
+                std::cout << msg << std::endl;
         }
-        else {
-            // loading was fine
-            // let's display maybe warnings
-            if (bmp_loader.has_warnings()) {
-                for (auto& msg : bmp_loader.get_warnings_msg())
-                    std::cout << msg << std::endl;
-            }
-            // then let's show the loaded image and wait for a key press
-            cv::Mat image(cv::Size(bmp_image.width, bmp_image.height), CV_8UC3, bmp_image.get_content_ptr());
-            cv::imshow("BGR-full", image);
-            cv::waitKey(0);
-        }
+        // then let's show the loaded image and wait for a key press
+        cv::Mat image(cv::Size(bmp_image.get_width(), bmp_image.get_height()), CV_8UC3, bmp_image.get_content_ptr());
+        cv::imshow("BGR-full", image);
+        cv::waitKey(0);
     }
 }
 
@@ -194,37 +151,27 @@ void load_and_show_BGR_image(
 /* \brief Loading and Displaying a BGRA image. */
 void load_and_show_BGRA_image(
     const std::string& image_filepath,
-    const bool apply_gamma_correction = false,
-    const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK)
+    const bool apply_gamma_correction,
+    const bmpl::clr::ESkippedPixelsMode skipped_mode) noexcept
 {
-    // first, creates the related BMP loader
-    bmpl::BGRABMPLoader bmp_loader(image_filepath, apply_gamma_correction, skipped_mode);
-    // did creation succeed?
-    if (bmp_loader.failed()) {  // notice: "if (!bmp_loader)" would fit also
+    // let's load the related image
+    bmpl::BGRABMPImage bmp_image(image_filepath, apply_gamma_correction, skipped_mode);
+    // did loading succeed?
+    if (!bmp_image) {  // notice: "if (bmp_image.failed())" would fit also
         // whatever the error, just display it
-        std::cout << bmp_loader.get_error_msg() << std::endl;
+        std::cout << bmp_image.get_error_msg() << std::endl;
     }
     else {
-        // creation of the BMP loader was fine
-        // let's load the related image then
-        bmpl::BGRABMPImage bmp_image{ bmp_loader.load_image() };
-        // did loading succeed?
-        if (!bmp_image) {  // notice: "if (bmp_image.failed())" would fit also
-            // whatever the error, just display it
-            std::cout << bmp_image.get_error_msg() << std::endl;
+        // loading was fine
+        // let's display maybe warnings
+        if (bmp_image.has_warnings()) {
+            for (auto& msg : bmp_image.get_warnings_msg())
+                std::cout << msg << std::endl;
         }
-        else {
-            // loading was fine
-            // let's display maybe warnings
-            if (bmp_loader.has_warnings()) {
-                for (auto& msg : bmp_loader.get_warnings_msg())
-                    std::cout << msg << std::endl;
-            }
-            // then let's show the loaded image and wait for a key press
-            cv::Mat image(cv::Size(bmp_image.width, bmp_image.height), CV_8UC4, bmp_image.get_content_ptr());
-            cv::imshow("BGRA image", image);
-            cv::waitKey(0);
-        }
+        // then let's show the loaded image and wait for a key press
+        cv::Mat image(cv::Size(bmp_image.get_width(), bmp_image.get_height()), CV_8UC4, bmp_image.get_content_ptr());
+        cv::imshow("BGRA image", image);
+        cv::waitKey(0);
     }
 }
 
@@ -240,21 +187,21 @@ int main()
     // RGB image
     // we'll use the test image with 8 bits per pixel, a 256 color palette and RLE compression
     // the default values no-gamma-correction and set-to-black-missing-pixels are used in this call.
-    load_and_show_RGB_image("../images/bmpsuite-2.8/g/pal8rle.bmp");
+    load_and_show_RGB_image("../../images/bmpsuite-2.8/g/pal8rle.bmp");
 
     // RGBA image
     // we'll use a 64-bits per pixel BMP image with gamma correction
     // the default value set-to-black-missing-pixels is used in this call.
-    load_and_show_RGBA_image("../images/bmpsuite-2.8/q/rgba64.bmp", APPLY_GAMMA_CORRECTION);
+    load_and_show_RGBA_image("../../images/bmpsuite-2.8/q/rgba64.bmp", APPLY_GAMMA_CORRECTION);
 
     // BGR image
     // we'll use a 16 colors palette image with RLE compression and missing definitions of pixels
     // we force no-gamma-correction and missing pixels will be set to the 0-indexed color in the palette (blue color here)
-    load_and_show_BGR_image("../images/bmpsuite-2.8/q/pal4rletrns.bmp", !APPLY_GAMMA_CORRECTION, bmpl::clr::ESkippedPixelsMode::PALETTE_INDEX_0);
+    load_and_show_BGR_image("../../images/bmpsuite-2.8/q/pal4rletrns.bmp", !APPLY_GAMMA_CORRECTION, bmpl::clr::ESkippedPixelsMode::PALETTE_INDEX_0);
 
     // BGRA image
     // we'll use a special OS/2 Bitmap Array file, first image in file will be shown
     // the default values no-gamma-correction and set-to-black-missing-pixels are used in this call.
-    load_and_show_BGRA_image("../images/bmpsuite-2.8/x/ba-bm.bmp");
+    load_and_show_BGRA_image("../../images/bmpsuite-2.8/x/ba-bm.bmp");
 
 }
