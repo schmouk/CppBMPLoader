@@ -49,7 +49,7 @@ namespace bmpl
             using MyErrBaseClass = bmpl::utils::ErrorStatus;
             using MyWarnBaseClass = bmpl::utils::WarningStatus;
 
-            // Caution: keep the ordering of next four declarations as is
+            // Caution: keep the ordering of next four declarations as it is
             BMPFileHeaderBA ba_file_header{};
             const BMPFileHeaderBase* file_header_ptr{ nullptr };
             BMPInfoHeaderBase* info_header_ptr{ nullptr };
@@ -70,7 +70,7 @@ namespace bmpl
                 : MyErrBaseClass()
                 , MyWarnBaseClass()
                 , ba_file_header{ BMPFileHeaderBA(in_stream) }
-                , file_header_ptr{ create_file_header(in_stream) }
+                , file_header_ptr{ create_file_header(in_stream, true) }
                 , info_header_ptr{ create_bmp_info_header(in_stream, file_header_ptr) }
                 , color_map(in_stream, file_header_ptr, info_header_ptr)
             {

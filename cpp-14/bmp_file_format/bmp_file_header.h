@@ -60,11 +60,11 @@ namespace bmpl
             inline BMPFileHeaderBase& operator= (BMPFileHeaderBase&&) noexcept = default;
 
 
-            inline BMPFileHeaderBase(bmpl::utils::LEInStream& in_stream) noexcept
+            inline BMPFileHeaderBase(bmpl::utils::LEInStream& in_stream, const bool from_ba_file = false) noexcept
                 : MyErrBaseClass()
                 , MyWarnBaseClass()
             {
-                load(in_stream);
+                load(in_stream, from_ba_file);
             }
 
             virtual inline const std::size_t get_content_offset() const noexcept
@@ -82,7 +82,7 @@ namespace bmpl
                 return 0;
             }
 
-            virtual inline const bool load(bmpl::utils::LEInStream& in_stream) noexcept
+            virtual inline const bool load(bmpl::utils::LEInStream& in_stream, const bool from_ba_file = false) noexcept
             {
                 return _clr_err();
             }
@@ -146,7 +146,7 @@ namespace bmpl
                 return offset_to_next == 0;
             }
 
-            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;
+            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
 
             virtual inline const bool is_BA_file() const noexcept override
             {
@@ -175,10 +175,10 @@ namespace bmpl
             inline BMPFileHeaderBM& operator= (const BMPFileHeaderBM&) noexcept = default;
             inline BMPFileHeaderBM& operator= (BMPFileHeaderBM&&) noexcept = default;
 
-            inline BMPFileHeaderBM(bmpl::utils::LEInStream& in_stream) noexcept
+            inline BMPFileHeaderBM(bmpl::utils::LEInStream& in_stream, const bool from_ba_file = false) noexcept
                 : MyBaseClass()
             {
-                load(in_stream);
+                load(in_stream, from_ba_file);
             }
 
             virtual inline const std::size_t get_content_offset() const noexcept override
@@ -191,7 +191,7 @@ namespace bmpl
                 return SIZE;
             }
 
-            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;
+            virtual const bool load(bmpl::utils::LEInStream& in_stream, const bool from_ba_file = false) noexcept override;
 
             virtual inline const bool is_BM_file() const noexcept override
             {
@@ -233,7 +233,7 @@ namespace bmpl
                 return SIZE;
             }
 
-            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;
+            virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept;
 
             virtual inline const std::size_t get_content_offset() const noexcept override
             {
@@ -249,7 +249,7 @@ namespace bmpl
 
 
         //===========================================================================
-        const BMPFileHeaderBase* create_file_header(bmpl::utils::LEInStream& in_stream) noexcept;
+        const BMPFileHeaderBase* create_file_header(bmpl::utils::LEInStream& in_stream, const bool from_ba_file = false) noexcept;
 
     }
 }

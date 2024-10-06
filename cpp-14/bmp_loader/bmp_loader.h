@@ -117,6 +117,9 @@ namespace bmpl
             inline const std::uint32_t get_colors_count() const noexcept;
 
             [[nodiscard]]
+            inline const std::uint32_t get_content_offset() const noexcept;
+
+            [[nodiscard]]
             inline const std::int32_t get_device_x_resolution() const noexcept;
 
             [[nodiscard]]
@@ -126,10 +129,19 @@ namespace bmpl
             inline const std::string get_error_msg() const noexcept;
 
             [[nodiscard]]
+            inline const std::uint32_t get_file_size() const noexcept;
+
+            [[nodiscard]]
+            inline const std::uint32_t get_height() const noexcept;
+
+            [[nodiscard]]
             inline const bool get_top_down_encoding() const noexcept;
 
             [[nodiscard]]
             const std::vector<std::string> get_warnings_msg() const noexcept;
+
+            [[nodiscard]]
+            inline const std::uint32_t get_width() const noexcept;
 
             [[nodiscard]]
             inline const bool is_BA_file() const noexcept;
@@ -259,10 +271,10 @@ namespace bmpl
         template<typename PixelT>
         BMPBottomUpLoader<PixelT>* create_bmp_loader(
             const std::string& filepath,
-            const bool apply_gamma_correction,
-            const bmpl::clr::ESkippedPixelsMode skipped_mode,
+            const bool apply_gamma_correction = false,
+            const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK,
             const bool force_bottom_up = false
-        )
+        ) noexcept
         {
             if (force_bottom_up)
                 return new bmpl::lodr::BMPBottomUpLoader<PixelT>(filepath, apply_gamma_correction, skipped_mode);
@@ -358,6 +370,17 @@ namespace bmpl
 
         //---------------------------------------------------------------------------
         template<typename PixelT>
+        inline const std::uint32_t BMPBottomUpLoader<PixelT>::get_content_offset() const noexcept
+        {
+            if (this->_file_header_ptr == nullptr)
+                return 0;
+            else
+                return std::uint32_t(this->_file_header_ptr->get_content_offset());
+        }
+
+        
+        //---------------------------------------------------------------------------
+        template<typename PixelT>
         inline const std::int32_t BMPBottomUpLoader<PixelT>::get_device_x_resolution() const noexcept
         {
             if (this->_info.info_header_ptr == nullptr)
@@ -388,6 +411,28 @@ namespace bmpl
 
         //---------------------------------------------------------------------------
         template<typename PixelT>
+        inline const std::uint32_t BMPBottomUpLoader<PixelT>::get_file_size() const noexcept
+        {
+            if (this->_file_header_ptr == nullptr)
+                return 0;
+            else
+                return this->_file_header_ptr->file_size;
+        }
+
+
+        //---------------------------------------------------------------------------
+        template<typename PixelT>
+        inline const std::uint32_t BMPBottomUpLoader<PixelT>::get_height() const noexcept
+        {
+            if (this->_info.info_header_ptr == nullptr)
+                return 0;
+            else
+                return this->_info.info_header_ptr->get_height();
+        }
+
+
+        //---------------------------------------------------------------------------
+        template<typename PixelT>
         inline const bool BMPBottomUpLoader<PixelT>::get_top_down_encoding() const noexcept
         {
             if (this->_info.info_header_ptr == nullptr)
@@ -407,6 +452,16 @@ namespace bmpl
             return msg_res;
         }
 
+
+        //---------------------------------------------------------------------------
+        template<typename PixelT>
+        inline const std::uint32_t BMPBottomUpLoader<PixelT>::get_width() const noexcept
+        {
+            if (this->_info.info_header_ptr == nullptr)
+                return 0;
+            else
+                return this->_info.info_header_ptr->get_width();
+        }
 
         //---------------------------------------------------------------------------
         template<typename PixelT>
@@ -535,7 +590,21 @@ namespace bmpl
                         // equality of sizes fitting, let's compare then resolutions
                         const std::int32_t img_dpi_x_resolution{ ba_header.get_device_x_resolution_dpi() };
                         const std::int32_t img_dpi_y_resolution{ ba_header.get_device_y_resolution_dpi() };
-                        if (img_dpi_x_resolution <= dpi_x_resolution && img_dpi_y_resolution <= dpi_y_resolution) {
+                        if (img_dpi_x_resolution == 0 || img_dpi_y_resolution == 0) {
+                            // resolutions are not defined, let's compare then colors counts
+                            const std::uint32_t _hdr_colors_count{ _evaluate_colors_count(ba_header.get_colors_count()) };
+                            if (_hdr_colors_count <= _colors_count) {
+                                diff = _colors_count - _hdr_colors_count;
+                                if (diff < min_diff_colors) {
+                                    min_diff_colors = diff;
+                                    best_fitting_header = ba_header;
+                                    found = true;
+                                }
+                            }
+                        }
+                        else if (img_dpi_x_resolution != 0 && img_dpi_y_resolution != 0 &&
+                            img_dpi_x_resolution <= dpi_x_resolution && img_dpi_y_resolution <= dpi_y_resolution)
+                        {
                             diff = (dpi_x_resolution - img_dpi_x_resolution) + (dpi_y_resolution - img_dpi_y_resolution);
                             if (diff < min_diff_resolution) {
                                 min_diff_resolution = diff;
@@ -543,7 +612,7 @@ namespace bmpl
                                 found = true;
                             }
                             else if (diff == min_diff_resolution) {
-                                // equality of sizes and resoltuons fittings, let's compare then colors counts
+                                // equality of sizes and resolutions fittings, let's compare then colors counts
                                 const std::uint32_t _hdr_colors_count{ _evaluate_colors_count(ba_header.get_colors_count()) };
                                 if (_hdr_colors_count <= _colors_count) {
                                     diff = _colors_count - _hdr_colors_count;

@@ -38,7 +38,7 @@ namespace bmpl
     namespace frmt
     {
         //===========================================================================
-        const BMPFileHeaderBase* create_file_header(bmpl::utils::LEInStream& in_stream) noexcept
+        const BMPFileHeaderBase* create_file_header(bmpl::utils::LEInStream& in_stream, const bool from_ba_file) noexcept
         {
             std::int16_t file_type{ 0 };
 
@@ -58,7 +58,7 @@ namespace bmpl
                 return new BMPFileHeaderBA(in_stream);
 
             case 0x4d42:  // i.e. "BM" as little-endian encoded on 16 bits
-                return new BMPFileHeaderBM(in_stream);
+                return new BMPFileHeaderBM(in_stream, from_ba_file);
 
             default:
                 // not a format decoded by library CppBMPLoader
@@ -84,7 +84,7 @@ namespace bmpl
 
 
         //===========================================================================
-        const bool BMPFileHeaderBM::load(bmpl::utils::LEInStream& in_stream) noexcept
+        const bool BMPFileHeaderBM::load(bmpl::utils::LEInStream& in_stream, const bool from_ba_file) noexcept
         {
             if (in_stream.failed())
                 return _set_err(in_stream.get_error());
@@ -92,7 +92,7 @@ namespace bmpl
             if ((in_stream >> file_size >> reserved1 >> reserved2 >> content_offset).failed())
                 return _set_err(in_stream.get_error());
             
-            if (in_stream.get_size() != file_size)
+            if (!from_ba_file && in_stream.get_size() != file_size)
                 set_warning(bmpl::utils::WarningCode::BAD_FILE_SIZE_IN_HEADER);
 
             if (reserved1 != 0 || reserved2 != 0)

@@ -275,7 +275,7 @@ namespace bmpl
     // BMPBestFittingImage
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline BMPBestFittingImage<PixelT>::BMPBestFittingImage()
+    inline BMPBestFittingImage<PixelT>::BMPBestFittingImage() noexcept
         : MyBaseClass()
     {}
 
