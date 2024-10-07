@@ -621,7 +621,7 @@ namespace bmpl
             }
             else {
                 // let's load the bitmap content line after line
-                const std::size_t padding_size{ bmpl::bmpf::evaluate_padding(width) };
+                const std::size_t padding_size{ bmpl::bmpf::evaluate_padding(index_width) };
 
                 char* current_line_ptr{ reinterpret_cast<char*>(indexed_content.data()) };
                 for (int line = 0; line < index_height; ++line) {
