@@ -52,7 +52,7 @@ namespace bmpl
             case WarningCode::BAD_IMPORTANT_COLORS_COUNT:
                 return "the 'important colors' count appears to be greater than the defined colors count.";
             case WarningCode::BAD_PALETTE_INDICES:
-                return "one or many palett indices used for pixels are not present in color palett - index 0 used instead.";
+                return "one or many palette indices used for pixels are not present in color palette - index 0 used instead.";
             case WarningCode::BAD_PALETTE_SIZE_IN_HEADER:
                 return "the info header indicates a bad color palette size - bigger than expected, for instance.";
             case WarningCode::BAD_PLANES_VALUE:
@@ -60,7 +60,7 @@ namespace bmpl
             case WarningCode::BAD_SCANLINE_BYTES_WIDTH:
                 return "the specified width for scan lines is incoherent with the expected true width; CppBMPLibrary tries to decode this image nevertheless.";
             case WarningCode::BITFIELDS_AND_PALETT:
-                return "a color palett is encoded while bitfields masks are defined.";
+                return "a color palette is encoded while bitfields masks are defined.";
             case WarningCode::CORRECTED_GAMMA_BLUE:
                 return "strange gamma correction value on blue component, forced to 2.2.";
             case WarningCode::CORRECTED_GAMMA_GREEN:
@@ -97,18 +97,18 @@ namespace bmpl
                 return "a less-than-full-sized colormap has been detected in file; CppBMPLoader library tries to decode this image nevertheless.";
             case WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP:
                 return "too small bitmap, last image pixels are set to default value.";
+            case WarningCode::NOT_OS2_BITMAP_FORMAT:
+                return "a not OS/2 bitmap format has been detected in a bitmap multi-image data file, which should be an encoding error; CppBMPLoader library decodes the related image nevertheless.";
             case WarningCode::NOT_ZERO_RESERVED:
-                return "a reserved word is not set to zero.";
+                return "a reserved word is not set to zero while it should have been; CppBMPLoader library tries to decode this image nevertheless.";
             case WarningCode::PALETT_WITH_FULL_COLORS:
-                return "a color palett is defined while this is a full-color bitmap.";
-            case WarningCode::SOME_GAP_BTW_PALETT_AND_BITMAP:
-                return "unused bytes appear between colors palett and start of bitmap.";
-            case WarningCode::SRGB_NOT_IMPLEMENTED:
-                return "the sRGB color space type embedded in this BMP file is not yet implemented here - a naive decoding is done instead.";
+                return "a color palette is defined while this is a full-color bitmap.";
+            case WarningCode::SOME_GAP_BTW_PALETTE_AND_BITMAP:
+                return "unused bytes appear between colors palette and start of bitmap.";
             case WarningCode::TOO_BIG_PALETTE:
                 return "too many colors are defined in palette, extra ones will be ignored.";
             case WarningCode::TOO_MANY_COLORS_IN_PALETT:
-                return "too many colors are defined in palett, some of them won't be used.";
+                return "too many colors are defined in palette, some of them won't be used.";
             case WarningCode::TOO_MANY_INDICES_IN_BITMAP:
                 return "bitmap contains too many indices according to final image size.";
             case WarningCode::UNUSED_BITS_SET_TO_1:

@@ -86,12 +86,13 @@ namespace bmpl
                     _set_err(bmpl::utils::ErrorCode::BAD_INFO_HEADER);
                 else if (info_header_ptr->failed())
                     _set_err(info_header_ptr->get_error());
-                else if (!info_header_ptr->is_vOS21() && !info_header_ptr->is_vOS22())
-                    _set_err(bmpl::utils::ErrorCode::NOT_OS2_BITMAP_FORMAT);
                 else if (color_map.failed())
                     _set_err(color_map.get_error());
-                else
+                else {
+                    if (!info_header_ptr->is_vOS21() && !info_header_ptr->is_vOS22())
+                        set_warning(bmpl::utils::WarningCode::NOT_OS2_BITMAP_FORMAT);
                     _clr_err();
+                }
             }
 
             [[nodiscard]]
