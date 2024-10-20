@@ -31,6 +31,8 @@ SOFTWARE.
 * specificities have been used there, but it has not been tested as such.
 */
 
+#include <vector>
+
 #include "bmp_colormap.h"
 #include "bmp_file_header.h"
 #include "bmp_info.h"
@@ -159,5 +161,11 @@ namespace bmpl
             }
 
         };
-    }
+    };
+
+
+    //===========================================================================
+    struct BAHeadersList : public std::vector<bmpl::frmt::BAHeader>, public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
+    {};
+
 }
