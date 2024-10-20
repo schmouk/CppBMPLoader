@@ -124,13 +124,10 @@ namespace bmpl
             virtual inline ~BMPBottomUpLoader() noexcept = default;
 
             [[nodiscard]]
-            std::vector<bmpl::frmt::BAHeader> get_BA_headers() noexcept;
+            bmpl::frmt::BAHeadersList get_BA_headers() noexcept;
 
             [[nodiscard]]
-            static std::vector<bmpl::frmt::BAHeader> get_BA_headers(
-                bmpl::utils::LEInStream& in_stream,
-                bmpl::utils::ErrorCode& err_code
-            ) noexcept;
+            static bmpl::frmt::BAHeadersList get_BA_headers(bmpl::utils::LEInStream& in_stream) noexcept;
 
             [[nodiscard]]
             inline const std::uint32_t get_colors_count() const noexcept;
@@ -168,6 +165,7 @@ namespace bmpl
             [[nodiscard]]
             virtual const bool load_image_content() noexcept;
 
+            /** /
             [[nodiscard]]
             virtual const bool load_next_image_content() noexcept;
 
@@ -196,6 +194,7 @@ namespace bmpl
                 const std::uint32_t image_width,
                 const std::uint32_t image_height
             ) noexcept;
+            /**/
 
 
         protected:
@@ -260,6 +259,7 @@ namespace bmpl
             [[nodiscard]]
             virtual const bool load_image_content() noexcept override;
 
+            /** /
             [[nodiscard]]
             virtual const bool load_next_image_content() noexcept override;
 
@@ -288,6 +288,7 @@ namespace bmpl
                 const std::uint32_t image_width,
                 const std::uint32_t image_height
             ) noexcept override;
+            /**/
 
 
         private:
@@ -449,52 +450,44 @@ namespace bmpl
 
         //---------------------------------------------------------------------------
         template<typename PixelT>
-        std::vector<bmpl::frmt::BAHeader> BMPBottomUpLoader<PixelT>::get_BA_headers() noexcept
+        bmpl::frmt::BAHeadersList BMPBottomUpLoader<PixelT>::get_BA_headers() noexcept
         {
-            std::vector<bmpl::frmt::BAHeader> ret_headers{};
+            if (this->_file_header_ptr == nullptr)
+                return bmpl::frmt::BAHeadersList(bmpl::utils::ErrorCode::BAD_FILE_HEADER);
+            
+            if (!this->_file_header_ptr->is_BA_file())
+                return bmpl::frmt::BAHeadersList(bmpl::utils::ErrorCode::NOT_BITMAP_ARRAY_FILE_HEADER);
 
-            if (this->_file_header_ptr == nullptr || !this->_file_header_ptr->is_BA_file())
-                return ret_headers;
-
-            bmpl::utils::ErrorCode err_code{ bmpl::utils::ErrorCode::NO_ERROR };
-            ret_headers = get_BA_headers(this->_in_stream, err_code);
-            _set_err(err_code);
-
-            return ret_headers;
+            return get_BA_headers(this->_in_stream);
         }
 
 
         //---------------------------------------------------------------------------
         template<typename PixelT>
-        std::vector<bmpl::frmt::BAHeader> BMPBottomUpLoader<PixelT>::get_BA_headers(
-            bmpl::utils::LEInStream& in_stream,
-            bmpl::utils::ErrorCode& err_code
-        ) noexcept
+        bmpl::frmt::BAHeadersList BMPBottomUpLoader<PixelT>::get_BA_headers(bmpl::utils::LEInStream& in_stream) noexcept
         {
-            std::vector<bmpl::frmt::BAHeader> ret_headers{};
+            if (in_stream.failed())
+                return bmpl::frmt::BAHeadersList(in_stream.get_error());
 
-            if (in_stream.failed()) {
-                err_code = in_stream.get_error();
-                return ret_headers;
-            }
+            bmpl::frmt::BAHeadersList ret_headers{};
 
             in_stream.seekg(0);
             do {
                 std::uint16_t file_type;
                 if ((in_stream >> file_type).failed()) {
-                    err_code = in_stream.get_error();
+                    ret_headers.set_error(in_stream.get_error());
                     break;
                 }
 
                 if (file_type != 0x4142) {
-                    err_code = bmpl::utils::ErrorCode::NOT_BITMAP_ARRAY_FILE_HEADER;
+                    ret_headers.set_error(bmpl::utils::ErrorCode::NOT_BITMAP_ARRAY_FILE_HEADER);
                     break;
                 }
 
                 bmpl::frmt::BAHeader ba_header(in_stream);
 
                 if (ba_header.failed()) {
-                    err_code = ba_header.get_error();
+                    ret_headers.set_error(ba_header.get_error());
                     break;
                 }
                 else {
@@ -504,12 +497,12 @@ namespace bmpl
                         in_stream.seekg(ba_header.get_offset_to_next());
                     }
                     catch (...) {
-                        err_code = bmpl::utils::ErrorCode::INVALID_BA_NEXT_OFFSET_VALUE;
+                        ret_headers.set_error(bmpl::utils::ErrorCode::INVALID_BA_NEXT_OFFSET_VALUE);
                         return ret_headers;
                     }
 
                     if (in_stream.failed()) {
-                        err_code = in_stream.get_error();
+                        ret_headers.set_error(in_stream.get_error());
                         break;
                     }
                 }
@@ -667,6 +660,7 @@ namespace bmpl
 
 
         //---------------------------------------------------------------------------
+        /** /
         template<typename PixelT>
         const bool BMPBottomUpLoader<PixelT>::load_next_image_content() noexcept
         {
@@ -697,9 +691,11 @@ namespace bmpl
 
             return _load_image_content(ba_header.get_content_offset(), ba_header.get_width(), ba_header.get_height());
         }
+        /**/
 
 
         //---------------------------------------------------------------------------
+        /** /
         template<typename PixelT>
         const bool BMPBottomUpLoader<PixelT>::load_best_fitting_image_content(
             const std::uint32_t image_width,
@@ -798,9 +794,11 @@ namespace bmpl
                 best_fitting_header.get_height()
             );
         }
+        /**/
 
 
         //---------------------------------------------------------------------------
+        /** /
         template<typename PixelT>
         const bool BMPBottomUpLoader<PixelT>::load_best_fitting_colors_image_content(
             const std::uint32_t colors_count
@@ -847,9 +845,11 @@ namespace bmpl
                 best_fitting_header.get_height()
             );
         }
+        /**/
 
 
         //---------------------------------------------------------------------------
+        /** /
         template<typename PixelT>
         const bool BMPBottomUpLoader<PixelT>::load_best_fitting_resolution_image_content(
             const std::int32_t dpi_x_resolution,
@@ -900,9 +900,11 @@ namespace bmpl
                 best_fitting_header.get_height()
             );
         }
+        /**/
 
 
         //---------------------------------------------------------------------------
+        /** /
         template<typename PixelT>
         const bool BMPBottomUpLoader<PixelT>::load_best_fitting_size_image_content(
             const std::uint32_t image_width,
@@ -949,6 +951,7 @@ namespace bmpl
                 best_fitting_header.get_height()
             );
         }
+        /**/
 
 
         //---------------------------------------------------------------------------
@@ -1081,6 +1084,7 @@ namespace bmpl
 
 
         //---------------------------------------------------------------------------
+        /** /
         template<typename PixelT>
         const bool BMPLoader<PixelT>::load_next_image_content() noexcept
         {
@@ -1095,9 +1099,11 @@ namespace bmpl
             else
                 return false;
         }
+        /**/
 
 
         //---------------------------------------------------------------------------
+        /** /
         template<typename PixelT>
         const bool BMPLoader<PixelT>::load_best_fitting_image_content(
             const std::uint32_t image_width,
@@ -1119,9 +1125,11 @@ namespace bmpl
                 return false;
             }
         }
+        /**/
 
 
         //---------------------------------------------------------------------------
+        /** /
         template<typename PixelT>
         const bool BMPLoader<PixelT>::load_best_fitting_colors_image_content(
             const std::uint32_t colors_count
@@ -1139,9 +1147,11 @@ namespace bmpl
                 return false;
             }
         }
+        /**/
 
 
         //---------------------------------------------------------------------------
+        /** /
         template<typename PixelT>
         const bool BMPLoader<PixelT>::load_best_fitting_resolution_image_content(
             const std::int32_t dpi_x_resolution,
@@ -1160,9 +1170,11 @@ namespace bmpl
                 return false;
             }
         }
+        /**/
 
 
         //---------------------------------------------------------------------------
+        /** /
         template<typename PixelT>
         const bool BMPLoader<PixelT>::load_best_fitting_size_image_content(
             const std::uint32_t image_width,
@@ -1181,6 +1193,7 @@ namespace bmpl
                 return false;
             }
         }
+        /**/
 
 
         //---------------------------------------------------------------------------

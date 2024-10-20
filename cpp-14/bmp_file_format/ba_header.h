@@ -37,6 +37,7 @@ SOFTWARE.
 #include "bmp_file_header.h"
 #include "bmp_info.h"
 #include "bmp_info_header.h"
+
 #include "../utils/errors.h"
 #include "../utils/little_endian_streaming.h"
 
@@ -161,11 +162,35 @@ namespace bmpl
             }
 
         };
-    };
 
 
-    //===========================================================================
-    struct BAHeadersList : public std::vector<bmpl::frmt::BAHeader>, public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
-    {};
+        //===========================================================================
+        struct BAHeadersList : public std::vector<bmpl::frmt::BAHeader>, public bmpl::utils::ErrorStatus
+        {
+            inline BAHeadersList() noexcept
+                : std::vector<bmpl::frmt::BAHeader>()
+                , bmpl::utils::ErrorStatus(bmpl::utils::ErrorCode::NO_ERROR)
+            {}
+
+            inline BAHeadersList(const bmpl::utils::ErrorCode err_code) noexcept
+                : std::vector<bmpl::frmt::BAHeader>()
+                , bmpl::utils::ErrorStatus(err_code)
+            {}
+
+
+            BAHeadersList(const BAHeadersList&) noexcept = default;
+            BAHeadersList(BAHeadersList&&) noexcept = default;
+
+            virtual ~BAHeadersList() noexcept = default;
+
+
+            inline void set_error(const bmpl::utils::ErrorCode err_code) noexcept
+            {
+                _set_err(err_code);
+            }
+
+        };
+
+    }
 
 }
