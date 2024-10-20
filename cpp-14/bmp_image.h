@@ -55,6 +55,7 @@ namespace bmpl
     public:
         using MyErrBaseClass = bmpl::utils::ErrorStatus;
         using MyWarnBaseClass = bmpl::utils::WarningStatus;
+        using MyBMPLoaderBaseClass = bmpl::lodr::BMPLoaderBase<PixelT>;
 
         using pixel_type = PixelT;
 
@@ -68,10 +69,18 @@ namespace bmpl
             const bool force_bottom_up_ = false
         ) noexcept;
 
+        BMPImage(
+            bmpl::utils::LEInStream& in_stream,
+            bmpl::frmt::BAHeader& ba_header,
+            const bool apply_gamma_correction = false,
+            const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK,
+            const bool force_bottom_up = false
+        ) noexcept;
+
         BMPImage(const BMPImage&) noexcept = default;
         BMPImage(BMPImage&&) noexcept = default;
 
-        virtual inline ~BMPImage() noexcept;
+        virtual inline ~BMPImage() noexcept = default;
 
 
         [[nodiscard]]
@@ -80,6 +89,9 @@ namespace bmpl
         [[nodiscard]]
         BMPImage& operator=(BMPImage&&) noexcept = default;
 
+
+        [[nodiscard]]
+        inline MyBMPLoaderBaseClass* get_bmp_loader_ptr() noexcept;
 
         [[nodiscard]]
         inline const std::uint32_t get_colors_count() const noexcept;
@@ -123,6 +135,12 @@ namespace bmpl
         [[nodiscard]]
         inline const bool is_BA_file() const noexcept;
 
+        [[nodiscard]]
+        static inline const bool is_BA_file(const std::string& filepath) noexcept;
+
+        [[nodiscard]]
+        static const bool is_BA_file(bmpl::utils::LEInStream& in_stream) noexcept;
+
 
     protected:
         [[nodiscard]]
@@ -135,7 +153,7 @@ namespace bmpl
 
 
     private:
-        bmpl::lodr::BMPBottomUpLoader<PixelT>* _bmp_loader_ptr{ nullptr };
+        MyBMPLoaderBaseClass* _bmp_loader_ptr{ nullptr };
 
         static inline const std::int32_t _resolution_to_dpi(const std::int32_t resolution) noexcept;
         void _reverse_lines_ordering() noexcept;
@@ -155,13 +173,14 @@ namespace bmpl
 
 
     //===========================================================================
-    template<typename PixelT>
-    const std::vector<BMPImage<PixelT>> load_all_images(
+    template<typename BMPImageTT>
+    const std::vector<BMPImageTT> load_all_images(
         const std::string& filepath_,
         const bool apply_gamma_correction_ = false,
         const bmpl::clr::ESkippedPixelsMode skipped_mode_ = bmpl::clr::ESkippedPixelsMode::BLACK,
         const bool force_bottom_up_ = false
     ) noexcept;
+
 
 
     //===========================================================================
@@ -192,10 +211,40 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline BMPImage<PixelT>::~BMPImage() noexcept
+    BMPImage<PixelT>::BMPImage(
+        bmpl::utils::LEInStream& in_stream,
+        bmpl::frmt::BAHeader& ba_header,
+        const bool apply_gamma_correction,
+        const bmpl::clr::ESkippedPixelsMode skipped_mode,
+        const bool force_bottom_up
+    ) noexcept
     {
-        if (this->_bmp_loader_ptr != nullptr)
-            delete this->_bmp_loader_ptr;
+        this->_bmp_loader_ptr = bmpl::lodr::create_bmp_loader<PixelT>(in_stream, ba_header, apply_gamma_correction, skipped_mode, force_bottom_up);
+        
+        if (this->_bmp_loader_ptr == nullptr)
+            _set_err(bmpl::utils::ErrorCode::BMP_LOADER_INSTANTIATION_FAILED);
+        else if (this->_bmp_loader_ptr->failed())
+            _set_err(this->_bmp_loader_ptr->get_error());
+        else {
+            if (this->_bmp_loader_ptr->load_image_content())
+                _clr_err();
+            else
+                _set_err(this->_bmp_loader_ptr->get_error());
+        }
+
+        if (ba_header.has_warnings()) {
+            this->_bmp_loader_ptr->append_warnings(ba_header);
+            this->_bmp_loader_ptr->set_unique_warnings();
+        }
+
+    }
+
+
+    //---------------------------------------------------------------------------
+    template<typename PixelT>
+    inline typename BMPImage<PixelT>::MyBMPLoaderBaseClass* BMPImage<PixelT>::get_bmp_loader_ptr() noexcept
+    {
+        return this->_bmp_loader_ptr;
     }
 
 
@@ -309,6 +358,28 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
+    inline const bool BMPImage<PixelT>::is_BA_file(const std::string& filepath) noexcept
+    {
+        return BMPImage<PixelT>::is_BA_file(bmpl::utils::LEInStream(filepath));
+    }
+
+
+    //---------------------------------------------------------------------------
+    template<typename PixelT>
+    const bool BMPImage<PixelT>::is_BA_file(bmpl::utils::LEInStream& in_stream) noexcept
+    {
+        if (in_stream.failed())
+            return false;
+
+        std::uint16_t file_type{ 0 };
+        in_stream >> file_type;
+
+        return in_stream.is_ok() && file_type == 0x4142;  // i.e. 'BA' as little-endian encoded
+    }
+
+
+    //---------------------------------------------------------------------------
+    template<typename PixelT>
     const bool BMPImage<PixelT>::load_image(
         const std::string& filepath_,
         const bool apply_gamma_correction_,
@@ -333,14 +404,15 @@ namespace bmpl
         if (failed())
             return false;
 
-        if (_bmp_loader_ptr == nullptr)
+        if (this->_bmp_loader_ptr == nullptr)
             return _set_err(bmpl::utils::ErrorCode::BMP_LOADER_INSTANTIATION_FAILED);
 
         if (this->_bmp_loader_ptr->load_next_image_content())
             return _clr_err();
-        else
-            return _set_err(this->_bmp_loader_ptr->get_error());
+        
+        return _set_err(this->_bmp_loader_ptr->get_error());
     }
+
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
@@ -355,10 +427,9 @@ namespace bmpl
             delete this->_bmp_loader_ptr;
 
         this->_bmp_loader_ptr = bmpl::lodr::create_bmp_loader<PixelT>(filepath_, apply_gamma_correction_, skipped_mode_, force_bottom_up_);
-
+        
         if (_bmp_loader_ptr == nullptr)
-            return _set_err(bmpl::utils::ErrorCode::BMP_LOADER_INSTANTIATION_FAILED);
-
+        
         if (this->_bmp_loader_ptr->failed())
             return _set_err(this->_bmp_loader_ptr->get_error());
 
@@ -375,24 +446,32 @@ namespace bmpl
 
 
     //---------------------------------------------------------------------------
-    template<typename PixelT>
-    const std::vector<BMPImage<PixelT>> load_all_images(
-        const std::string& filepath_,
-        const bool apply_gamma_correction_,
-        const bmpl::clr::ESkippedPixelsMode skipped_mode_,
-        const bool force_bottom_up_
+    template<typename BMPImageT>
+    const std::vector<BMPImageT> load_all_images(
+        const std::string& filepath,
+        const bool apply_gamma_correction,
+        const bmpl::clr::ESkippedPixelsMode skipped_mode,
+        const bool force_bottom_up
     ) noexcept
     {
-        std::vector<BMPImage<PixelT>> images_list{};
+        using BMPLoaderBase = typename BMPImageT::MyBMPLoaderBaseClass;
 
-        BMPImage<PixelT> next_image(filepath_, apply_gamma_correction_, skipped_mode_, force_bottom_up_);
+        std::vector<BMPImageT> images_list{};
 
-        if (next_image) {  // notice: "if (next.image.is_ok())" would have fit also
-            images_list.push_back(BMPImage<PixelT>(std::move(next_image)));
+        bmpl::utils::LEInStream in_stream(filepath);
+        if (!BMPImageT::is_BA_file(in_stream))
+            return images_list;
 
-            while (next_image.load_next_image()) {
-                images_list.push_back(BMPImage<PixelT>(std::move(next_image)));
-            }
+        bmpl::utils::ErrorCode err_code{ bmpl::utils::ErrorCode::NO_ERROR };
+        std::vector<bmpl::frmt::BAHeader> ba_headers{
+            bmpl::lodr::BMPLoaderBase<typename BMPImageT::pixel_type>::get_BA_headers(in_stream, err_code)
+        };
+
+        if (err_code != bmpl::utils::ErrorCode::NO_ERROR)
+            return images_list;
+
+        for (auto& ba_hdr : ba_headers) {
+            images_list.push_back(BMPImageT(in_stream, ba_hdr, apply_gamma_correction, skipped_mode, force_bottom_up));
         }
 
         return images_list;

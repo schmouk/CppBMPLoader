@@ -64,6 +64,7 @@ namespace bmpl
 
             using pos_type = MyBaseClass::pos_type;
 
+            std::string filepath{};
 
             inline LEInStream() noexcept = default;
 
@@ -71,6 +72,7 @@ namespace bmpl
             inline LEInStream(const char* filepath) noexcept
                 : MyBaseClass(filepath, std::ios::binary)
                 , MyErrClass()
+                , filepath(filepath)
             {
                 _check_creation_ok();
             }
@@ -79,6 +81,7 @@ namespace bmpl
             inline LEInStream(const std::string& filepath) noexcept
                 : MyBaseClass(filepath, std::ios::binary)
                 , MyErrClass()
+                , filepath(filepath)
             {
                 _check_creation_ok();
             }
