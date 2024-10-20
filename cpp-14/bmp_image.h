@@ -43,6 +43,7 @@ SOFTWARE.
 #include <vector>
 
 
+#include "bmp_file_format/ba_header.h"
 #include "bmp_loader/bmp_loader.h"
 
 
@@ -171,10 +172,26 @@ namespace bmpl
     using BGRABMPImage = BMPImage<bmpl::clr::BGRA>;
 
 
+    //===========================================================================
+    template<typename BMPImageT>
+    struct BMPImagesList : public std::vector<BMPImageT>, public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
+    {
+        inline BMPImagesList() noexcept;
+        inline BMPImagesList(const bmpl::utils::ErrorStatus error_code) noexcept;
+
+        BMPImagesList(const BMPImagesList&) noexcept = default;
+        BMPImagesList(BMPImagesList&&) noexcept = default;
+
+        virtual ~BMPImagesList() noexcept = default;
+
+        inline void set_error(const bmpl::utils::ErrorCode err_code) noexcept;
+
+    };
+
 
     //===========================================================================
-    template<typename BMPImageTT>
-    const std::vector<BMPImageTT> load_all_images(
+    template<typename BMPImageT>
+    const BMPImagesList<BMPImageT> load_all_images(
         const std::string& filepath_,
         const bool apply_gamma_correction_ = false,
         const bmpl::clr::ESkippedPixelsMode skipped_mode_ = bmpl::clr::ESkippedPixelsMode::BLACK,
@@ -447,7 +464,7 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename BMPImageT>
-    const std::vector<BMPImageT> load_all_images(
+    const BMPImagesList<BMPImageT> load_all_images(
         const std::string& filepath,
         const bool apply_gamma_correction,
         const bmpl::clr::ESkippedPixelsMode skipped_mode,
@@ -456,25 +473,48 @@ namespace bmpl
     {
         using BMPLoaderBase = typename BMPImageT::MyBMPLoaderBaseClass;
 
-        std::vector<BMPImageT> images_list{};
-
         bmpl::utils::LEInStream in_stream(filepath);
         if (!BMPImageT::is_BA_file(in_stream))
-            return images_list;
+            return BMPImagesList<BMPImageT>(bmpl::utils::ErrorCode::NOT_BITMAP_ARRAY_FILE_HEADER);
 
-        bmpl::utils::ErrorCode err_code{ bmpl::utils::ErrorCode::NO_ERROR };
-        std::vector<bmpl::frmt::BAHeader> ba_headers{
-            bmpl::lodr::BMPLoaderBase<typename BMPImageT::pixel_type>::get_BA_headers(in_stream, err_code)
-        };
+        bmpl::frmt::BAHeadersList ba_headers{ BMPLoaderBase::get_BA_headers(in_stream) };
 
-        if (err_code != bmpl::utils::ErrorCode::NO_ERROR)
-            return images_list;
+        if (ba_headers.failed())
+            return BMPImagesList<BMPImageT>(ba_headers.get_error());
+
+        BMPImagesList<BMPImageT> images_list{};
 
         for (auto& ba_hdr : ba_headers) {
             images_list.push_back(BMPImageT(in_stream, ba_hdr, apply_gamma_correction, skipped_mode, force_bottom_up));
         }
 
         return images_list;
+    }
+
+
+    //---------------------------------------------------------------------------
+    template<typename BMPImageT>
+    inline BMPImagesList<BMPImageT>::BMPImagesList() noexcept
+        : std::vector<BMPImageT >()
+        , bmpl::utils::ErrorStatus(bmpl::utils::ErrorCode::NO_ERROR)
+        , bmpl::utils::WarningStatus()
+    {}
+
+
+    //---------------------------------------------------------------------------
+    template<typename BMPImageT>
+    inline BMPImagesList<BMPImageT>::BMPImagesList(const bmpl::utils::ErrorStatus error_code) noexcept
+        : std::vector<BMPImageT>()
+        , bmpl::utils::ErrorStatus(error_code)
+        , bmpl::utils::WarningStatus()
+    {}
+
+
+    //---------------------------------------------------------------------------
+    template<typename BMPImageT>
+    inline void BMPImagesList<BMPImageT>::set_error(const bmpl::utils::ErrorCode err_code) noexcept
+    {
+        _set_err(err_code);
     }
 
 }
