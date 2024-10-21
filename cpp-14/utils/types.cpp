@@ -25,7 +25,7 @@ SOFTWARE.
 
 /*
 * NOTICE: code here is implemented according to the c++14 standard.  It should
-* function  as  well  when  compiled  with  standard  c++11  because  no c++14
+* function  as  well  when  compiled  with  standard  c++11  since  no   c++14
 * specificities have been used there, but it has not been tested as such.
 */
 
@@ -42,17 +42,19 @@ namespace bmpl
         //===========================================================================
         Frac16_16& Frac16_16::operator= (const double val) noexcept
         {
-            if (val >= 65536.0)
-                value = std::uint32_t(0xffff'ffff'ffff'ffff);
-            else if (val <= 0.0)
-                value = 0UL;
+            if (val >= 65536.0) {
+                this->value = std::uint32_t(0xffff'ffff);
+            }
+            else if (val <= 0.0) {
+                this->value = std::uint32_t(0);
+            }
             else {
                 const double d_mantissa{ std::trunc(val) };
 
                 const std::uint32_t mantissa{ std::uint32_t(d_mantissa)};
                 const std::uint32_t frac{ std::uint32_t((val - d_mantissa) * 65536.0) };
                 
-                value = (mantissa << 16) + (frac & 0xffff'ffff);
+                this->value = (mantissa << 16) + (frac & 0xffff);
             }
 
             return *this;
