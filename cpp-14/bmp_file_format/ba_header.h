@@ -168,6 +168,74 @@ namespace bmpl
         //===========================================================================
         using BAHeadersList = bmpl::utils::ListWithStatus<bmpl::frmt::BAHeader>;
 
+
+        //===========================================================================
+        class BAHeadersIterStatus : public bmpl::utils::ErrorStatus
+        {
+        public:
+            BAHeadersIterStatus() noexcept = default;
+
+            inline BAHeadersIterStatus(const BAHeadersList& ba_headers_list) noexcept
+                : bmpl::utils::ErrorStatus(bmpl::utils::ErrorCode::NO_ERROR)
+                , _iter(ba_headers_list.cbegin())
+                , _sentinel(ba_headers_list.cend())
+                , _inited(true)
+            {}
+
+
+            inline const bmpl::frmt::BAHeader& operator*() noexcept
+            {
+                if (this->_inited && this->_iter != this->_sentinel) {
+                    return *(this->_iter);
+                }
+                else {
+                    _set_err(bmpl::utils::ErrorCode::END_OF_BA_HEADERS_LIST);
+                    return BAHeader();  // notice: method .failed() returns true on an empty-constructed BA header; the associated error code is NOT_INITIALIZED
+                }
+            }
+
+
+            inline BAHeadersList::const_iterator operator++() noexcept  // notice: pre-increment
+            {
+                if (this->_inited && this->_iter != this->_sentinel) {
+                    return ++(this->_iter);
+                }
+                else {
+                    _set_err(bmpl::utils::ErrorCode::END_OF_BA_HEADERS_LIST);
+                    return this->_sentinel;
+                }
+            }
+
+
+            inline BAHeadersList::const_iterator operator++(int) noexcept  // notice: post-increment
+            {
+                if (this->_inited && this->_iter != this->_sentinel) {
+                    BAHeadersList::const_iterator ret_iter{ this->_iter };
+                    this->_iter++;
+                    return ret_iter;
+                }
+                else {
+                    _set_err(bmpl::utils::ErrorCode::END_OF_BA_HEADERS_LIST);
+                    return this->_sentinel;
+                }
+            }
+
+
+            inline void set(const BAHeadersList& ba_headers_list) noexcept
+            {
+                this->_iter = ba_headers_list.cbegin();
+                this->_sentinel = ba_headers_list.cend();
+                this->_inited = true;
+                _clr_err();
+            }
+
+        private:
+            BAHeadersList::const_iterator _iter{};
+            BAHeadersList::const_iterator _sentinel{};
+            bool _inited{ false };
+
+        };
+
     }
 
 }
