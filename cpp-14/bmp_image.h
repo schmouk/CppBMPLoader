@@ -27,7 +27,7 @@ SOFTWARE.
 
 /*
 * NOTICE: code here is implemented according to the c++14 standard.  It should
-* function  as  well  when  compiled  with  standard  c++11  because  no c++14
+* function  as  well  when  compiled  with  standard  c++11  since  no   c++14
 * specificities have been used there, but it has not been tested as such.
 */
 
@@ -45,6 +45,7 @@ SOFTWARE.
 
 #include "bmp_file_format/ba_header.h"
 #include "bmp_loader/bmp_loader.h"
+#include "utils/list_with_status.h"
 
 
 namespace bmpl
@@ -174,19 +175,7 @@ namespace bmpl
 
     //===========================================================================
     template<typename BMPImageT>
-    struct BMPImagesList : public std::vector<BMPImageT>, public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
-    {
-        inline BMPImagesList() noexcept;
-        inline BMPImagesList(const bmpl::utils::ErrorStatus error_code) noexcept;
-
-        BMPImagesList(const BMPImagesList&) noexcept = default;
-        BMPImagesList(BMPImagesList&&) noexcept = default;
-
-        virtual ~BMPImagesList() noexcept = default;
-
-        inline void set_error(const bmpl::utils::ErrorCode err_code) noexcept;
-
-    };
+    using BMPImagesList = bmpl::utils::ListWithStatus<BMPImageT>;
 
 
     //===========================================================================
@@ -489,32 +478,6 @@ namespace bmpl
         }
 
         return images_list;
-    }
-
-
-    //---------------------------------------------------------------------------
-    template<typename BMPImageT>
-    inline BMPImagesList<BMPImageT>::BMPImagesList() noexcept
-        : std::vector<BMPImageT >()
-        , bmpl::utils::ErrorStatus(bmpl::utils::ErrorCode::NO_ERROR)
-        , bmpl::utils::WarningStatus()
-    {}
-
-
-    //---------------------------------------------------------------------------
-    template<typename BMPImageT>
-    inline BMPImagesList<BMPImageT>::BMPImagesList(const bmpl::utils::ErrorStatus error_code) noexcept
-        : std::vector<BMPImageT>()
-        , bmpl::utils::ErrorStatus(error_code)
-        , bmpl::utils::WarningStatus()
-    {}
-
-
-    //---------------------------------------------------------------------------
-    template<typename BMPImageT>
-    inline void BMPImagesList<BMPImageT>::set_error(const bmpl::utils::ErrorCode err_code) noexcept
-    {
-        _set_err(err_code);
     }
 
 }

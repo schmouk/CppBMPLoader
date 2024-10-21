@@ -27,7 +27,7 @@ SOFTWARE.
 
 /*
 * NOTICE: code here is implemented according to the c++14 standard.  It should
-* function  as  well  when  compiled  with  standard  c++11  because  no c++14
+* function  as  well  when  compiled  with  standard  c++11  since  no   c++14
 * specificities have been used there, but it has not been tested as such.
 */
 
@@ -39,6 +39,7 @@ SOFTWARE.
 #include "bmp_info_header.h"
 
 #include "../utils/errors.h"
+#include "../utils//list_with_status.h"
 #include "../utils/little_endian_streaming.h"
 
 
@@ -165,31 +166,7 @@ namespace bmpl
 
 
         //===========================================================================
-        struct BAHeadersList : public std::vector<bmpl::frmt::BAHeader>, public bmpl::utils::ErrorStatus
-        {
-            inline BAHeadersList() noexcept
-                : std::vector<bmpl::frmt::BAHeader>()
-                , bmpl::utils::ErrorStatus(bmpl::utils::ErrorCode::NO_ERROR)
-            {}
-
-            inline BAHeadersList(const bmpl::utils::ErrorCode err_code) noexcept
-                : std::vector<bmpl::frmt::BAHeader>()
-                , bmpl::utils::ErrorStatus(err_code)
-            {}
-
-
-            BAHeadersList(const BAHeadersList&) noexcept = default;
-            BAHeadersList(BAHeadersList&&) noexcept = default;
-
-            virtual ~BAHeadersList() noexcept = default;
-
-
-            inline void set_error(const bmpl::utils::ErrorCode err_code) noexcept
-            {
-                _set_err(err_code);
-            }
-
-        };
+        using BAHeadersList = bmpl::utils::ListWithStatus<bmpl::frmt::BAHeader>;
 
     }
 
