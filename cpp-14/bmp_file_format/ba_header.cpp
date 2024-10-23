@@ -36,6 +36,9 @@ namespace bmpl
 {
     namespace frmt
     {
+        //===========================================================================
+        //  BAHeader
+
         //---------------------------------------------------------------------------
         BAHeader::BAHeader(bmpl::utils::LEInStream& in_stream) noexcept
             : MyErrBaseClass()
@@ -66,7 +69,6 @@ namespace bmpl
             }
         }
 
-
         //---------------------------------------------------------------------------
         const std::uint32_t BAHeader::get_colors_count() const noexcept
         {
@@ -76,20 +78,17 @@ namespace bmpl
                 return this->info_header_ptr->get_colors_count();
         }
 
-
         //---------------------------------------------------------------------------
         const std::size_t BAHeader::get_content_offset() const noexcept
         {
             return this->file_header_ptr->get_content_offset();
         }
 
-
         //---------------------------------------------------------------------------
         const std::size_t BAHeader::get_offset_to_next() const noexcept
         {
             return this->ba_file_header.get_content_offset();
         }
-
 
         //---------------------------------------------------------------------------
         const std::int32_t BAHeader::get_device_x_resolution_dpi() const noexcept
@@ -100,7 +99,6 @@ namespace bmpl
                 return std::int32_t(this->info_header_ptr->get_device_x_resolution() * 2.54 / 100 + 0.5);
         }
 
-
         //---------------------------------------------------------------------------
         const std::int32_t BAHeader::get_device_y_resolution_dpi() const noexcept
         {
@@ -109,7 +107,6 @@ namespace bmpl
             else
                 return std::int32_t(this->info_header_ptr->get_device_y_resolution() * 2.54 / 100 + 0.5);
         }
-
 
         //---------------------------------------------------------------------------
         const std::uint32_t BAHeader::get_height() const noexcept
@@ -120,7 +117,6 @@ namespace bmpl
                 return this->info_header_ptr->get_height();
         }
 
-
         //---------------------------------------------------------------------------
         const std::uint32_t BAHeader::get_width() const noexcept
         {
@@ -130,7 +126,6 @@ namespace bmpl
                 return this->info_header_ptr->get_width();
         }
 
-
         //---------------------------------------------------------------------------
         const bool BAHeader::is_last_header_in_list() const noexcept
         {
@@ -138,27 +133,29 @@ namespace bmpl
         }
 
 
+        //===========================================================================
+        //  BAHeadersIterStatus
+
         //---------------------------------------------------------------------------
         BAHeadersIterStatus::BAHeadersIterStatus(const BAHeadersList& ba_headers_list) noexcept
             : bmpl::utils::ErrorStatus(bmpl::utils::ErrorCode::NO_ERROR)
+            , _begin(ba_headers_list.cbegin())
             , _iter(ba_headers_list.cbegin())
             , _sentinel(ba_headers_list.cend())
             , _inited(true)
         {}
 
-
         //---------------------------------------------------------------------------
-        const bmpl::frmt::BAHeader BAHeadersIterStatus::operator*() noexcept
+        const bmpl::frmt::BAHeader& BAHeadersIterStatus::operator*() noexcept
         {
             if (this->_inited && this->_iter != this->_sentinel) {
                 return *(this->_iter);
             }
             else {
                 _set_err(bmpl::utils::ErrorCode::END_OF_BA_HEADERS_LIST);
-                return BAHeader();  // notice: method .failed() returns true on an empty-constructed BA header; the associated error code is NOT_INITIALIZED
+                return BAHeadersIterStatus::_EMPTY_BA_HEADER;  // notice: method .failed() returns true on an empty-constructed BA header; the associated error code is NOT_INITIALIZED
             }
         }
-
 
         //---------------------------------------------------------------------------
         BAHeadersList::const_iterator BAHeadersIterStatus::operator++() noexcept
@@ -171,7 +168,6 @@ namespace bmpl
                 return this->_sentinel;
             }
         }
-
 
         //---------------------------------------------------------------------------
         BAHeadersList::const_iterator BAHeadersIterStatus::operator++(int) noexcept
@@ -187,15 +183,77 @@ namespace bmpl
             }
         }
 
+        //---------------------------------------------------------------------------
+        void BAHeadersIterStatus::reset() noexcept
+        {
+            this->_iter = this->_begin;
+        }
 
         //---------------------------------------------------------------------------
         void BAHeadersIterStatus::set(const BAHeadersList& ba_headers_list) noexcept
         {
-            this->_iter = ba_headers_list.cbegin();
+            this->_begin = this->_iter = ba_headers_list.cbegin();
             this->_sentinel = ba_headers_list.cend();
             this->_inited = true;
             _clr_err();
         }
+
+
+        //---------------------------------------------------------------------------
+        const BAHeader BAHeadersIterStatus::_EMPTY_BA_HEADER{};
+
+
+        //===========================================================================
+        //  MultiFilesBAHeaders
+
+        //---------------------------------------------------------------------------
+        BAHeadersIterStatus& MultiFilesBAHeaders::operator[] (const std::string& filepath) noexcept
+        {
+            iterator searched{ find(filepath) };  // notice: iterator and find() are inherited from std::map<>
+
+            if (searched != end()) {  // notice: end() is inherited from std::map<>
+                return searched->second;
+            }
+            else {
+                return *const_cast<BAHeadersIterStatus*>(&(this->_FAULTY_STATUS));
+            }
+        }
+
+
+        //---------------------------------------------------------------------------
+        const bool MultiFilesBAHeaders::contains(std::string& filepath) const noexcept
+        {
+            return find(filepath) != end();  // notice: find() and end() are inherited from std::map<>
+        }
+
+
+        //---------------------------------------------------------------------------
+        void MultiFilesBAHeaders::insert(const std::string& filepath, const BAHeadersIterStatus& ba_headers_status) noexcept
+        {
+            MyBaseClass::operator[](filepath) = ba_headers_status;  // notice: operator[] is inherited from std::map<>
+        }
+
+
+        //---------------------------------------------------------------------------
+        void MultiFilesBAHeaders::reset() noexcept
+        {
+            for (iterator mfbh = begin(); mfbh != end(); mfbh++)  // notice: iterator, begin() and end() are inherited from std::map<>
+                mfbh->second.reset();
+        }
+
+
+        //---------------------------------------------------------------------------
+        void MultiFilesBAHeaders::reset(const std::string& filepath) noexcept
+        {
+            iterator searched{ find(filepath) };  // notice: iterator and find() are inherited from std::map<>
+
+            if (searched != end()) {  // notice: end() is inherited from std::map<>
+                searched->second.reset();
+            }
+        }
+
+        //---------------------------------------------------------------------------
+        const BAHeadersIterStatus MultiFilesBAHeaders::_FAULTY_STATUS{};
 
     }
 
