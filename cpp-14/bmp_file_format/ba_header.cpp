@@ -137,18 +137,28 @@ namespace bmpl
         //  BAHeadersIterStatus
 
         //---------------------------------------------------------------------------
-        BAHeadersIterStatus::BAHeadersIterStatus(const BAHeadersList& ba_headers_list) noexcept
+        BAHeadersIterStatus::~BAHeadersIterStatus() noexcept
+        {
+            if (this->in_stream_ptr != nullptr)
+                delete[] this->in_stream_ptr;
+        }
+
+        //---------------------------------------------------------------------------
+        BAHeadersIterStatus::BAHeadersIterStatus(
+            const std::string& filepath,
+            const BAHeadersList& ba_headers_list
+        ) noexcept
             : bmpl::utils::ErrorStatus(bmpl::utils::ErrorCode::NO_ERROR)
+            , in_stream_ptr{ new bmpl::utils::LEInStream(filepath) }
             , _begin(ba_headers_list.cbegin())
             , _iter(ba_headers_list.cbegin())
             , _sentinel(ba_headers_list.cend())
-            , _inited(true)
         {}
 
         //---------------------------------------------------------------------------
         const bmpl::frmt::BAHeader& BAHeadersIterStatus::operator*() noexcept
         {
-            if (this->_inited && this->_iter != this->_sentinel) {
+            if (this->_iter != this->_sentinel) {
                 return *(this->_iter);
             }
             else {
@@ -160,7 +170,7 @@ namespace bmpl
         //---------------------------------------------------------------------------
         BAHeadersList::const_iterator BAHeadersIterStatus::operator++() noexcept
         {
-            if (this->_inited && this->_iter != this->_sentinel) {
+            if (this->_iter != this->_sentinel) {
                 return ++(this->_iter);
             }
             else {
@@ -172,7 +182,7 @@ namespace bmpl
         //---------------------------------------------------------------------------
         BAHeadersList::const_iterator BAHeadersIterStatus::operator++(int) noexcept
         {
-            if (this->_inited && this->_iter != this->_sentinel) {
+            if (this->_iter != this->_sentinel) {
                 BAHeadersList::const_iterator ret_iter{ this->_iter };
                 this->_iter++;
                 return ret_iter;
@@ -184,20 +194,16 @@ namespace bmpl
         }
 
         //---------------------------------------------------------------------------
+        const bool BAHeadersIterStatus::end() const noexcept
+        {
+            return this->_iter == this->_sentinel;
+        }
+
+        //---------------------------------------------------------------------------
         void BAHeadersIterStatus::reset() noexcept
         {
             this->_iter = this->_begin;
         }
-
-        //---------------------------------------------------------------------------
-        void BAHeadersIterStatus::set(const BAHeadersList& ba_headers_list) noexcept
-        {
-            this->_begin = this->_iter = ba_headers_list.cbegin();
-            this->_sentinel = ba_headers_list.cend();
-            this->_inited = true;
-            _clr_err();
-        }
-
 
         //---------------------------------------------------------------------------
         const BAHeader BAHeadersIterStatus::_EMPTY_BA_HEADER{};
@@ -209,7 +215,7 @@ namespace bmpl
         //---------------------------------------------------------------------------
         BAHeadersIterStatus& MultiFilesBAHeaders::operator[] (const std::string& filepath) noexcept
         {
-            iterator searched{ find(filepath) };  // notice: iterator and find() are inherited from std::map<>
+            iterator searched{ MyBaseClass::find(filepath) };  // notice: iterator and find() are inherited from std::map<>
 
             if (searched != end()) {  // notice: end() is inherited from std::map<>
                 return searched->second;
@@ -219,20 +225,17 @@ namespace bmpl
             }
         }
 
-
         //---------------------------------------------------------------------------
         const bool MultiFilesBAHeaders::contains(std::string& filepath) const noexcept
         {
             return find(filepath) != end();  // notice: find() and end() are inherited from std::map<>
         }
 
-
         //---------------------------------------------------------------------------
-        void MultiFilesBAHeaders::insert(const std::string& filepath, const BAHeadersIterStatus& ba_headers_status) noexcept
+        void MultiFilesBAHeaders::insert(const std::string& filepath, BAHeadersIterStatus& ba_headers_status) noexcept
         {
-            MyBaseClass::operator[](filepath) = ba_headers_status;  // notice: operator[] is inherited from std::map<>
+            MyBaseClass::operator[](filepath) = ba_headers_status;
         }
-
 
         //---------------------------------------------------------------------------
         void MultiFilesBAHeaders::reset() noexcept
@@ -240,7 +243,6 @@ namespace bmpl
             for (iterator mfbh = begin(); mfbh != end(); mfbh++)  // notice: iterator, begin() and end() are inherited from std::map<>
                 mfbh->second.reset();
         }
-
 
         //---------------------------------------------------------------------------
         void MultiFilesBAHeaders::reset(const std::string& filepath) noexcept

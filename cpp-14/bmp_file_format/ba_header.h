@@ -32,6 +32,7 @@ SOFTWARE.
 */
 
 #include <map>
+#include <string>
 #include <vector>
 
 #include "bmp_colormap.h"
@@ -108,16 +109,22 @@ namespace bmpl
         class BAHeadersIterStatus : public bmpl::utils::ErrorStatus
         {
         public:
-            BAHeadersIterStatus() noexcept = default;
+            bmpl::utils::LEInStream* in_stream_ptr{ nullptr };
 
-            BAHeadersIterStatus(const BAHeadersList& ba_headers_list) noexcept;
+            BAHeadersIterStatus() noexcept = default;
+            BAHeadersIterStatus(const BAHeadersIterStatus&) noexcept = default;
+
+            virtual ~BAHeadersIterStatus() noexcept;
+
+            BAHeadersIterStatus(const std::string& filepath, const BAHeadersList& ba_headers_list) noexcept;
 
             const bmpl::frmt::BAHeader& operator*() noexcept;
             BAHeadersList::const_iterator operator++() noexcept;        // notice: pre-increment
             BAHeadersList::const_iterator operator++(int) noexcept;     // notice: post-increment
 
+            const bool end() const noexcept;
+
             void reset() noexcept;
-            void set(const BAHeadersList& ba_headers_list) noexcept;
 
         private:
             static const BAHeader _EMPTY_BA_HEADER;
@@ -125,16 +132,15 @@ namespace bmpl
             BAHeadersList::const_iterator _begin{};
             BAHeadersList::const_iterator _iter{};
             BAHeadersList::const_iterator _sentinel{};
-            bool _inited{ false };
 
         };
 
 
         //===========================================================================
-        class MultiFilesBAHeaders : public std::map<std::string, BAHeadersIterStatus>
+        class MultiFilesBAHeaders : public std::map<const std::string, bmpl::frmt::BAHeadersIterStatus>
         {
         public:
-            using MyBaseClass = std::map<std::string, BAHeadersIterStatus>;
+            using MyBaseClass = std::map<const std::string, BAHeadersIterStatus>;
 
 
             MultiFilesBAHeaders() noexcept = default;
@@ -149,7 +155,7 @@ namespace bmpl
 
             const bool contains(std::string& filepath) const noexcept;  // reminder: no need for this w. c++20
 
-            void insert(const std::string& filepath, const BAHeadersIterStatus& ba_headers_status) noexcept;
+            void insert(const std::string& filepath, BAHeadersIterStatus& ba_headers_status) noexcept;
 
             void reset() noexcept;
             void reset(const std::string& filepath) noexcept;

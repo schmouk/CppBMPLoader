@@ -408,7 +408,6 @@ namespace bmpl
     const bool BMPImage<PixelT>::load_next_image() noexcept
     {
         if (failed())
-            return false;
 
         if (this->_bmp_loader_ptr == nullptr)
             return _set_err(bmpl::utils::ErrorCode::BMP_LOADER_INSTANTIATION_FAILED);
