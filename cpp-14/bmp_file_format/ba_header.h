@@ -114,7 +114,7 @@ namespace bmpl
             BAHeadersIterStatus() noexcept = default;
             BAHeadersIterStatus(const BAHeadersIterStatus&) noexcept = default;
 
-            virtual ~BAHeadersIterStatus() noexcept;
+            virtual ~BAHeadersIterStatus() noexcept = default;
 
             BAHeadersIterStatus(const std::string& filepath, const BAHeadersList& ba_headers_list) noexcept;
 
@@ -153,9 +153,9 @@ namespace bmpl
             [[nodiscard]]
             BAHeadersIterStatus& operator[] (const std::string& filepath) noexcept;
 
-            const bool contains(std::string& filepath) const noexcept;  // reminder: no need for this w. c++20
+            const bool contains(const std::string& filepath) const noexcept;  // reminder: no need for this w. c++20
 
-            void insert(const std::string& filepath, BAHeadersIterStatus& ba_headers_status) noexcept;
+            void insert(const std::string& filepath, const BAHeadersIterStatus& ba_headers_status) noexcept;
 
             void reset() noexcept;
             void reset(const std::string& filepath) noexcept;

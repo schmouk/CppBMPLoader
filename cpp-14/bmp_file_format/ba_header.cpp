@@ -137,13 +137,6 @@ namespace bmpl
         //  BAHeadersIterStatus
 
         //---------------------------------------------------------------------------
-        BAHeadersIterStatus::~BAHeadersIterStatus() noexcept
-        {
-            if (this->in_stream_ptr != nullptr)
-                delete[] this->in_stream_ptr;
-        }
-
-        //---------------------------------------------------------------------------
         BAHeadersIterStatus::BAHeadersIterStatus(
             const std::string& filepath,
             const BAHeadersList& ba_headers_list
@@ -226,13 +219,13 @@ namespace bmpl
         }
 
         //---------------------------------------------------------------------------
-        const bool MultiFilesBAHeaders::contains(std::string& filepath) const noexcept
+        const bool MultiFilesBAHeaders::contains(const std::string& filepath) const noexcept
         {
             return find(filepath) != end();  // notice: find() and end() are inherited from std::map<>
         }
 
         //---------------------------------------------------------------------------
-        void MultiFilesBAHeaders::insert(const std::string& filepath, BAHeadersIterStatus& ba_headers_status) noexcept
+        void MultiFilesBAHeaders::insert(const std::string& filepath, const BAHeadersIterStatus& ba_headers_status) noexcept
         {
             MyBaseClass::operator[](filepath) = ba_headers_status;
         }

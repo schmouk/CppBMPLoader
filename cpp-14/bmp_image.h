@@ -190,7 +190,7 @@ namespace bmpl
 
     //===========================================================================
     template<typename BMPImageT>
-    const BMPImageT load_next_image(
+    BMPImageT load_next_image(
         const std::string& filepath,
         const bool apply_gamma_correction = false,
         const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK,
@@ -435,8 +435,9 @@ namespace bmpl
 
         this->_bmp_loader_ptr = bmpl::lodr::create_bmp_loader<PixelT>(filepath_, apply_gamma_correction_, skipped_mode_, force_bottom_up_);
         
-        if (_bmp_loader_ptr == nullptr)
-        
+        if (this->_bmp_loader_ptr == nullptr)
+            _set_err(bmpl::utils::ErrorCode::BMP_LOADER_INSTANTIATION_FAILED);
+
         if (this->_bmp_loader_ptr->failed())
             return _set_err(this->_bmp_loader_ptr->get_error());
 
@@ -482,50 +483,49 @@ namespace bmpl
     }
 
 
-
-
+    //---------------------------------------------------------------------------
+    static bmpl::frmt::MultiFilesBAHeaders _multi_files_ba_headers;  // notice: do not consider this as belonging to the CppBMPLoader API
+    static bmpl::frmt::BAHeadersList _ba_headers;  // notice: do not consider this as belonging to the CppBMPLoader API
+    
     //---------------------------------------------------------------------------
     template<typename BMPImageT>
-    const BMPImageT load_next_image(
+    BMPImageT load_next_image(
         const std::string& filepath,
         const bool apply_gamma_correction,
         const bmpl::clr::ESkippedPixelsMode skipped_mode,
         const bool force_bottom_up
     ) noexcept
     {
-        static bmpl::frmt::MultiFilesBAHeaders multi_files_ba_headers;
-
         using BMPLoaderBase = typename BMPImageT::MyBMPLoaderBaseClass;
 
-        if (!multi_files_ba_headers.contains(filepath)) {
+        if (!_multi_files_ba_headers.contains(filepath)) {
             bmpl::utils::LEInStream in_stream(filepath);
             if (!BMPImageT::is_BA_file(in_stream))
                 return BMPImageT(bmpl::utils::ErrorCode::NOT_BITMAP_ARRAY_FILE_HEADER);
 
-            bmpl::frmt::BAHeadersList ba_headers{ BMPLoaderBase::get_BA_headers(in_stream) };
+            _ba_headers = BMPLoaderBase::get_BA_headers(in_stream);
+            if (_ba_headers.failed())
+                return BMPImageT(_ba_headers.get_error());
 
-            if (ba_headers.failed())
-                return BMPImageT(ba_headers.get_error());
-
-            multi_files_ba_headers[filepath] = bmpl::frmt::BAHeadersIterStatus(filepath, ba_headers);
+            _multi_files_ba_headers.insert(filepath, bmpl::frmt::BAHeadersIterStatus(filepath, _ba_headers));
         }
 
-        bmpl::frmt::BAHeadersIterStatus ba_header_iter_status{ multi_files_ba_headers[filepath] };
-        if (ba_header_iter_status.end()) {
+        bmpl::frmt::BAHeadersIterStatus* ba_header_iter_status_ptr{ &(_multi_files_ba_headers[filepath]) };
+        if (ba_header_iter_status_ptr == nullptr || ba_header_iter_status_ptr->end()) {
             return BMPImageT(bmpl::utils::ErrorCode::END_OF_BA_HEADERS_LIST);
         }
-        else if (ba_header_iter_status.failed()) {
+        else if (ba_header_iter_status_ptr->failed()) {
             return BMPImageT();
         }
         else {
-            bmpl::frmt::BAHeader ba_header{ *ba_header_iter_status++ };
+            bmpl::frmt::BAHeader ba_header{ *(*ba_header_iter_status_ptr)++ };
 
             if (ba_header.failed()) {
                 return BMPImageT();
             }
 
             return BMPImageT(
-                *(ba_header_iter_status.in_stream_ptr),
+                *(ba_header_iter_status_ptr->in_stream_ptr),
                 ba_header,
                 apply_gamma_correction, skipped_mode, force_bottom_up);
         }

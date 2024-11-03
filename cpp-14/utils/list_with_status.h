@@ -69,6 +69,9 @@ namespace bmpl
 
             virtual ~ListWithStatus() noexcept = default;
 
+            ListWithStatus& operator= (const ListWithStatus&) noexcept = default;
+            ListWithStatus& operator= (ListWithStatus&&) noexcept = default;
+
             inline void set_error(const bmpl::utils::ErrorCode err_code) noexcept
             {
                 _set_err(err_code);
