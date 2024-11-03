@@ -50,6 +50,15 @@ namespace bmpl
     namespace frmt
     {
         //===========================================================================
+        // Forward declaration
+        struct BAHeader;
+
+
+        //===========================================================================
+        using BAHeadersList = bmpl::utils::ListWithStatus<bmpl::frmt::BAHeader>;
+
+
+        //===========================================================================
         struct BAHeader : public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
         {
             using MyErrBaseClass = bmpl::utils::ErrorStatus;
@@ -74,14 +83,18 @@ namespace bmpl
 
             BAHeader(bmpl::utils::LEInStream& in_stream) noexcept;
 
+
+            [[nodiscard]]
+            static BAHeadersList get_BA_headers(const std::string& filepath) noexcept;
+
+            [[nodiscard]]
+            static BAHeadersList get_BA_headers(bmpl::utils::LEInStream& in_stream) noexcept;
+
             [[nodiscard]]
             const std::uint32_t get_colors_count() const noexcept;
 
             [[nodiscard]]
             const std::size_t get_content_offset() const noexcept;
-
-            [[nodiscard]]
-            const std::size_t get_offset_to_next() const noexcept;
 
             [[nodiscard]]
             const std::int32_t get_device_x_resolution_dpi() const noexcept;
@@ -93,16 +106,21 @@ namespace bmpl
             const std::uint32_t get_height() const noexcept;
 
             [[nodiscard]]
+            const std::size_t get_offset_to_next() const noexcept;
+
+            [[nodiscard]]
             const std::uint32_t get_width() const noexcept;
+
+            [[nodiscard]]
+            static const bool is_BA_file(const std::string& filepath) noexcept;
+
+            [[nodiscard]]
+            static const bool is_BA_file(bmpl::utils::LEInStream& in_stream) noexcept;
 
             [[nodiscard]]
             const bool is_last_header_in_list() const noexcept;
 
         };
-
-
-        //===========================================================================
-        using BAHeadersList = bmpl::utils::ListWithStatus<bmpl::frmt::BAHeader>;
 
 
         //===========================================================================
@@ -122,9 +140,11 @@ namespace bmpl
             BAHeadersList::const_iterator operator++() noexcept;        // notice: pre-increment
             BAHeadersList::const_iterator operator++(int) noexcept;     // notice: post-increment
 
+            [[nodiscard]]
             const bool end() const noexcept;
 
             void reset() noexcept;
+
 
         private:
             static const BAHeader _EMPTY_BA_HEADER;
@@ -132,37 +152,6 @@ namespace bmpl
             BAHeadersList::const_iterator _begin{};
             BAHeadersList::const_iterator _iter{};
             BAHeadersList::const_iterator _sentinel{};
-
-        };
-
-
-        //===========================================================================
-        class MultiFilesBAHeaders : public std::map<const std::string, bmpl::frmt::BAHeadersIterStatus>
-        {
-        public:
-            using MyBaseClass = std::map<const std::string, BAHeadersIterStatus>;
-
-
-            MultiFilesBAHeaders() noexcept = default;
-            MultiFilesBAHeaders(const MultiFilesBAHeaders&) noexcept = default;
-
-            virtual ~MultiFilesBAHeaders() noexcept = default;
-
-            MultiFilesBAHeaders& operator= (const MultiFilesBAHeaders&) noexcept = default;
-
-            [[nodiscard]]
-            BAHeadersIterStatus& operator[] (const std::string& filepath) noexcept;
-
-            const bool contains(const std::string& filepath) const noexcept;  // reminder: no need for this w. c++20
-
-            void insert(const std::string& filepath, const BAHeadersIterStatus& ba_headers_status) noexcept;
-
-            void reset() noexcept;
-            void reset(const std::string& filepath) noexcept;
-
-
-        private:
-            static const BAHeadersIterStatus _FAULTY_STATUS;
 
         };
 

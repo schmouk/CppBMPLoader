@@ -189,13 +189,38 @@ namespace bmpl
 
 
     //===========================================================================
-    template<typename BMPImageT>
-    BMPImageT load_next_image(
-        const std::string& filepath,
-        const bool apply_gamma_correction = false,
-        const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK,
-        const bool force_bottom_up = false
-    ) noexcept;
+    class NextImageLoader : public bmpl::utils::ErrorStatus
+    {
+    public:
+        
+        using MyErrBaseClass = bmpl::utils::ErrorStatus;
+
+
+        NextImageLoader() = delete;
+        virtual ~NextImageLoader() = default;
+
+        NextImageLoader(const std::string& filepath) noexcept;
+
+        template<typename BMPImageT>
+        BMPImageT load(
+            const bool apply_gamma_correction = false,
+            const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK,
+            const bool force_bottom_up = false
+        ) noexcept;
+
+        const std::string get_error_msg() const noexcept;
+
+        const std::string get_filepath() const noexcept;
+
+        void reset() noexcept;
+
+
+    private:
+        bmpl::frmt::BAHeadersList _ba_headers{};
+        bmpl::frmt::BAHeadersIterStatus _ba_hdr_iter{};
+        std::string _filepath{};
+
+    };
 
 
 
@@ -484,13 +509,8 @@ namespace bmpl
 
 
     //---------------------------------------------------------------------------
-    static bmpl::frmt::MultiFilesBAHeaders _multi_files_ba_headers;  // notice: do not consider this as belonging to the CppBMPLoader API
-    static bmpl::frmt::BAHeadersList _ba_headers;  // notice: do not consider this as belonging to the CppBMPLoader API
-    
-    //---------------------------------------------------------------------------
     template<typename BMPImageT>
-    BMPImageT load_next_image(
-        const std::string& filepath,
+    BMPImageT NextImageLoader::load(
         const bool apply_gamma_correction,
         const bmpl::clr::ESkippedPixelsMode skipped_mode,
         const bool force_bottom_up
@@ -498,37 +518,24 @@ namespace bmpl
     {
         using BMPLoaderBase = typename BMPImageT::MyBMPLoaderBaseClass;
 
-        if (!_multi_files_ba_headers.contains(filepath)) {
-            bmpl::utils::LEInStream in_stream(filepath);
-            if (!BMPImageT::is_BA_file(in_stream))
-                return BMPImageT(bmpl::utils::ErrorCode::NOT_BITMAP_ARRAY_FILE_HEADER);
+        if (failed())
+            return BMPImageT(get_error());
 
-            _ba_headers = BMPLoaderBase::get_BA_headers(in_stream);
-            if (_ba_headers.failed())
-                return BMPImageT(_ba_headers.get_error());
+        if (this->_ba_hdr_iter.failed())
+            return BMPImageT(this->_ba_hdr_iter.get_error());
 
-            _multi_files_ba_headers.insert(filepath, bmpl::frmt::BAHeadersIterStatus(filepath, _ba_headers));
-        }
-
-        bmpl::frmt::BAHeadersIterStatus* ba_header_iter_status_ptr{ &(_multi_files_ba_headers[filepath]) };
-        if (ba_header_iter_status_ptr == nullptr || ba_header_iter_status_ptr->end()) {
+        if (this->_ba_hdr_iter.end())
             return BMPImageT(bmpl::utils::ErrorCode::END_OF_BA_HEADERS_LIST);
-        }
-        else if (ba_header_iter_status_ptr->failed()) {
-            return BMPImageT();
-        }
-        else {
-            bmpl::frmt::BAHeader ba_header{ *(*ba_header_iter_status_ptr)++ };
 
-            if (ba_header.failed()) {
-                return BMPImageT();
-            }
+        bmpl::frmt::BAHeader ba_header{ *(this->_ba_hdr_iter++) };
 
-            return BMPImageT(
-                *(ba_header_iter_status_ptr->in_stream_ptr),
-                ba_header,
-                apply_gamma_correction, skipped_mode, force_bottom_up);
-        }
+        if (ba_header.failed())
+            return BMPImageT(ba_header.get_error());
+
+        return BMPImageT(
+            *(this->_ba_hdr_iter.in_stream_ptr),
+            ba_header,
+            apply_gamma_correction, skipped_mode, force_bottom_up);
     }
 
 }
