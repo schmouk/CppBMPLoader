@@ -271,7 +271,6 @@ namespace bmpl
 
         //===========================================================================
         // Local implementations  -  BMPBottomUpLoader<PixelT>
-
         //---------------------------------------------------------------------------
         template<typename PixelT>
         BMPBottomUpLoader<PixelT>::BMPBottomUpLoader(
@@ -393,10 +392,11 @@ namespace bmpl
             if (this->_file_header_ptr == nullptr)
                 return bmpl::frmt::BAHeadersList(bmpl::utils::ErrorCode::BAD_FILE_HEADER);
             
-            if (!this->_file_header_ptr->is_BA_file())
+            if (this->_file_header_ptr->is_BA_file())
+                return get_BA_headers(this->_in_stream);
+            else
                 return bmpl::frmt::BAHeadersList(bmpl::utils::ErrorCode::NOT_BITMAP_ARRAY_FILE_HEADER);
 
-            return get_BA_headers(this->_in_stream);
         }
 
 
@@ -603,6 +603,7 @@ namespace bmpl
         {
             try {
                 pixel_type pixel_default_value{};
+
                 switch (_skipped_mode)
                 {
                 case bmpl::clr::ESkippedPixelsMode::TRANSPARENCY:
@@ -615,6 +616,7 @@ namespace bmpl
                 }
 
                 this->image_content.assign(image_width * image_height, pixel_default_value);
+
                 return true;
             }
             catch (...) {
@@ -641,8 +643,9 @@ namespace bmpl
                 return false;
             }
 
-            if (!this->_allocate_image_space(image_width, image_height))
+            if (!this->_allocate_image_space(image_width, image_height)) {
                 return false;
+            }
 
             if (!this->_bitmap_loader_ptr->load(this->image_content)) {
                 _set_err(_bitmap_loader_ptr->get_error());
@@ -651,7 +654,7 @@ namespace bmpl
 
             // is there gamma correction to apply?
             if (this->_apply_gamma_correction) {
-                // yes!
+                // ...yes!
                 if (this->_info.info_header_ptr->bits_per_pixel == 64) {
                     // ok, gamma correction is already mebedded in HDR encoding
                     // nothing to be done
@@ -708,7 +711,6 @@ namespace bmpl
 
         //===========================================================================
         // Local implementations  -  BMPLoader<PixelT>
-
         //---------------------------------------------------------------------------
         template<typename PixelT>
         const bool BMPLoader<PixelT>::load_image_content() noexcept
@@ -737,7 +739,7 @@ namespace bmpl
                 const std::size_t line_width{ image_width * sizeof PixelT };
 
                 std::vector<std::uint8_t> tmp_line;
-                tmp_line.assign(line_width, '\0');
+                tmp_line.assign(line_width, 0);
 
                 std::uint8_t* upline_ptr{ reinterpret_cast<std::uint8_t*>(this->image_content.data()) };
                 std::uint8_t* botline_ptr{ reinterpret_cast<std::uint8_t*>(this->image_content.data() + (image_height - 1) * image_width) };

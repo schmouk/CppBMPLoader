@@ -35,17 +35,19 @@ namespace bmpl
 {
     namespace utils
     {
-
+        //---------------------------------------------------------------------------
         const LEInStream::pos_type LEInStream::get_size() noexcept
         {
             pos_type current_stream_pos{ tellg() };
             seekg(0, end);
             pos_type stream_size{ tellg() };
             seekg(current_stream_pos);
+
             return stream_size;
         }
 
 
+        //---------------------------------------------------------------------------
         void LEInStream::_check_creation_ok() noexcept
         {
             if (good())
@@ -55,6 +57,7 @@ namespace bmpl
         }
 
 
+        //---------------------------------------------------------------------------
         LEInStream& LEInStream::operator>>(std::int8_t& value)
         {
             char val;
@@ -69,6 +72,7 @@ namespace bmpl
         }
 
 
+        //---------------------------------------------------------------------------
         LEInStream& LEInStream::operator>>(std::int16_t& value)
         {
             _clr_err();
@@ -91,6 +95,7 @@ namespace bmpl
         }
 
 
+        //---------------------------------------------------------------------------
         LEInStream& LEInStream::operator>>(std::int32_t& value)
         {
             _clr_err();
@@ -114,6 +119,7 @@ namespace bmpl
         }
 
 
+        //---------------------------------------------------------------------------
         LEInStream& LEInStream::operator>>(std::int64_t& value)
         {
             _clr_err();
@@ -139,6 +145,7 @@ namespace bmpl
         }
 
 
+        //---------------------------------------------------------------------------
         LEInStream& LEInStream::operator>>(std::uint8_t& value)
         {
             char val;
@@ -153,6 +160,7 @@ namespace bmpl
         }
 
 
+        //---------------------------------------------------------------------------
         LEInStream& LEInStream::operator>>(std::uint16_t& value)
         {
             _clr_err();
@@ -173,6 +181,7 @@ namespace bmpl
         }
 
 
+        //---------------------------------------------------------------------------
         LEInStream& LEInStream::operator>>(std::uint32_t& value)
         {
             _clr_err();
@@ -194,6 +203,7 @@ namespace bmpl
         }
 
 
+        //---------------------------------------------------------------------------
         LEInStream& LEInStream::operator>>(std::uint64_t& value)
         {
             _clr_err();
@@ -219,6 +229,7 @@ namespace bmpl
         }
 
 
+        //---------------------------------------------------------------------------
         void LEInStream::_set_err() noexcept
         {
             if (fail())

@@ -84,7 +84,7 @@ namespace bmpl
         BMPImage(const BMPImage&) noexcept = default;
         BMPImage(BMPImage&&) noexcept = default;
 
-        virtual inline ~BMPImage() noexcept = default;
+        virtual ~BMPImage() noexcept = default;
 
 
         BMPImage& operator=(const BMPImage&) noexcept = default;
@@ -155,7 +155,6 @@ namespace bmpl
         MyBMPLoaderBaseClass* _bmp_loader_ptr{ nullptr };
 
         static inline const std::int32_t _resolution_to_dpi(const std::int32_t resolution) noexcept;
-        void _reverse_lines_ordering() noexcept;
 
     };
 
@@ -226,7 +225,7 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline BMPImage<PixelT>::BMPImage() noexcept
+    BMPImage<PixelT>::BMPImage() noexcept
         : MyErrBaseClass(bmpl::utils::ErrorCode::NOT_INITIALIZED)
         , MyWarnBaseClass()
     {}
@@ -234,7 +233,7 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline BMPImage<PixelT>::BMPImage(const bmpl::utils::ErrorCode err_code) noexcept
+    BMPImage<PixelT>::BMPImage(const bmpl::utils::ErrorCode err_code) noexcept
         : MyErrBaseClass(err_code)
         , MyWarnBaseClass()
     {}
@@ -242,7 +241,7 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline BMPImage<PixelT>::BMPImage(
+    BMPImage<PixelT>::BMPImage(
         const std::string& filepath_,
         const bool apply_gamma_correction_,
         const bmpl::clr::ESkippedPixelsMode skipped_mode_,
@@ -267,10 +266,12 @@ namespace bmpl
     {
         this->_bmp_loader_ptr = bmpl::lodr::create_bmp_loader<PixelT>(in_stream, ba_header, apply_gamma_correction, skipped_mode, force_bottom_up);
         
-        if (this->_bmp_loader_ptr == nullptr)
+        if (this->_bmp_loader_ptr == nullptr) {
             _set_err(bmpl::utils::ErrorCode::BMP_LOADER_INSTANTIATION_FAILED);
-        else if (this->_bmp_loader_ptr->failed())
+        }
+        else if (this->_bmp_loader_ptr->failed()) {
             _set_err(this->_bmp_loader_ptr->get_error());
+        }
         else {
             if (this->_bmp_loader_ptr->load_image_content())
                 _clr_err();
@@ -288,7 +289,7 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline typename BMPImage<PixelT>::MyBMPLoaderBaseClass* BMPImage<PixelT>::get_bmp_loader_ptr() noexcept
+    typename BMPImage<PixelT>::MyBMPLoaderBaseClass* BMPImage<PixelT>::get_bmp_loader_ptr() noexcept
     {
         return this->_bmp_loader_ptr;
     }
@@ -296,7 +297,7 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline const std::uint32_t BMPImage<PixelT>::get_colors_count() const noexcept
+    const std::uint32_t BMPImage<PixelT>::get_colors_count() const noexcept
     {
         if (failed())
             return 0;
@@ -306,7 +307,7 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline PixelT* BMPImage<PixelT>::get_content_ptr() noexcept
+    PixelT* BMPImage<PixelT>::get_content_ptr() noexcept
     {
         if (failed())
             return nullptr;
@@ -317,7 +318,7 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline const std::int32_t BMPImage<PixelT>::get_device_x_resolution_dpi() const noexcept
+    const std::int32_t BMPImage<PixelT>::get_device_x_resolution_dpi() const noexcept
     {
         return _resolution_to_dpi(failed() ? 0 : this->_bmpl_loader_ptr->get_device_x_resolution());
     }
@@ -325,7 +326,7 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline const std::int32_t BMPImage<PixelT>::get_device_y_resolution_dpi() const noexcept
+    const std::int32_t BMPImage<PixelT>::get_device_y_resolution_dpi() const noexcept
     {
         return _resolution_to_dpi(failed() ? 0 : this->_bmpl_loader_ptr->get_device_y_resolution());
     }
@@ -333,7 +334,7 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline const std::string BMPImage<PixelT>::get_error_msg() const noexcept
+    const std::string BMPImage<PixelT>::get_error_msg() const noexcept
     {
         return bmpl::utils::error_msg(this->get_filepath(), get_error());
     }
@@ -341,7 +342,7 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline const std::string BMPImage<PixelT>::get_filepath() const noexcept
+    const std::string BMPImage<PixelT>::get_filepath() const noexcept
     {
         if (this->_bmp_loader_ptr == nullptr)
             return "";
@@ -352,7 +353,7 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline const std::uint32_t BMPImage<PixelT>::get_height() const noexcept
+    const std::uint32_t BMPImage<PixelT>::get_height() const noexcept
     {
         if (failed())
             return 0;
@@ -374,7 +375,7 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline const std::uint32_t BMPImage<PixelT>::get_width() const noexcept
+    const std::uint32_t BMPImage<PixelT>::get_width() const noexcept
     {
         if (failed())
             return 0;
@@ -385,7 +386,7 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline const std::uint64_t BMPImage<PixelT>::image_size() const noexcept
+    const std::uint64_t BMPImage<PixelT>::image_size() const noexcept
     {
         return std::uint64_t(get_height()) * std::uint64_t(get_width());
     }
@@ -393,7 +394,7 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline const bool BMPImage<PixelT>::is_BA_file() const noexcept
+    const bool BMPImage<PixelT>::is_BA_file() const noexcept
     {
         if (failed())
             return false;
@@ -404,7 +405,7 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline const bool BMPImage<PixelT>::is_BA_file(const std::string& filepath) noexcept
+    const bool BMPImage<PixelT>::is_BA_file(const std::string& filepath) noexcept
     {
         return BMPImage<PixelT>::is_BA_file(bmpl::utils::LEInStream(filepath));
     }
@@ -458,7 +459,7 @@ namespace bmpl
         this->_bmp_loader_ptr = bmpl::lodr::create_bmp_loader<PixelT>(filepath_, apply_gamma_correction_, skipped_mode_, force_bottom_up_);
         
         if (this->_bmp_loader_ptr == nullptr)
-            _set_err(bmpl::utils::ErrorCode::BMP_LOADER_INSTANTIATION_FAILED);
+            return _set_err(bmpl::utils::ErrorCode::BMP_LOADER_INSTANTIATION_FAILED);
 
         if (this->_bmp_loader_ptr->failed())
             return _set_err(this->_bmp_loader_ptr->get_error());
@@ -497,9 +498,8 @@ namespace bmpl
 
         BMPImagesList<BMPImageT> images_list{};
 
-        for (auto& ba_hdr : ba_headers) {
+        for (auto& ba_hdr : ba_headers)
             images_list.push_back(BMPImageT(in_stream, ba_hdr, apply_gamma_correction, skipped_mode, force_bottom_up));
-        }
 
         return images_list;
     }

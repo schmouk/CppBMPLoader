@@ -76,7 +76,7 @@ namespace bmpl
             inline virtual ~BitmapLoaderBase() noexcept = default;
 
 
-            inline BitmapLoaderBase(
+            BitmapLoaderBase(
                 bmpl::utils::LEInStream& in_stream_,
                 const bmpl::frmt::BMPFileHeaderBase* file_header_ptr_,
                 const bmpl::frmt::BMPInfoHeaderBase* info_header_ptr_,
@@ -448,7 +448,7 @@ namespace bmpl
                 return this->_set_err(bmpl::utils::ErrorCode::BAD_INFO_HEADER);
 
             if (this->info_header_ptr->compression_mode != this->info_header_ptr->COMPR_NO_RLE) {
-                // No Run Length Encoding is defined by Windows for 2 colors mapped bitmaps
+                // no Run Length Encoding is defined by Windows for 2 colors mapped bitmaps
                 return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
             }
 
@@ -494,13 +494,12 @@ namespace bmpl
             std::size_t line_remaining_pixels{ width };
 
             auto img_it{ image_content.begin() };
-            auto ndx_it = indexed_content.cbegin();
-            while (ndx_it != indexed_content.cend()) {
+            auto ndx_it{ indexed_content.cbegin() };
+            for (; ndx_it != indexed_content.cend(); ++ndx_it) {
                 for (std::uint8_t mask = 0x80; line_remaining_pixels > 0 && mask > 0 && img_it != image_content.end(); mask >>= 1) {
                     bmpl::clr::convert(*img_it++, this->color_map[(*ndx_it & mask) != 0]);  // notice: "!= 0" is an optimization to avoid bits shifting
                     --line_remaining_pixels;
                 }
-                ++ndx_it;
                 if (line_remaining_pixels == 0)
                     line_remaining_pixels = width;
             }
@@ -527,7 +526,7 @@ namespace bmpl
                 return this->_set_err(bmpl::utils::ErrorCode::BAD_INFO_HEADER);
 
             if (this->info_header_ptr->compression_mode != this->info_header_ptr->COMPR_NO_RLE) {
-                // No Run Length Encoding is defined by Windows CE
+                // no Run Length Encoding is defined by Windows CE
                 return this->_set_err(bmpl::utils::ErrorCode::INCOHERENT_RUN_LENGTH_ENCODING);
             }
 
@@ -574,12 +573,11 @@ namespace bmpl
 
             auto img_it{ image_content.begin() };
             auto ndx_it = indexed_content.cbegin();
-            while (ndx_it != indexed_content.cend()) {
+            for (; ndx_it != indexed_content.cend();  ++ndx_it) {
                 for (std::uint8_t mask = 0xc0, shift = 6; line_remaining_pixels > 0 && mask > 0 && img_it != image_content.end(); mask >>= 2, shift -= 2) {
                     bmpl::clr::convert(*img_it++, this->color_map[(*ndx_it & mask) >> shift]);
                     --line_remaining_pixels;
                 }
-                ++ndx_it;
                 if (line_remaining_pixels == 0)
                     line_remaining_pixels = width;
             }
@@ -645,7 +643,7 @@ namespace bmpl
 
             auto img_it{ image_content.begin() };
             auto ndx_it{ indexed_content.cbegin() };
-            while (ndx_it != indexed_content.cend() && img_it != image_content.end())
+            for (; ndx_it != indexed_content.cend() && img_it != image_content.end(); ++ndx_it)
             {
                 bmpl::clr::convert(*img_it++, this->color_map[*ndx_it >> 4]);
                 if (--line_remaining_pixels > 0 && img_it != image_content.end()) {
@@ -654,7 +652,6 @@ namespace bmpl
                 }
                 if (line_remaining_pixels == 0)
                     line_remaining_pixels = width;
-                ++ndx_it;
             }
 
             if (img_it != image_content.end()) {
@@ -1095,7 +1092,6 @@ namespace bmpl
                 const std::uint32_t b{ blue_mask_ptr->get_component_value(mask_pxl_value) };
                 const std::uint32_t a{ alpha_mask_ptr->get_component_value(mask_pxl_value) };
 
-                //bmpl::clr::set_pixel(*pixel_it, r, g, b, a);
                 bmpl::clr::set_pixel(pixel, r, g, b, a);
 
                 if (++line_pixels_count == width) {
@@ -1138,7 +1134,7 @@ namespace bmpl
                 }
 
                 for (auto& bitmap_pxl : bitmap_line)
-                    bmpl::clr::convert(*img_it++, bitmap_pxl);  // notice: no need of tests on image content overflow
+                    bmpl::clr::convert(*img_it++, bitmap_pxl);  // notice: no need of tests here on image content overflow
 
                 if (padding_size > 0 && (this->in_stream.seekg(padding_size, std::ios_base::cur)).fail()) {
                     return this->_set_err(bmpl::utils::ErrorCode::END_OF_FILE);
@@ -1310,7 +1306,7 @@ namespace bmpl
             if (this->info_header_ptr == nullptr)
                 return this->_set_err(bmpl::utils::ErrorCode::BAD_INFO_HEADER);
 
-                const std::size_t width{ std::size_t(this->get_width()) };
+            const std::size_t width{ std::size_t(this->get_width()) };
             const std::size_t height{ std::size_t(this->get_height()) };
             const std::size_t mask_size{ width * height };
 
@@ -1340,7 +1336,6 @@ namespace bmpl
             }
 
             auto mask_it{ masked_content.cbegin() };
-            //for (auto pixel_it = image_content.begin(); pixel_it != image_content.end(); ++pixel_it) {
             for (auto& pixel : image_content) {
                 if (mask_it == masked_content.cend()) {
                     this->set_warning(bmpl::utils::WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP);
@@ -1350,7 +1345,6 @@ namespace bmpl
                 const std::uint32_t mask_pxl_value{ *mask_it++ };
 
                 bmpl::clr::set_pixel(
-                    //*pixel_it,
                     pixel,
                     red_mask_ptr->get_component_value(mask_pxl_value),
                     green_mask_ptr->get_component_value(mask_pxl_value),

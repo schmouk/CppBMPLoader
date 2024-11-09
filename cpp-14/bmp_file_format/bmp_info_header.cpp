@@ -134,12 +134,10 @@ namespace bmpl
             if (bits_per_pixel > 64)
                 return _set_err(bmpl::utils::ErrorCode::TOO_BIG_BITS_PER_PIXEL_VALUE);
 
-            if (is_V3_base && bits_per_pixel != 1 && bits_per_pixel != 2 && bits_per_pixel != 4 && bits_per_pixel != 8) {
-                if (used_colors_count != 0)
-                    set_warning(bmpl::utils::WarningCode::UNUSED_PALETTE);
-            }
+            if (is_V3_base && bits_per_pixel != 1 && bits_per_pixel != 2 && bits_per_pixel != 4 && bits_per_pixel != 8 && used_colors_count != 0)
+                set_warning(bmpl::utils::WarningCode::UNUSED_PALETTE);
 
-            if (used_colors_count == 0 && bits_per_pixel <= 8)  //< 24)
+            if (used_colors_count == 0 && bits_per_pixel <= 8)
                 used_colors_count = 256;
 
             return _clr_err();
@@ -184,15 +182,16 @@ namespace bmpl
             if (compression_mode > COMPR_RLE_COLOR_BITMASKS && compression_mode != COMPR_ALPHABITFIELDS)
                 return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
 
-            if (compression_mode == COMPR_RLE_COLOR_BITMASKS) {
-                if (bits_per_pixel != 16 && bits_per_pixel != 32)
-                    return _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
+            if (compression_mode == COMPR_RLE_COLOR_BITMASKS && bits_per_pixel != 16 && bits_per_pixel != 32) {
+                return _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
             }
             else {
                 // checks pixels depth in bits count
                 if (bits_per_pixel != 1 && bits_per_pixel != 2 && bits_per_pixel != 4 && bits_per_pixel != 8 &&
                     bits_per_pixel != 16 && bits_per_pixel != 24 && bits_per_pixel != 32 && bits_per_pixel != 64)
+                {
                     return _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
+                }
             }
 
             return _clr_err();
@@ -232,7 +231,8 @@ namespace bmpl
 
             if (compression_mode == COMPR_EMBEDS_JPEG)
                 return _set_err(bmpl::utils::ErrorCode::NOT_YET_IMPLEMENTED_JPEG_DECODING);
-            else if (compression_mode == COMPR_EMBEDS_PNG)
+            
+            if (compression_mode == COMPR_EMBEDS_PNG)
                 return _set_err(bmpl::utils::ErrorCode::NOT_YET_IMPLEMENTED_PNG_DECODING);
 
             if ((in_stream >> (std::uint32_t&)cs_type
@@ -472,8 +472,9 @@ namespace bmpl
             {
                 return get_halftoning_param_1();
             }
-            else
+            else {
                 return 0;
+            }
         }
 
 
@@ -485,8 +486,9 @@ namespace bmpl
             {
                 return get_halftoning_param_2();
             }
-            else
+            else {
                 return 0;
+            }
         }
 
 

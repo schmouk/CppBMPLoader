@@ -66,7 +66,7 @@ namespace bmpl
 
             std::string filepath{};
 
-            inline LEInStream() noexcept = default;
+            LEInStream() noexcept = default;
 
 
             inline LEInStream(const char* filepath) noexcept
@@ -87,7 +87,7 @@ namespace bmpl
             }
 
 
-            virtual inline ~LEInStream() noexcept = default;
+            virtual ~LEInStream() noexcept = default;
 
 
             const pos_type get_size() noexcept;  // notice: type 'pos_type' is inherited from base class std::ifstream
@@ -104,9 +104,7 @@ namespace bmpl
             
 
         private:
-            
             void _check_creation_ok() noexcept;
-
             void _set_err() noexcept;
 
         };

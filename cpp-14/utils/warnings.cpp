@@ -36,7 +36,7 @@ namespace bmpl
 {
     namespace utils
     {
-
+        //---------------------------------------------------------------------------
         const std::string warning_msg(const WarningCode warn_code) noexcept
         {
             switch (warn_code)
@@ -123,6 +123,7 @@ namespace bmpl
         }
 
 
+        //---------------------------------------------------------------------------
         const std::string warning_msg(const std::string& file_path, const WarningCode warn_code) noexcept
         {
             std::strstream msg;
@@ -131,6 +132,7 @@ namespace bmpl
         }
 
 
+        //---------------------------------------------------------------------------
         void WarningStatus::set_unique_warnings()
         {
             std::sort(_warnings_list.begin(), _warnings_list.end());

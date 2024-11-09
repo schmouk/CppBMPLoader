@@ -74,7 +74,7 @@ void load_and_show_RGB_image(
     }
     else {
         // loading was fine
-        // let's display maybe warnings
+        // let's display any warning
         if (bmp_image.has_warnings()) {
             for (auto& msg : bmp_image.get_warnings_msg())
                 std::cout << msg << std::endl;
@@ -104,7 +104,7 @@ void load_and_show_RGBA_image(
     }
     else {
         // loading was fine
-        // let's display maybe warnings
+        // let's display any warning
         if (bmp_image.has_warnings()) {
             for (auto& msg : bmp_image.get_warnings_msg())
                 std::cout << msg << std::endl;
@@ -134,14 +134,14 @@ void load_and_show_BGR_image(
     }
     else {
         // loading was fine
-        // let's display maybe warnings
+        // let's display any warning
         if (bmp_image.has_warnings()) {
             for (auto& msg : bmp_image.get_warnings_msg())
                 std::cout << msg << std::endl;
         }
         // then let's show the loaded image and wait for a key press
         cv::Mat image(cv::Size(bmp_image.get_width(), bmp_image.get_height()), CV_8UC3, bmp_image.get_content_ptr());
-        cv::imshow("BGR-full", image);
+        cv::imshow("BGR image", image);
         cv::waitKey(0);
     }
 }
@@ -163,7 +163,7 @@ void load_and_show_BGRA_image(
     }
     else {
         // loading was fine
-        // let's display maybe warnings
+        // let's display any warning
         if (bmp_image.has_warnings()) {
             for (auto& msg : bmp_image.get_warnings_msg())
                 std::cout << msg << std::endl;

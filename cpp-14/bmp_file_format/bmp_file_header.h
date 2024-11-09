@@ -56,8 +56,8 @@ namespace bmpl
             BMPFileHeaderBase(BMPFileHeaderBase&&) noexcept = default;
             virtual ~BMPFileHeaderBase() noexcept = default;
 
-            inline BMPFileHeaderBase& operator= (const BMPFileHeaderBase&) noexcept = default;
-            inline BMPFileHeaderBase& operator= (BMPFileHeaderBase&&) noexcept = default;
+            BMPFileHeaderBase& operator= (const BMPFileHeaderBase&) noexcept = default;
+            BMPFileHeaderBase& operator= (BMPFileHeaderBase&&) noexcept = default;
 
 
             inline BMPFileHeaderBase(bmpl::utils::LEInStream& in_stream, const bool from_ba_file = false) noexcept
@@ -122,8 +122,8 @@ namespace bmpl
             BMPFileHeaderBA(BMPFileHeaderBA&&) noexcept = default;
             virtual ~BMPFileHeaderBA() noexcept = default;
 
-            inline BMPFileHeaderBA& operator= (const BMPFileHeaderBA&) noexcept = default;
-            inline BMPFileHeaderBA& operator= (BMPFileHeaderBA&&) noexcept = default;
+            BMPFileHeaderBA& operator= (const BMPFileHeaderBA&) noexcept = default;
+            BMPFileHeaderBA& operator= (BMPFileHeaderBA&&) noexcept = default;
 
             inline BMPFileHeaderBA(bmpl::utils::LEInStream& in_stream) noexcept
                 : MyBaseClass()
@@ -172,8 +172,8 @@ namespace bmpl
             BMPFileHeaderBM(BMPFileHeaderBM&&) noexcept = default;
             virtual ~BMPFileHeaderBM() noexcept = default;
 
-            inline BMPFileHeaderBM& operator= (const BMPFileHeaderBM&) noexcept = default;
-            inline BMPFileHeaderBM& operator= (BMPFileHeaderBM&&) noexcept = default;
+            BMPFileHeaderBM& operator= (const BMPFileHeaderBM&) noexcept = default;
+            BMPFileHeaderBM& operator= (BMPFileHeaderBM&&) noexcept = default;
 
             inline BMPFileHeaderBM(bmpl::utils::LEInStream& in_stream, const bool from_ba_file = false) noexcept
                 : MyBaseClass()
@@ -219,8 +219,8 @@ namespace bmpl
             BMPFileHeaderV1(BMPFileHeaderV1&&) noexcept = default;
             virtual ~BMPFileHeaderV1() noexcept = default;
 
-            inline BMPFileHeaderV1& operator= (const BMPFileHeaderV1&) noexcept = default;
-            inline BMPFileHeaderV1& operator= (BMPFileHeaderV1&&) noexcept = default;
+            BMPFileHeaderV1& operator= (const BMPFileHeaderV1&) noexcept = default;
+            BMPFileHeaderV1& operator= (BMPFileHeaderV1&&) noexcept = default;
 
             inline BMPFileHeaderV1(bmpl::utils::LEInStream& in_stream) noexcept
                 : MyBaseClass()

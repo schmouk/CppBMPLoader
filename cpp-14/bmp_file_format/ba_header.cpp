@@ -38,7 +38,6 @@ namespace bmpl
     {
         //===========================================================================
         //  BAHeader
-
         //---------------------------------------------------------------------------
         BAHeader::BAHeader(bmpl::utils::LEInStream& in_stream) noexcept
             : MyErrBaseClass()
@@ -224,7 +223,6 @@ namespace bmpl
 
         //===========================================================================
         //  BAHeadersIterStatus
-
         //---------------------------------------------------------------------------
         BAHeadersIterStatus::BAHeadersIterStatus(
             const std::string& filepath,

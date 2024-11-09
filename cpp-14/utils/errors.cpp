@@ -36,8 +36,7 @@ namespace bmpl
 {
     namespace utils
     {
-
-
+        //---------------------------------------------------------------------------
         const std::string error_msg(const ErrorCode err_code) noexcept
         {
             switch (err_code)
@@ -150,6 +149,7 @@ namespace bmpl
         }
 
 
+        //---------------------------------------------------------------------------
         const std::string error_msg(const std::string& file_path, const ErrorCode err_code) noexcept
         {
             std::strstream msg;

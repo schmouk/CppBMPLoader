@@ -42,7 +42,6 @@ namespace bmpl
 {
     namespace clr
     {
-
         //===========================================================================
         enum class ELogicalColorSpace : std::uint32_t
         {

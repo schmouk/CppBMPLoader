@@ -60,14 +60,14 @@ namespace bmpl
             std::uint32_t colors_count{ 0 };
 
 
-            inline BMPColorMap() noexcept = default;
-            inline BMPColorMap(const BMPColorMap&) noexcept = default;
-            inline BMPColorMap(BMPColorMap&&) noexcept = default;
+            BMPColorMap() noexcept = default;
+            BMPColorMap(const BMPColorMap&) noexcept = default;
+            BMPColorMap(BMPColorMap&&) noexcept = default;
 
-            virtual inline ~BMPColorMap() noexcept = default;
+            virtual ~BMPColorMap() noexcept = default;
 
-            inline BMPColorMap& operator= (const BMPColorMap&) noexcept = default;
-            inline BMPColorMap& operator= (BMPColorMap&&) noexcept = default;
+            BMPColorMap& operator= (const BMPColorMap&) noexcept = default;
+            BMPColorMap& operator= (BMPColorMap&&) noexcept = default;
 
             BMPColorMap(
                 bmpl::utils::LEInStream& in_stream,

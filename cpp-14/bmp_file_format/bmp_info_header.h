@@ -103,8 +103,8 @@ namespace bmpl
             virtual ~BMPInfoHeaderBase() noexcept = default;
 
 
-            inline BMPInfoHeaderBase& operator= (const BMPInfoHeaderBase&) noexcept = default;
-            inline BMPInfoHeaderBase& operator= (BMPInfoHeaderBase&&) noexcept = default;
+            BMPInfoHeaderBase& operator= (const BMPInfoHeaderBase&) noexcept = default;
+            BMPInfoHeaderBase& operator= (BMPInfoHeaderBase&&) noexcept = default;
 
 
             inline BMPInfoHeaderBase(bmpl::utils::LEInStream& in_stream, const std::uint32_t header_size_) noexcept
@@ -116,87 +116,90 @@ namespace bmpl
                 load(in_stream);
             }
 
-
             virtual inline const bool load(bmpl::utils::LEInStream& in_stream) noexcept
             {
                 return this->_clr_err();
             }
 
-
+            [[nodiscard]]
             virtual inline const std::int32_t get_device_x_resolution() const noexcept
             {
                 return 2835;  // notice: default value for 72 dpi extended to the standadrd default unit (1 meter)
             }
 
-
+            [[nodiscard]]
             virtual inline const std::int32_t get_device_y_resolution() const noexcept
             {
                 return 2835;  // notice: default value for 72 dpi extended to the standadrd default unit (1 meter)
             }
 
-
+            [[nodiscard]]
             virtual inline const std::uint32_t get_important_colors_count() const noexcept
             {
                 return 0;
             }
 
-
+            [[nodiscard]]
             virtual inline const std::uint32_t get_height() const noexcept
             {
                 return 0;
             }
 
-
+            [[nodiscard]]
             virtual inline const std::uint32_t get_width() const noexcept
             {
                 return 0;
             }
 
-
+            [[nodiscard]]
             virtual inline const std::uint32_t get_red_mask() const noexcept
             {
                 return 0xffff'ffff;
             };
 
-
+            [[nodiscard]]
             virtual inline const std::uint32_t get_green_mask() const noexcept
             {
                 return 0xffff'ffff;
             };
 
-
+            [[nodiscard]]
             virtual inline const std::uint32_t get_blue_mask() const noexcept
             {
                 return 0xffff'ffff;
             };
 
-
+            [[nodiscard]]
             virtual inline const std::uint32_t get_alpha_mask() const noexcept
             {
                 return 0x0000'0000;
             };
 
-
+            [[nodiscard]]
             virtual inline const bool is_calibrated_rgb_color_space() const noexcept
             {
                 return false;
             }
 
+            [[nodiscard]]
             virtual inline const bool is_sRGB_color_space() const noexcept
             {
                 return false;
             }
 
+            [[nodiscard]]
             virtual inline const bool is_windows_color_space() const noexcept
             {
                 return false;
             }
 
+            [[nodiscard]]
             virtual inline const bool get_gamma_values(double& gamma_red, double& gamma_green, double& gamma_blue) const noexcept
             {
                 return false;
             }
 
+            [[nodiscard]]
             virtual inline const bool get_XYZ_end_points(
                 std::int32_t& red_endX, std::int32_t& red_endY, std::int32_t& red_endZ,
                 std::int32_t& green_endX, std::int32_t& green_endY, std::int32_t& green_endZ,
@@ -207,17 +210,17 @@ namespace bmpl
             }
 
 
-            inline virtual const bool is_v1() const { return false; }
-            inline virtual const bool is_v2() const { return false; }
-            inline virtual const bool is_v3() const { return false; }
-            inline virtual const bool is_v3_NT() const { return false; }
-            inline virtual const bool is_v3_NT_4() const { return false; }
-            inline virtual const bool is_v4() const { return false; }
-            inline virtual const bool is_v5() const { return false; }
-            inline virtual const bool is_vOS21() const { return false; }
-            inline virtual const bool is_vOS22() const { return false; }
+            [[nodiscard]] inline virtual const bool is_v1() const { return false; }
+            [[nodiscard]] inline virtual const bool is_v2() const { return false; }
+            [[nodiscard]] inline virtual const bool is_v3() const { return false; }
+            [[nodiscard]] inline virtual const bool is_v3_NT() const { return false; }
+            [[nodiscard]] inline virtual const bool is_v3_NT_4() const { return false; }
+            [[nodiscard]] inline virtual const bool is_v4() const { return false; }
+            [[nodiscard]] inline virtual const bool is_v5() const { return false; }
+            [[nodiscard]] inline virtual const bool is_vOS21() const { return false; }
+            [[nodiscard]] inline virtual const bool is_vOS22() const { return false; }
 
-            inline virtual const bool may_embed_color_palette() const { return false; }
+            [[nodiscard]] inline virtual const bool may_embed_color_palette() const { return false; }
 
 
             inline const bool set_err(const bmpl::utils::ErrorCode err_code) noexcept
@@ -237,17 +240,20 @@ namespace bmpl
 
             inline BMPInfoHeaderV1(const bmpl::frmt::BMPFileHeaderV1* file_header_ptr) noexcept;
 
+            [[nodiscard]]
             virtual inline const std::uint32_t get_height() const noexcept override
             {
                 return this->height;
             }
 
+            [[nodiscard]]
             virtual inline const std::uint32_t get_width() const noexcept override
             {
                 return this->width;
             }
 
-            inline virtual const bool is_v1() const { return true; }
+            [[nodiscard]]
+            inline virtual const bool is_v1() const override { return true; }
 
         };
 
@@ -267,8 +273,8 @@ namespace bmpl
             virtual ~BMPInfoHeaderV2() noexcept = default;
 
 
-            inline BMPInfoHeaderV2& operator= (const BMPInfoHeaderV2&) noexcept = default;
-            inline BMPInfoHeaderV2& operator= (BMPInfoHeaderV2&&) noexcept = default;
+            BMPInfoHeaderV2& operator= (const BMPInfoHeaderV2&) noexcept = default;
+            BMPInfoHeaderV2& operator= (BMPInfoHeaderV2&&) noexcept = default;
 
 
             inline BMPInfoHeaderV2(bmpl::utils::LEInStream& in_stream) noexcept
@@ -278,11 +284,13 @@ namespace bmpl
                 load(in_stream);
             }
 
+            [[nodiscard]]
             virtual inline const std::uint32_t get_height() const noexcept override
             {
                 return this->height;
             }
 
+            [[nodiscard]]
             virtual inline const std::uint32_t get_width() const noexcept override
             {
                 return this->width;
@@ -290,7 +298,8 @@ namespace bmpl
 
             virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;
 
-            inline virtual const bool is_v2() const { return true; }
+            [[nodiscard]]
+            inline virtual const bool is_v2() const override { return true; }
 
         };
 
@@ -312,8 +321,8 @@ namespace bmpl
             virtual ~BMPInfoHeaderV3() noexcept = default;
 
 
-            inline BMPInfoHeaderV3& operator= (const BMPInfoHeaderV3&) noexcept = default;
-            inline BMPInfoHeaderV3& operator= (BMPInfoHeaderV3&&) noexcept = default;
+            BMPInfoHeaderV3& operator= (const BMPInfoHeaderV3&) noexcept = default;
+            BMPInfoHeaderV3& operator= (BMPInfoHeaderV3&&) noexcept = default;
 
 
             inline BMPInfoHeaderV3(bmpl::utils::LEInStream& in_stream, const bool is_V3_base = true, const bool is_V5_base = false) noexcept
@@ -323,21 +332,25 @@ namespace bmpl
                 load(in_stream, is_V3_base, is_V5_base);
             }
 
+            [[nodiscard]]
             virtual inline const std::int32_t get_device_x_resolution() const noexcept override
             {
                 return this->device_x_resolution;
             }
 
+            [[nodiscard]]
             virtual inline const std::int32_t get_device_y_resolution() const noexcept override
             {
                 return this->device_y_resolution;
             }
 
+            [[nodiscard]]
             virtual inline const std::uint32_t get_height() const noexcept override
             {
                 return this->height;
             }
 
+            [[nodiscard]]
             virtual inline const std::uint32_t get_width() const noexcept override
             {
                 return this->width;
@@ -345,13 +358,16 @@ namespace bmpl
 
             virtual const bool load(bmpl::utils::LEInStream& in_stream, const bool is_V3_base, const bool is_V5_base) noexcept;
 
-            inline virtual const bool is_v3() const { return true; }
+            [[nodiscard]]
+            inline virtual const bool is_v3() const override { return true; }
 
+            [[nodiscard]]
             inline virtual const bool may_embed_color_palette() const override
             {
                 return true;
             }
 
+            [[nodiscard]]
             virtual inline const std::uint32_t get_important_colors_count() const noexcept override
             {
                 return this->important_colors_count;
@@ -377,8 +393,8 @@ namespace bmpl
             virtual ~BMPInfoHeaderV3_NT() noexcept = default;
 
 
-            inline BMPInfoHeaderV3_NT& operator= (const BMPInfoHeaderV3_NT&) noexcept = default;
-            inline BMPInfoHeaderV3_NT& operator= (BMPInfoHeaderV3_NT&&) noexcept = default;
+            BMPInfoHeaderV3_NT& operator= (const BMPInfoHeaderV3_NT&) noexcept = default;
+            BMPInfoHeaderV3_NT& operator= (BMPInfoHeaderV3_NT&&) noexcept = default;
 
 
             inline BMPInfoHeaderV3_NT(
@@ -395,26 +411,27 @@ namespace bmpl
 
             virtual const bool load(bmpl::utils::LEInStream& in_stream, const bool is_V4_base) noexcept;
 
+            [[nodiscard]]
             virtual inline const std::uint32_t get_red_mask() const noexcept override
             {
                 return red_mask;
             };
 
+            [[nodiscard]]
             virtual inline const std::uint32_t get_green_mask() const noexcept override
             {
                 return green_mask;
             };
 
+            [[nodiscard]]
             virtual inline const std::uint32_t get_blue_mask() const noexcept override
             {
                 return blue_mask;
             };
 
 
-            inline virtual const bool is_v3() const { return false; }
-            inline virtual const bool is_v3_NT() const { return true; }
-
-
+            [[nodiscard]] inline virtual const bool is_v3() const override { return false; }
+            [[nodiscard]] inline virtual const bool is_v3_NT() const override { return true; }
 
         };
 
@@ -430,8 +447,8 @@ namespace bmpl
             virtual ~BMPInfoHeaderV3_NT_4() noexcept = default;
 
 
-            inline BMPInfoHeaderV3_NT_4& operator= (const BMPInfoHeaderV3_NT_4&) noexcept = default;
-            inline BMPInfoHeaderV3_NT_4& operator= (BMPInfoHeaderV3_NT_4&&) noexcept = default;
+            BMPInfoHeaderV3_NT_4& operator= (const BMPInfoHeaderV3_NT_4&) noexcept = default;
+            BMPInfoHeaderV3_NT_4& operator= (BMPInfoHeaderV3_NT_4&&) noexcept = default;
 
 
             inline BMPInfoHeaderV3_NT_4(
@@ -447,14 +464,15 @@ namespace bmpl
 
             virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;
 
+            [[nodiscard]]
             virtual inline const std::uint32_t get_alpha_mask() const noexcept override
             {
                 return alpha_mask;
             };
 
 
-            inline virtual const bool is_v3_NT() const { return false; }
-            inline virtual const bool is_v3_NT_4() const { return true; }
+            [[nodiscard]] inline virtual const bool is_v3_NT() const override { return false; }
+            [[nodiscard]] inline virtual const bool is_v3_NT_4() const override { return true; }
 
         };
 
@@ -484,8 +502,8 @@ namespace bmpl
             virtual ~BMPInfoHeaderV4() noexcept = default;
 
 
-            inline BMPInfoHeaderV4& operator= (const BMPInfoHeaderV4&) noexcept = default;
-            inline BMPInfoHeaderV4& operator= (BMPInfoHeaderV4&&) noexcept = default;
+            BMPInfoHeaderV4& operator= (const BMPInfoHeaderV4&) noexcept = default;
+            BMPInfoHeaderV4& operator= (BMPInfoHeaderV4&&) noexcept = default;
 
 
             inline BMPInfoHeaderV4(
@@ -502,31 +520,36 @@ namespace bmpl
             virtual const bool load(bmpl::utils::LEInStream& in_stream, const bool is_V4_base) noexcept;
 
 
+            [[nodiscard]]
             virtual inline const bool is_calibrated_rgb_color_space() const noexcept
             {
                 return (this->compression_mode == COMPR_NO_RLE && this->cs_type == bmpl::clr::ELogicalColorSpace::CALIBRATED_RGB);
             }
 
+            [[nodiscard]]
             virtual inline const bool is_sRGB_color_space() const noexcept
             {
                 return (this->compression_mode == COMPR_NO_RLE && this->cs_type == bmpl::clr::ELogicalColorSpace::S_RGB);
             }
 
+            [[nodiscard]]
             virtual inline const bool is_windows_color_space() const noexcept
             {
                 return (this->compression_mode == COMPR_NO_RLE && this->cs_type == bmpl::clr::ELogicalColorSpace::WINDOWS_COLOR_SPACE);
             }
 
+            [[nodiscard]]
             virtual const bool get_gamma_values(double& gamma_red_, double& gamma_green_, double& gamma_blue_) const noexcept;
 
+            [[nodiscard]]
             virtual const bool get_XYZ_end_points(
                 std::int32_t& red_endX_, std::int32_t& red_endY_, std::int32_t& red_endZ_,
                 std::int32_t& green_endX_, std::int32_t& green_endY_, std::int32_t& green_endZ_,
                 std::int32_t& blue_endX_, std::int32_t& blue_endY_, std::int32_t& blue_endZ_
             ) const noexcept;
 
-            inline virtual const bool is_v3_NT_4() const { return false; }
-            inline virtual const bool is_v4() const { return true; }
+            [[nodiscard]] inline virtual const bool is_v3_NT_4() const override { return false; }
+            [[nodiscard]] inline virtual const bool is_v4() const override { return true; }
 
         };
 
@@ -552,8 +575,8 @@ namespace bmpl
             virtual ~BMPInfoHeaderV5() noexcept = default;
 
 
-            inline BMPInfoHeaderV5& operator= (const BMPInfoHeaderV5&) noexcept = default;
-            inline BMPInfoHeaderV5& operator= (BMPInfoHeaderV5&&) noexcept = default;
+            BMPInfoHeaderV5& operator= (const BMPInfoHeaderV5&) noexcept = default;
+            BMPInfoHeaderV5& operator= (BMPInfoHeaderV5&&) noexcept = default;
 
 
             inline BMPInfoHeaderV5(bmpl::utils::LEInStream& in_stream) noexcept
@@ -564,8 +587,8 @@ namespace bmpl
 
             virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;
 
-            inline virtual const bool is_v4() const { return false; }
-            inline virtual const bool is_v5() const { return true; }
+            [[nodiscard]] inline virtual const bool is_v4() const override { return false; }
+            [[nodiscard]] inline virtual const bool is_v5() const override { return true; }
 
         };
 
@@ -582,8 +605,8 @@ namespace bmpl
             virtual ~BMPInfoHeaderVOS21() noexcept = default;
 
 
-            inline BMPInfoHeaderVOS21& operator= (const BMPInfoHeaderVOS21&) noexcept = default;
-            inline BMPInfoHeaderVOS21& operator= (BMPInfoHeaderVOS21&&) noexcept = default;
+            BMPInfoHeaderVOS21& operator= (const BMPInfoHeaderVOS21&) noexcept = default;
+            BMPInfoHeaderVOS21& operator= (BMPInfoHeaderVOS21&&) noexcept = default;
 
 
             inline BMPInfoHeaderVOS21(bmpl::utils::LEInStream& in_stream) noexcept
@@ -593,11 +616,13 @@ namespace bmpl
                 load(in_stream);
             }
 
+            [[nodiscard]]
             virtual inline const std::uint32_t get_height() const noexcept override
             {
                 return this->height;
             }
 
+            [[nodiscard]]
             virtual inline const std::uint32_t get_width() const noexcept override
             {
                 return this->width;
@@ -605,13 +630,14 @@ namespace bmpl
 
             virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;
 
+            [[nodiscard]]
             inline virtual const bool may_embed_color_palette() const override
             {
                 return true;
             }
 
-            inline virtual const bool is_v2() const { return false; }
-            inline virtual const bool is_vOS21() const { return true; }
+            [[nodiscard]] inline virtual const bool is_v2() const override { return false; }
+            [[nodiscard]] inline virtual const bool is_vOS21() const override { return true; }
 
         };
 
@@ -646,8 +672,8 @@ namespace bmpl
             virtual ~BMPInfoHeaderVOS22() noexcept = default;
 
 
-            inline BMPInfoHeaderVOS22& operator= (const BMPInfoHeaderVOS22&) noexcept = default;
-            inline BMPInfoHeaderVOS22& operator= (BMPInfoHeaderVOS22&&) noexcept = default;
+            BMPInfoHeaderVOS22& operator= (const BMPInfoHeaderVOS22&) noexcept = default;
+            BMPInfoHeaderVOS22& operator= (BMPInfoHeaderVOS22&&) noexcept = default;
 
 
             inline BMPInfoHeaderVOS22(bmpl::utils::LEInStream& in_stream, const std::uint32_t header_size) noexcept
@@ -657,26 +683,31 @@ namespace bmpl
                 load(in_stream);
             }
 
+            [[nodiscard]]
             inline const std::uint32_t get_application_identifier() const noexcept
             {
                 return application_identifier;
             }
 
+            [[nodiscard]]
             virtual inline const std::int32_t get_device_x_resolution() const noexcept override
             {
                 return this->device_x_resolution;
             }
 
+            [[nodiscard]]
             virtual inline const std::int32_t get_device_y_resolution() const noexcept override
             {
                 return this->device_y_resolution;
             }
 
+            [[nodiscard]]
             inline const std::int16_t get_halftoning_mode() const noexcept
             {
                 return halftoning_rendering_algorithm;
             }
 
+            [[nodiscard]]
             inline const std::uint16_t get_halftoning_error_diffusion_damping() const noexcept
             {
                 if (halftoning_rendering_algorithm == HALFTONING_DIFFUSION_ALGORITHM)
@@ -685,30 +716,37 @@ namespace bmpl
                     return 0;  // notice: indicates no diffusion of errors
             }
 
+            [[nodiscard]]
             inline const std::uint16_t get_halftoning_param_1() const noexcept
             {
                 return halftoning_param_1;
             }
 
+            [[nodiscard]]
             inline const std::uint16_t get_halftoning_param_2() const noexcept
             {
                 return halftoning_param_2;
             }
 
+            [[nodiscard]]
             inline const std::uint16_t get_halftoning_x_size() const noexcept;
 
+            [[nodiscard]]
             inline const std::uint16_t get_halftoning_y_size() const noexcept;
 
+            [[nodiscard]]
             inline const bool has_halftoning() const noexcept
             {
                 return halftoning_rendering_algorithm != HALFTONING_NO_ALGORITHM;
             }
 
+            [[nodiscard]]
             virtual inline const std::uint32_t get_height() const noexcept override
             {
                 return this->height;
             }
 
+            [[nodiscard]]
             virtual inline const std::uint32_t get_width() const noexcept override
             {
                 return this->width;
@@ -716,17 +754,19 @@ namespace bmpl
 
             virtual const bool load(bmpl::utils::LEInStream& in_stream) noexcept override;
 
+            [[nodiscard]]
             inline virtual const bool may_embed_color_palette() const override
             {
                 return true;
             }
 
+            [[nodiscard]]
             virtual inline const std::uint32_t get_important_colors_count() const noexcept override
             {
                 return this->important_colors_count;
             }
 
-            inline virtual const bool is_vOS22() const { return true; }
+            [[nodiscard]] inline virtual const bool is_vOS22() const override { return true; }
 
         };
 

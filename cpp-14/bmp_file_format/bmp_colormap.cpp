@@ -60,7 +60,7 @@ namespace bmpl
                     set_warning(bmpl::utils::WarningCode::BAD_PALETTE_INDICES);
                     _bad_index_warn_already_set = true;
                 }
-                // notice: we use entry 0 as the default color for bad indices
+                // Notice: we use entry 0 as the default color for bad indices
                 return MyContainerBaseClass::operator[](0);
             }
             else {
@@ -94,7 +94,7 @@ namespace bmpl
                 return _set_err(info_header_ptr->get_error());
 
             if (!info_header_ptr->may_embed_color_palette())
-                _set_err(bmpl::utils::ErrorCode::INCOHERENT_BMP_LOADER_IMPLEMENTATION);
+                return _set_err(bmpl::utils::ErrorCode::INCOHERENT_BMP_LOADER_IMPLEMENTATION);
 
             this->colors_count = info_header_ptr->get_colors_count();
 

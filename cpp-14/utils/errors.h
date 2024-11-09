@@ -113,44 +113,43 @@ namespace bmpl
                 : _current_error_code(ErrorCode::NOT_INITIALIZED)
             {}
 
-
             inline ErrorStatus(const ErrorCode err_code) noexcept
                 : _current_error_code(err_code)
             {}
 
-            inline ErrorStatus(const ErrorStatus&) noexcept = default;
-            inline ErrorStatus(ErrorStatus&&) noexcept = default;
+            ErrorStatus(const ErrorStatus&) noexcept = default;
+            ErrorStatus(ErrorStatus&&) noexcept = default;
 
-            inline virtual ~ErrorStatus() noexcept = default;
+            virtual ~ErrorStatus() noexcept = default;
 
-            inline ErrorStatus& operator= (const ErrorStatus&) noexcept = default;
-            inline ErrorStatus& operator= (ErrorStatus&&) noexcept = default;
+            ErrorStatus& operator= (const ErrorStatus&) noexcept = default;
+            ErrorStatus& operator= (ErrorStatus&&) noexcept = default;
 
-
+            [[nodiscard]]
             inline operator bool() const noexcept
             {
                 return is_ok();
             }
 
-
-            virtual inline const bool operator!() const noexcept
+            [[nodiscard]]
+            virtual inline const bool operator! () const noexcept
             {
                 return failed();
             }
 
-
+            [[nodiscard]]
             inline const bmpl::utils::ErrorCode get_error() const noexcept
             {
                 return _current_error_code;
             }
 
-
+            [[nodiscard]]
             inline const bool is_ok() const noexcept
             {
                 return get_error() == ErrorCode::NO_ERROR;
             }
 
-
+            [[nodiscard]]
             inline const bool failed() const noexcept
             {
                 return !is_ok();

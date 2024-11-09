@@ -52,9 +52,11 @@ namespace bmpl
         else if (this->_ba_hdr_iter.failed()) {
             _set_err(this->_ba_hdr_iter.get_error());
         }
-        else
+        else {
             _clr_err();
+        }
     }
+
 
     //---------------------------------------------------------------------------
     const std::string NextImageLoader::get_error_msg() const noexcept
@@ -62,11 +64,13 @@ namespace bmpl
         return bmpl::utils::error_msg(this->get_filepath(), get_error());
     }
 
+
     //---------------------------------------------------------------------------
     const std::string NextImageLoader::get_filepath() const noexcept
     {
         return this->_filepath;
     }
+
 
     //---------------------------------------------------------------------------
     void NextImageLoader::reset() noexcept

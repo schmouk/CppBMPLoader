@@ -50,14 +50,14 @@ namespace bmpl
             BMPColorMap color_map;
 
 
-            inline BMPInfo() noexcept = default;
-            inline BMPInfo(const BMPInfo&) noexcept = default;
-            inline BMPInfo(BMPInfo&&) noexcept = default;
+            BMPInfo() noexcept = default;
+            BMPInfo(const BMPInfo&) noexcept = default;
+            BMPInfo(BMPInfo&&) noexcept = default;
 
             virtual inline ~BMPInfo() noexcept = default;
 
-            inline BMPInfo& operator= (const BMPInfo&) noexcept = default;
-            inline BMPInfo& operator= (BMPInfo&&) noexcept = default;
+            BMPInfo& operator= (const BMPInfo&) noexcept = default;
+            BMPInfo& operator= (BMPInfo&&) noexcept = default;
 
 
             BMPInfo(bmpl::utils::LEInStream& in_stream, const bmpl::frmt::BMPFileHeaderBase* file_header_ptr) noexcept

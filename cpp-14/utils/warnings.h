@@ -102,14 +102,14 @@ namespace bmpl
         class WarningStatus
         {
         public:
-            inline WarningStatus() noexcept = default;
-            inline WarningStatus(const WarningStatus&) noexcept = default;
-            inline WarningStatus(WarningStatus&&) noexcept = default;
+            WarningStatus() noexcept = default;
+            WarningStatus(const WarningStatus&) noexcept = default;
+            WarningStatus(WarningStatus&&) noexcept = default;
 
-            inline virtual ~WarningStatus() noexcept = default;
+            virtual ~WarningStatus() noexcept = default;
 
-            inline WarningStatus& operator= (const WarningStatus&) noexcept = default;
-            inline WarningStatus& operator= (WarningStatus&&) noexcept = default;
+            WarningStatus& operator= (const WarningStatus&) noexcept = default;
+            WarningStatus& operator= (WarningStatus&&) noexcept = default;
 
 
             inline void append_warnings(const WarningStatus& other) noexcept

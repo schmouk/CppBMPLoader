@@ -57,7 +57,7 @@ namespace bmpl
         using pixel_type = PixelT;
 
 
-        inline BMPBestFittingImage() noexcept = default;
+        BMPBestFittingImage() noexcept = default;
 
         inline BMPBestFittingImage(const bmpl::BMPImage<PixelT> image) noexcept;
 
@@ -87,7 +87,7 @@ namespace bmpl
         BMPBestFittingImage(const BMPBestFittingImage&) noexcept = default;
         BMPBestFittingImage(BMPBestFittingImage&&) noexcept = default;
 
-        virtual inline ~BMPBestFittingImage() noexcept = default;
+        virtual ~BMPBestFittingImage() noexcept = default;
 
 
         BMPBestFittingImage& operator=(const BMPBestFittingImage&) noexcept = default;
@@ -128,7 +128,7 @@ namespace bmpl
         using pixel_type = PixelT;
 
 
-        inline BMPBestFittingColorsImage() noexcept = default;
+        BMPBestFittingColorsImage() noexcept = default;
 
         inline BMPBestFittingColorsImage(const bmpl::BMPImage<PixelT> image) noexcept;
 
@@ -143,7 +143,7 @@ namespace bmpl
         BMPBestFittingColorsImage(const BMPBestFittingColorsImage&) noexcept = default;
         BMPBestFittingColorsImage(BMPBestFittingColorsImage&&) noexcept = default;
 
-        virtual inline ~BMPBestFittingColorsImage() noexcept = default;
+        virtual ~BMPBestFittingColorsImage() noexcept = default;
 
 
         BMPBestFittingColorsImage& operator=(const BMPBestFittingColorsImage&) noexcept = default;
@@ -169,7 +169,7 @@ namespace bmpl
         using pixel_type = PixelT;
 
 
-        inline BMPBestFittingResolutionImage() noexcept = default;
+        BMPBestFittingResolutionImage() noexcept = default;
 
         inline BMPBestFittingResolutionImage(const bmpl::BMPImage<PixelT> image) noexcept;
 
@@ -193,7 +193,7 @@ namespace bmpl
         BMPBestFittingResolutionImage(const BMPBestFittingResolutionImage&) noexcept = default;
         BMPBestFittingResolutionImage(BMPBestFittingResolutionImage&&) noexcept = default;
 
-        virtual inline ~BMPBestFittingResolutionImage() noexcept = default;
+        virtual ~BMPBestFittingResolutionImage() noexcept = default;
 
 
         BMPBestFittingResolutionImage& operator=(const BMPBestFittingResolutionImage&) noexcept = default;
@@ -228,7 +228,7 @@ namespace bmpl
         using pixel_type = PixelT;
 
 
-        inline BMPBestFittingSizeImage() noexcept = default;
+        BMPBestFittingSizeImage() noexcept = default;
 
         inline BMPBestFittingSizeImage(const bmpl::BMPImage<PixelT> image) noexcept;
 
@@ -244,7 +244,7 @@ namespace bmpl
         BMPBestFittingSizeImage(const BMPBestFittingSizeImage&) noexcept = default;
         BMPBestFittingSizeImage(BMPBestFittingSizeImage&&) noexcept = default;
 
-        virtual inline ~BMPBestFittingSizeImage() noexcept = default;
+        virtual ~BMPBestFittingSizeImage() noexcept = default;
 
 
         BMPBestFittingSizeImage& operator=(const BMPBestFittingSizeImage&) noexcept = default;
@@ -303,7 +303,7 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline BMPBestFittingImage<PixelT>::BMPBestFittingImage(
+    BMPBestFittingImage<PixelT>::BMPBestFittingImage(
         const std::string& filepath,
         const std::uint32_t target_width,
         const std::uint32_t target_height,
@@ -380,7 +380,8 @@ namespace bmpl
                 if (diff < min_diff_dims) {
                     min_diff_dims = diff;
                     min_diff_bits_per_pixel = target_bits_per_pixel - ba_header.get_bits_per_pixel();
-                    min_diff_resolution = (target_dpi_x_resolution - ba_header.get_device_x_resolution_dpi()) + (target_dpi_y_resolution - ba_header.get_device_y_resolution_dpi());;
+                    min_diff_resolution = (target_dpi_x_resolution - ba_header.get_device_x_resolution_dpi()) +
+                        (target_dpi_y_resolution - ba_header.get_device_y_resolution_dpi());;
                     best_fitting_header = ba_header;
                     found = true;
                 }
@@ -389,7 +390,8 @@ namespace bmpl
                     const std::int32_t img_dpi_x_resolution{ ba_header.get_device_x_resolution_dpi() };
                     const std::int32_t img_dpi_y_resolution{ ba_header.get_device_y_resolution_dpi() };
                     if (img_dpi_x_resolution <= target_dpi_x_resolution && img_dpi_y_resolution <= target_dpi_y_resolution) {
-                        diff = (target_dpi_x_resolution - img_dpi_x_resolution) + (target_dpi_y_resolution - img_dpi_y_resolution);
+                        diff = (target_dpi_x_resolution - img_dpi_x_resolution) +
+                            (target_dpi_y_resolution - img_dpi_y_resolution);
                         if (diff < min_diff_resolution) {
                             min_diff_resolution = diff;
                             min_diff_bits_per_pixel = target_bits_per_pixel - ba_header.get_bits_per_pixel();
@@ -468,7 +470,7 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline BMPBestFittingColorsImage<PixelT>::BMPBestFittingColorsImage(
+    BMPBestFittingColorsImage<PixelT>::BMPBestFittingColorsImage(
         const std::string& filepath,
         const std::uint32_t target_bits_per_pixel,
         const bool apply_gamma_corection,
@@ -563,7 +565,7 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline BMPBestFittingResolutionImage<PixelT>::BMPBestFittingResolutionImage(
+    BMPBestFittingResolutionImage<PixelT>::BMPBestFittingResolutionImage(
         const std::string& filepath,
         const std::int32_t target_dpi_x_resolution,
         std::int32_t target_dpi_y_resolution,
@@ -585,7 +587,7 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline BMPBestFittingResolutionImage<PixelT>::BMPBestFittingResolutionImage(
+    BMPBestFittingResolutionImage<PixelT>::BMPBestFittingResolutionImage(
         const std::string& filepath,
         const std::int32_t target_dpi_resolution,
         const bool apply_gamma_correction,
@@ -707,7 +709,7 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline BMPBestFittingSizeImage<PixelT>::BMPBestFittingSizeImage(
+    BMPBestFittingSizeImage<PixelT>::BMPBestFittingSizeImage(
         const std::string& filepath,
         const std::uint32_t target_width,
         const std::uint32_t target_height,
