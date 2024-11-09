@@ -129,6 +129,15 @@ namespace bmpl
         }
 
         //---------------------------------------------------------------------------
+        const std::uint32_t BAHeader::get_bits_per_pixel() const noexcept
+        {
+            if (this->info_header_ptr == nullptr)
+                return 0;
+            else
+                return this->info_header_ptr->bits_per_pixel;
+        }
+
+        //---------------------------------------------------------------------------
         const std::uint32_t BAHeader::get_colors_count() const noexcept
         {
             if (this->info_header_ptr == nullptr)

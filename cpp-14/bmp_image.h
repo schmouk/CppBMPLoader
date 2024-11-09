@@ -87,10 +87,7 @@ namespace bmpl
         virtual inline ~BMPImage() noexcept = default;
 
 
-        [[nodiscard]]
         BMPImage& operator=(const BMPImage&) noexcept = default;
-
-        [[nodiscard]]
         BMPImage& operator=(BMPImage&&) noexcept = default;
 
 

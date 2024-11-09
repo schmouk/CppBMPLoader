@@ -49,66 +49,39 @@ SOFTWARE.
 namespace bmpl
 {
     //===========================================================================
-    // Forward declarations
-    
-    template<typename PixelT>
-    struct BMPBestFittingImage : public bmpl::BMPImage<PixelT>;
-
-    template<typename PixelT>
-    struct BMPBestFittingColorsImage : public bmpl::BMPImage<PixelT>;
-
-    template<typename PixelT>
-    struct BMPBestFittingResolutionImage : public bmpl::BMPImage<PixelT>;
-
-    template<typename PixelT>
-    struct BMPBestFittingSizeImage : public bmpl::BMPImage<PixelT>;
-
-
-    //===========================================================================
-    // Template specializations
-    
-    using RGBBMPBestFittingImage = BMPBestFittingImage<bmpl::clr::RGB>;
-    using RGBABMPBestFittingImage = BMPBestFittingImage<bmpl::clr::RGBA>;
-    using BGRBMPBestFittingImage = BMPBestFittingImage<bmpl::clr::BGR>;
-    using BGRABMPBestFittingImage = BMPBestFittingImage<bmpl::clr::BGRA>;
-
-    using RGBBMPBestFittingColorsImage = BMPBestFittingColorsImage<bmpl::clr::RGB>;
-    using RGBABMPBestFittingColorsImage = BMPBestFittingColorsImage<bmpl::clr::RGBA>;
-    using BGRBMPBestFittingColorsImage = BMPBestFittingColorsImage<bmpl::clr::BGR>;
-    using BGRABMPBestFittingColorsImage = BMPBestFittingColorsImage<bmpl::clr::BGRA>;
-
-    using RGBBMPBestFittingResolutionImage = BMPBestFittingResolutionImage<bmpl::clr::RGB>;
-    using RGBABMPBestFittingResolutionImage = BMPBestFittingResolutionImage<bmpl::clr::RGBA>;
-    using BGRBMPBestFittingResolutionImage = BMPBestFittingResolutionImage<bmpl::clr::BGR>;
-    using BGRABMPBestFittingResolutionImage = BMPBestFittingResolutionImage<bmpl::clr::BGRA>;
-
-    using RGBBMPBestFittingSizeImage = BMPBestFittingSizeImage<bmpl::clr::RGB>;
-    using RGBABMPBestFittingSizeImage = BMPBestFittingSizeImage<bmpl::clr::RGBA>;
-    using BGRBMPBestFittingSizeImage = BMPBestFittingSizeImage<bmpl::clr::BGR>;
-    using BGRABMPBestFittingSizeImage = BMPBestFittingSizeImage<bmpl::clr::BGRA>;
-
-
-    //===========================================================================
     template<typename PixelT>
     struct BMPBestFittingImage : public bmpl::BMPImage<PixelT>
     {
-        using MyBaseClass = bmpl::BMPImage<PixelT>;
+        using MyImageBaseClass = bmpl::BMPImage<PixelT>;
 
         using pixel_type = PixelT;
 
 
-        inline BMPBestFittingImage() noexcept;
+        inline BMPBestFittingImage() noexcept = default;
+
+        inline BMPBestFittingImage(const bmpl::BMPImage<PixelT> image) noexcept;
 
         inline BMPBestFittingImage(
-            const std::string& filepath_,
-            const std::uint32_t target_width_,
-            const std::uint32_t target_height_,
-            const std::uint32_t target_colors_count_,
-            const std::int32_t target_dpi_x_resolution_,
-            std::int32_t target_dpi_y_resolution_ = 0,
-            const bool apply_gamma_corection_ = false,
-            const bmpl::clr::ESkippedPixelsMode skipped_mode_ = bmpl::clr::ESkippedPixelsMode::BLACK,
-            const bool force_bottom_up_ = false
+            const std::string& filepath,
+            const std::uint32_t target_width,
+            const std::uint32_t target_height,
+            const std::uint32_t target_bits_per_pixel,
+            const std::int32_t target_dpi_x_resolution,
+            std::int32_t target_dpi_y_resolution,
+            const bool apply_gamma_corection = false,
+            const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK,
+            const bool force_bottom_up = false
+        ) noexcept;
+
+        inline BMPBestFittingImage(
+            const std::string& filepath,
+            const std::uint32_t target_width,
+            const std::uint32_t target_height,
+            const std::uint32_t target_bits_per_pixel,
+            const std::int32_t target_dpi_resolution,
+            const bool apply_gamma_corection = false,
+            const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK,
+            const bool force_bottom_up = false
         ) noexcept;
 
         BMPBestFittingImage(const BMPBestFittingImage&) noexcept = default;
@@ -117,22 +90,30 @@ namespace bmpl
         virtual inline ~BMPBestFittingImage() noexcept = default;
 
 
-        [[nodiscard]]
         BMPBestFittingImage& operator=(const BMPBestFittingImage&) noexcept = default;
-
-        [[nodiscard]]
         BMPBestFittingImage& operator=(BMPBestFittingImage&&) noexcept = default;
 
-        const bool load_image(
-            const std::string& filepath_,
-            const std::uint32_t target_width_,
-            const std::uint32_t target_height_,
-            const std::uint32_t target_colors_count_,
-            const std::int32_t target_dpi_x_resolution_,
-            std::int32_t target_dpi_y_resolution_ = 0,
-            const bool apply_gamma_corection_ = false,
-            const bmpl::clr::ESkippedPixelsMode skipped_mode_ = bmpl::clr::ESkippedPixelsMode::BLACK,
-            const bool force_bottom_up_ = false
+        BMPBestFittingImage load_image(
+            const std::string& filepath,
+            const std::uint32_t target_width,
+            const std::uint32_t target_height,
+            const std::uint32_t target_bits_per_pixel,
+            const std::int32_t target_dpi_x_resolution,
+            std::int32_t target_dpi_y_resolution,
+            const bool apply_gamma_corection = false,
+            const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK,
+            const bool force_bottom_up = false
+        ) noexcept;
+
+        inline BMPBestFittingImage load_image(
+            const std::string& filepath,
+            const std::uint32_t target_width,
+            const std::uint32_t target_height,
+            const std::uint32_t target_bits_per_pixel,
+            const std::int32_t target_dpi_resolution,
+            const bool apply_gamma_corection = false,
+            const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK,
+            const bool force_bottom_up = false
         ) noexcept;
 
     };
@@ -142,16 +123,16 @@ namespace bmpl
     template<typename PixelT>
     struct BMPBestFittingColorsImage : public bmpl::BMPImage<PixelT>
     {
-        using MyBaseClass = bmpl::BMPImage<PixelT>;
+        using MyImageBaseClass = bmpl::BMPImage<PixelT>;
 
         using pixel_type = PixelT;
 
 
-        inline BMPBestFittingColorsImage() noexcept;
+        inline BMPBestFittingColorsImage() noexcept = default;
 
         inline BMPBestFittingColorsImage(
             const std::string& filepath_,
-            const std::uint32_t target_colors_count_,
+            const std::uint32_t target_bits_per_pixel,
             const bool apply_gamma_corection_ = false,
             const bmpl::clr::ESkippedPixelsMode skipped_mode_ = bmpl::clr::ESkippedPixelsMode::BLACK,
             const bool force_bottom_up_ = false
@@ -171,7 +152,7 @@ namespace bmpl
 
         const bool load_image(
             const std::string& filepath_,
-            const std::uint32_t target_colors_count_,
+            const std::uint32_t target_bits_per_pixel,
             const bool apply_gamma_corection_ = false,
             const bmpl::clr::ESkippedPixelsMode skipped_mode_ = bmpl::clr::ESkippedPixelsMode::BLACK,
             const bool force_bottom_up_ = false
@@ -184,17 +165,25 @@ namespace bmpl
     template<typename PixelT>
     struct BMPBestFittingResolutionImage : public bmpl::BMPImage<PixelT>
     {
-        using MyBaseClass = bmpl::BMPImage<PixelT>;
+        using MyImageBaseClass = bmpl::BMPImage<PixelT>;
 
         using pixel_type = PixelT;
 
 
-        inline BMPBestFittingResolutionImage() noexcept;
+        inline BMPBestFittingResolutionImage() noexcept = default;
 
         inline BMPBestFittingResolutionImage(
             const std::string& filepath_,
             const std::int32_t target_dpi_x_resolution_,
-            std::int32_t target_dpi_y_resolution_ = 0,
+            std::int32_t target_dpi_y_resolution_,
+            const bool apply_gamma_corection_ = false,
+            const bmpl::clr::ESkippedPixelsMode skipped_mode_ = bmpl::clr::ESkippedPixelsMode::BLACK,
+            const bool force_bottom_up_ = false
+        ) noexcept;
+
+        inline BMPBestFittingResolutionImage(
+            const std::string& filepath_,
+            const std::int32_t target_dpi_resolution_,
             const bool apply_gamma_corection_ = false,
             const bmpl::clr::ESkippedPixelsMode skipped_mode_ = bmpl::clr::ESkippedPixelsMode::BLACK,
             const bool force_bottom_up_ = false
@@ -215,7 +204,15 @@ namespace bmpl
         const bool load_image(
             const std::string& filepath_,
             const std::int32_t target_dpi_x_resolution_,
-            std::int32_t target_dpi_y_resolution_ = 0,
+            std::int32_t target_dpi_y_resolution_,
+            const bool apply_gamma_corection_ = false,
+            const bmpl::clr::ESkippedPixelsMode skipped_mode_ = bmpl::clr::ESkippedPixelsMode::BLACK,
+            const bool force_bottom_up_ = false
+        ) noexcept;
+
+        const bool load_image(
+            const std::string& filepath_,
+            const std::int32_t target_dpi_resolution_,
             const bool apply_gamma_corection_ = false,
             const bmpl::clr::ESkippedPixelsMode skipped_mode_ = bmpl::clr::ESkippedPixelsMode::BLACK,
             const bool force_bottom_up_ = false
@@ -228,12 +225,12 @@ namespace bmpl
     template<typename PixelT>
     struct BMPBestFittingSizeImage : public bmpl::BMPImage<PixelT>
     {
-        using MyBaseClass = bmpl::BMPImage<PixelT>;
+        using MyImageBaseClass = bmpl::BMPImage<PixelT>;
 
         using pixel_type = PixelT;
 
 
-        inline BMPBestFittingSizeImage() noexcept;
+        inline BMPBestFittingSizeImage() noexcept = default;
 
         inline BMPBestFittingSizeImage(
             const std::string& filepath_,
@@ -275,59 +272,193 @@ namespace bmpl
     // BMPBestFittingImage
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline BMPBestFittingImage<PixelT>::BMPBestFittingImage() noexcept
-        : MyBaseClass()
+    BMPBestFittingImage<PixelT>::BMPBestFittingImage(const bmpl::BMPImage<PixelT> image) noexcept
+        : MyImageBaseClass(image)
     {}
+
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline BMPBestFittingImage<PixelT>::BMPBestFittingImage(
-        const std::string& filepath_,
-        const std::uint32_t target_width_,
-        const std::uint32_t target_height_,
-        const std::uint32_t target_colors_count_,
-        const std::int32_t target_dpi_x_resolution_,
-        std::int32_t target_dpi_y_resolution_,
-        const bool apply_gamma_corection_,
-        const bmpl::clr::ESkippedPixelsMode skipped_mode_,
-        const bool force_bottom_up_
+    BMPBestFittingImage<PixelT>::BMPBestFittingImage(
+        const std::string& filepath,
+        const std::uint32_t target_width,
+        const std::uint32_t target_height,
+        const std::uint32_t target_bits_per_pixel,
+        const std::int32_t target_dpi_x_resolution,
+        std::int32_t target_dpi_y_resolution,
+        const bool apply_gamma_corection,
+        const bmpl::clr::ESkippedPixelsMode skipped_mode,
+        const bool force_bottom_up
     ) noexcept
-        : MyBaseClass()
+        : MyImageBaseClass()
     {
-        load_image(
-            filepath_,
-            target_width_,
-            target_height_,
-            target_colors_count_,
-            target_dpi_x_resolution_,
-            target_dpi_y_resolution_,
-            apply_gamma_corection_,
-            skipped_mode_,
-            force_bottom_up_
+        *this = load_image(
+            filepath,
+            target_width,
+            target_height,
+            target_bits_per_pixel,
+            target_dpi_x_resolution,
+            target_dpi_y_resolution,
+            apply_gamma_corection,
+            skipped_mode,
+            force_bottom_up
         );
     }
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    const bool BMPBestFittingImage<PixelT>::load_image(
-        const std::string& filepath_,
-        const std::uint32_t target_width_,
-        const std::uint32_t target_height_,
-        const std::uint32_t target_colors_count_,
-        const std::int32_t target_dpi_x_resolution_,
-        std::int32_t target_dpi_y_resolution_,
-        const bool apply_gamma_corection_,
-        const bmpl::clr::ESkippedPixelsMode skipped_mode_,
-        const bool force_bottom_up_
+    inline BMPBestFittingImage<PixelT>::BMPBestFittingImage(
+        const std::string& filepath,
+        const std::uint32_t target_width,
+        const std::uint32_t target_height,
+        const std::uint32_t target_bits_per_pixel,
+        const std::int32_t target_dpi_resolution,
+        const bool apply_gamma_corection,
+        const bmpl::clr::ESkippedPixelsMode skipped_mode,
+        const bool force_bottom_up
+    ) noexcept
+        : MyImageBaseClass()
+    {
+        *this = load_image(
+            filepath,
+            target_width,
+            target_height,
+            target_bits_per_pixel,
+            target_dpi_resolution,
+            target_dpi_resolution,
+            apply_gamma_corection,
+            skipped_mode,
+            force_bottom_up
+        );
+    }
+
+    //---------------------------------------------------------------------------
+    template<typename PixelT>
+    BMPBestFittingImage<PixelT> BMPBestFittingImage<PixelT>::load_image(
+        const std::string& filepath,
+        const std::uint32_t target_width,
+        const std::uint32_t target_height,
+        const std::uint32_t target_bits_per_pixel,
+        const std::int32_t target_dpi_x_resolution,
+        std::int32_t target_dpi_y_resolution,
+        const bool apply_gamma_correction,
+        const bmpl::clr::ESkippedPixelsMode skipped_mode,
+        const bool force_bottom_up
     ) noexcept
     {
-        if (!_set_bmp_loader(filepath_, apply_gamma_correction_, skipped_mode_, force_bottom_up_))
-            return false;
+        if (!bmpl::frmt::BAHeader::is_BA_file(filepath)) {
+            // only one image to be loaded, can't provide a better one.
+            return MyImageBaseClass(filepath, apply_gamma_correction, skipped_mode, force_bottom_up);
+        }
 
-        if (this->_bmp_loader_ptr->load_best_fitting_image_content(width_, height_, colors_count_, dpi_x_resolution_, dpi_y_resolution_))
-            return _clr_err();
-        else
-            return _set_err(this->_bmp_loader_ptr->get_error());
+        // ok, "BA" file
+        if (target_dpi_y_resolution == 0)
+            target_dpi_y_resolution = target_dpi_x_resolution;
+
+        bmpl::utils::LEInStream in_stream(filepath);
+        if (in_stream.failed()) {
+            // some error happenned while attempting to open the compressed image file
+            return MyImageBaseClass(in_stream.get_error());
+        }
+
+        std::uint32_t min_diff_bits_per_pixel{ 0xffff'ffff };
+        std::uint32_t min_diff_dims{ 0xffff'ffff };
+        std::uint32_t min_diff_resolution{ 0xffff'ffff };
+        std::uint32_t diff;
+        bmpl::frmt::BAHeader best_fitting_header{};
+        bool found{ false };
+
+        bmpl::frmt::BAHeadersList ba_headers_list{ bmpl::frmt::BAHeader::get_BA_headers(in_stream) };
+        if (ba_headers_list.failed()) {
+            // an error happened while reading the list of BA headers
+            return MyImageBaseClass(ba_headers_list.get_error());
+        }
+
+        for (bmpl::frmt::BAHeader& ba_header : ba_headers_list) {
+
+            // let's first compare dimensions of images
+            const std::uint32_t hdr_width{ ba_header.get_width() };
+            const std::uint32_t hdr_height{ ba_header.get_height() };
+            if (hdr_width <= target_width && hdr_height <= target_height) {
+                diff = (target_width - hdr_width) + (target_height - hdr_height);
+                if (diff < min_diff_dims) {
+                    min_diff_dims = diff;
+                    min_diff_bits_per_pixel = target_bits_per_pixel - ba_header.get_bits_per_pixel();
+                    min_diff_resolution = (target_dpi_x_resolution - ba_header.get_device_x_resolution_dpi()) + (target_dpi_y_resolution - ba_header.get_device_y_resolution_dpi());;
+                    best_fitting_header = ba_header;
+                    found = true;
+                }
+                else if (diff == min_diff_dims) {
+                    // equality of sizes fitting, let's compare then resolutions
+                    const std::int32_t img_dpi_x_resolution{ ba_header.get_device_x_resolution_dpi() };
+                    const std::int32_t img_dpi_y_resolution{ ba_header.get_device_y_resolution_dpi() };
+                    if (img_dpi_x_resolution <= target_dpi_x_resolution && img_dpi_y_resolution <= target_dpi_y_resolution) {
+                        diff = (target_dpi_x_resolution - img_dpi_x_resolution) + (target_dpi_y_resolution - img_dpi_y_resolution);
+                        if (diff < min_diff_resolution) {
+                            min_diff_resolution = diff;
+                            min_diff_bits_per_pixel = target_bits_per_pixel - ba_header.get_bits_per_pixel();
+                            best_fitting_header = ba_header;
+                            found = true;
+                        }
+                        else if (diff == min_diff_resolution) {
+                            // equality of sizes and resolutions fittings, let's compare then colors counts
+                            const std::uint32_t _bits_per_pixel{ ba_header.get_bits_per_pixel() };
+                            if (_bits_per_pixel <= target_bits_per_pixel) {
+                                diff = target_bits_per_pixel - _bits_per_pixel;
+                                if (diff < min_diff_bits_per_pixel) {
+                                    min_diff_bits_per_pixel = diff;
+                                    best_fitting_header = ba_header;
+                                    found = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (min_diff_bits_per_pixel == 0 && min_diff_dims == 0 && min_diff_resolution == 0)
+                break;  // prunning: we've just found the perfect targetted image!
+        }
+
+        if (!found) {
+            // no best fitting image found, so let's return the first one in list as the BMP standard asks for
+            best_fitting_header = ba_headers_list[0];
+        }
+
+        return MyImageBaseClass(
+            in_stream,
+            best_fitting_header,
+            apply_gamma_correction,
+            skipped_mode,
+            force_bottom_up
+        );
+
+    }
+
+    //---------------------------------------------------------------------------
+    template<typename PixelT>
+    BMPBestFittingImage<PixelT> BMPBestFittingImage<PixelT>::load_image(
+        const std::string& filepath,
+        const std::uint32_t target_width,
+        const std::uint32_t target_height,
+        const std::uint32_t target_bits_per_pixel,
+        const std::int32_t target_dpi_resolution,
+        const bool apply_gamma_corection,
+        const bmpl::clr::ESkippedPixelsMode skipped_mode,
+        const bool force_bottom_up
+    ) noexcept
+    {
+        return load_image(
+            filepath,
+            target_width,
+            target_height,
+            target_bits_per_pixel,
+            target_dpi_resolution, 
+            target_dpi_resolution,
+            apply_gamma_corection,
+            skipped_mode,
+            force_bottom_up
+        );
     }
 
 
@@ -335,24 +466,18 @@ namespace bmpl
     // BMPBestFittingColorsImage
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline BMPBestFittingColorsImage<PixelT>::BMPBestFittingColorsImage()
-        : MyBaseClass()
-    {}
-
-    //---------------------------------------------------------------------------
-    template<typename PixelT>
     inline BMPBestFittingColorsImage<PixelT>::BMPBestFittingColorsImage(
         const std::string& filepath_,
-        const std::uint32_t target_colors_count_,
+        const std::uint32_t target_bits_per_pixel,
         const bool apply_gamma_corection_,
         const bmpl::clr::ESkippedPixelsMode skipped_mode_,
         const bool force_bottom_up_
     ) noexcept
-        : MyBaseClass()
+        : MyImageBaseClass()
     {
         load_image(
             filepath_,
-            target_colors_count_,
+            target_bits_per_pixel,
             apply_gamma_corection_,
             skipped_mode_,
             force_bottom_up_
@@ -362,20 +487,23 @@ namespace bmpl
     //---------------------------------------------------------------------------
     template<typename PixelT>
     const bool BMPBestFittingColorsImage<PixelT>::load_image(
-        const std::string& filepath_,
-        const std::uint32_t target_colors_count_,
-        const bool apply_gamma_corection_,
-        const bmpl::clr::ESkippedPixelsMode skipped_mode_,
-        const bool force_bottom_up_
+        const std::string& filepath,
+        const std::uint32_t target_bits_per_pixel,
+        const bool apply_gamma_correction,
+        const bmpl::clr::ESkippedPixelsMode skipped_mode,
+        const bool force_bottom_up
     ) noexcept
     {
-        if (!_set_bmp_loader(filepath_, apply_gamma_correction_, skipped_mode_, force_bottom_up_))
+        /*
+        if (!_set_bmp_loader(filepath, apply_gamma_correction, skipped_mode, force_bottom_up))
             return false;
 
-        if (this->_bmp_loader_ptr->load_best_fitting_colors_image_content(colors_count_))
+        if (this->_bmp_loader_ptr->load_best_fitting_colors_image_content(colors_count))
             return _clr_err();
         else
             return _set_err(this->_bmp_loader_ptr->get_error());
+        */
+        return false;
     }
 
 
@@ -383,50 +511,90 @@ namespace bmpl
     // BMPBestFittingResolutionImage
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline BMPBestFittingResolutionImage<PixelT>::BMPBestFittingResolutionImage()
-        : MyBaseClass()
-    {}
+    inline BMPBestFittingResolutionImage<PixelT>::BMPBestFittingResolutionImage(
+        const std::string& filepath,
+        const std::int32_t target_dpi_x_resolution,
+        std::int32_t target_dpi_y_resolution,
+        const bool apply_gamma_correction,
+        const bmpl::clr::ESkippedPixelsMode skipped_mode,
+        const bool force_bottom_up
+    ) noexcept
+        : MyImageBaseClass()
+    {
+        load_image(
+            filepath,
+            target_dpi_x_resolution,
+            target_dpi_y_resolution,
+            apply_gamma_correction,
+            skipped_mode,
+            force_bottom_up
+        );
+    }
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
     inline BMPBestFittingResolutionImage<PixelT>::BMPBestFittingResolutionImage(
-        const std::string& filepath_,
-        const std::int32_t target_dpi_x_resolution_,
-        std::int32_t target_dpi_y_resolution_,
-        const bool apply_gamma_corection_,
-        const bmpl::clr::ESkippedPixelsMode skipped_mode_,
-        const bool force_bottom_up_
+        const std::string& filepath,
+        const std::int32_t target_dpi_resolution,
+        const bool apply_gamma_correction,
+        const bmpl::clr::ESkippedPixelsMode skipped_mode,
+        const bool force_bottom_up
     ) noexcept
-        : MyBaseClass()
+        : MyImageBaseClass()
     {
         load_image(
-            filepath_,
-            target_dpi_x_resolution_,
-            target_dpi_y_resolution_,
-            apply_gamma_corection_,
-            skipped_mode_,
-            force_bottom_up_
+            filepath,
+            target_dpi_resolution,
+            target_dpi_resolution,
+            apply_gamma_correction,
+            skipped_mode,
+            force_bottom_up
         );
     }
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
     const bool BMPBestFittingResolutionImage<PixelT>::load_image(
-        const std::string& filepath_,
-        const std::int32_t target_dpi_x_resolution_,
-        std::int32_t target_dpi_y_resolution_,
-        const bool apply_gamma_corection_,
-        const bmpl::clr::ESkippedPixelsMode skipped_mode_,
-        const bool force_bottom_up_
+        const std::string& filepath,
+        const std::int32_t target_dpi_x_resolution,
+        std::int32_t target_dpi_y_resolution,
+        const bool apply_gamma_correction,
+        const bmpl::clr::ESkippedPixelsMode skipped_mode,
+        const bool force_bottom_up
     ) noexcept
     {
-        if (!_set_bmp_loader(filepath_, apply_gamma_correction_, skipped_mode_, force_bottom_up_))
+        /*
+        if (!_set_bmp_loader(filepath, apply_gamma_correction, skipped_mode, force_bottom_up))
             return false;
 
-        if (this->_bmp_loader_ptr->load_best_fitting_resolution_image_content(dpi_x_resolution_, dpi_y_resolution_))
+        if (this->_bmp_loader_ptr->load_best_fitting_resolution_image_content(dpi_x_resolution, dpi_y_resolution))
             return _clr_err();
         else
             return _set_err(this->_bmp_loader_ptr->get_error());
+        */
+        return false;
+    }
+
+    //---------------------------------------------------------------------------
+    template<typename PixelT>
+    const bool BMPBestFittingResolutionImage<PixelT>::load_image(
+        const std::string& filepath,
+        const std::int32_t target_dpi_resolution,
+        const bool apply_gamma_correction,
+        const bmpl::clr::ESkippedPixelsMode skipped_mode,
+        const bool force_bottom_up
+    ) noexcept
+    {
+        /*
+        if (!_set_bmp_loader(filepath, apply_gamma_correction, skipped_mode, force_bottom_up))
+            return false;
+
+        if (this->_bmp_loader_ptr->load_best_fitting_resolution_image_content(dpi_resolution, dpi_resolution))
+            return _clr_err();
+        else
+            return _set_err(this->_bmp_loader_ptr->get_error());
+        */
+        return false;
     }
 
 
@@ -434,50 +602,71 @@ namespace bmpl
     // BMPBestFittingSizeImage
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    inline BMPBestFittingSizeImage<PixelT>::BMPBestFittingSizeImage()
-        : MyBaseClass()
-    {}
-
-    //---------------------------------------------------------------------------
-    template<typename PixelT>
     inline BMPBestFittingSizeImage<PixelT>::BMPBestFittingSizeImage(
-        const std::string& filepath_,
-        const std::uint32_t target_width_,
-        const std::uint32_t target_height_,
-        const bool apply_gamma_corection_,
-        const bmpl::clr::ESkippedPixelsMode skipped_mode_,
-        const bool force_bottom_up_
+        const std::string& filepath,
+        const std::uint32_t target_width,
+        const std::uint32_t target_height,
+        const bool apply_gamma_correction,
+        const bmpl::clr::ESkippedPixelsMode skipped_mode,
+        const bool force_bottom_up
     ) noexcept
-        : MyBaseClass()
+        : MyImageBaseClass()
     {
         load_image(
-            filepath_,
-            target_width_,
-            target_height_,
-            apply_gamma_corection_,
-            skipped_mode_,
-            force_bottom_up_
+            filepath,
+            target_width,
+            target_height,
+            apply_gamma_correction,
+            skipped_mode,
+            force_bottom_up
         );
     }
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
     const bool BMPBestFittingSizeImage<PixelT>::load_image(
-        const std::string& filepath_,
-        const std::uint32_t target_width_,
-        const std::uint32_t target_height_,
-        const bool apply_gamma_corection_,
-        const bmpl::clr::ESkippedPixelsMode skipped_mode_,
-        const bool force_bottom_up_
+        const std::string& filepath,
+        const std::uint32_t target_width,
+        const std::uint32_t target_height,
+        const bool apply_gamma_corrction,
+        const bmpl::clr::ESkippedPixelsMode skipped_mode,
+        const bool force_bottom_up
     ) noexcept
     {
-        if (!_set_bmp_loader(filepath_, apply_gamma_correction_, skipped_mode_, force_bottom_up_))
+        /*
+        if (!_set_bmp_loader(filepath, apply_gamma_correction, skipped_mode, force_bottom_up))
             return false;
 
-        if (this->_bmp_loader_ptr->load_best_fitting_size_image_content(width_, height_))
+        if (this->_bmp_loader_ptr->load_best_fitting_size_image_content(target_width, target_height))
             return _clr_err();
         else
             return _set_err(this->_bmp_loader_ptr->get_error());
+        */
+        return false;
     }
+
+
+    //===========================================================================
+    // Template specializations
+
+    using RGBBMPBestFittingImage = BMPBestFittingImage<bmpl::clr::RGB>;
+    using RGBABMPBestFittingImage = BMPBestFittingImage<bmpl::clr::RGBA>;
+    using BGRBMPBestFittingImage = BMPBestFittingImage<bmpl::clr::BGR>;
+    using BGRABMPBestFittingImage = BMPBestFittingImage<bmpl::clr::BGRA>;
+
+    using RGBBMPBestFittingColorsImage = BMPBestFittingColorsImage<bmpl::clr::RGB>;
+    using RGBABMPBestFittingColorsImage = BMPBestFittingColorsImage<bmpl::clr::RGBA>;
+    using BGRBMPBestFittingColorsImage = BMPBestFittingColorsImage<bmpl::clr::BGR>;
+    using BGRABMPBestFittingColorsImage = BMPBestFittingColorsImage<bmpl::clr::BGRA>;
+
+    using RGBBMPBestFittingResolutionImage = BMPBestFittingResolutionImage<bmpl::clr::RGB>;
+    using RGBABMPBestFittingResolutionImage = BMPBestFittingResolutionImage<bmpl::clr::RGBA>;
+    using BGRBMPBestFittingResolutionImage = BMPBestFittingResolutionImage<bmpl::clr::BGR>;
+    using BGRABMPBestFittingResolutionImage = BMPBestFittingResolutionImage<bmpl::clr::BGRA>;
+
+    using RGBBMPBestFittingSizeImage = BMPBestFittingSizeImage<bmpl::clr::RGB>;
+    using RGBABMPBestFittingSizeImage = BMPBestFittingSizeImage<bmpl::clr::RGBA>;
+    using BGRBMPBestFittingSizeImage = BMPBestFittingSizeImage<bmpl::clr::BGR>;
+    using BGRABMPBestFittingSizeImage = BMPBestFittingSizeImage<bmpl::clr::BGRA>;
 
 }

@@ -54,7 +54,7 @@ namespace bmpl
 
             inline const std::uint32_t get_colors_count() const noexcept
             {
-                return this->used_colors_count;;
+                return this->used_colors_count;
             }
 
         };

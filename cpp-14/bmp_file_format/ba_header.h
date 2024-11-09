@@ -91,6 +91,9 @@ namespace bmpl
             static BAHeadersList get_BA_headers(bmpl::utils::LEInStream& in_stream) noexcept;
 
             [[nodiscard]]
+            const std::uint32_t get_bits_per_pixel() const noexcept;
+
+            [[nodiscard]]
             const std::uint32_t get_colors_count() const noexcept;
 
             [[nodiscard]]
