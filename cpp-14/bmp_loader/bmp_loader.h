@@ -702,7 +702,7 @@ namespace bmpl
 
             this->set_unique_warnings();
 
-            return true;  // this->image_content;
+            return true;
         }
 
 
