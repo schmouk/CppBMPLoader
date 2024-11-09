@@ -230,13 +230,15 @@ namespace bmpl
 
         inline BMPBestFittingSizeImage() noexcept = default;
 
+        inline BMPBestFittingSizeImage(const bmpl::BMPImage<PixelT> image) noexcept;
+
         inline BMPBestFittingSizeImage(
-            const std::string& filepath_,
-            const std::uint32_t target_width_,
-            const std::uint32_t target_height_,
-            const bool apply_gamma_corection_ = false,
-            const bmpl::clr::ESkippedPixelsMode skipped_mode_ = bmpl::clr::ESkippedPixelsMode::BLACK,
-            const bool force_bottom_up_ = false
+            const std::string& filepath,
+            const std::uint32_t target_width,
+            const std::uint32_t target_height,
+            const bool apply_gamma_corection = false,
+            const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK,
+            const bool force_bottom_up_= false
         ) noexcept;
 
         BMPBestFittingSizeImage(const BMPBestFittingSizeImage&) noexcept = default;
@@ -245,19 +247,16 @@ namespace bmpl
         virtual inline ~BMPBestFittingSizeImage() noexcept = default;
 
 
-        [[nodiscard]]
         BMPBestFittingSizeImage& operator=(const BMPBestFittingSizeImage&) noexcept = default;
-
-        [[nodiscard]]
         BMPBestFittingSizeImage& operator=(BMPBestFittingSizeImage&&) noexcept = default;
 
-        const bool load_image(
-            const std::string& filepath_,
-            const std::uint32_t target_width_,
-            const std::uint32_t target_height_,
-            const bool apply_gamma_corection_ = false,
-            const bmpl::clr::ESkippedPixelsMode skipped_mode_ = bmpl::clr::ESkippedPixelsMode::BLACK,
-            const bool force_bottom_up_ = false
+        BMPBestFittingSizeImage load_image(
+            const std::string& filepath,
+            const std::uint32_t target_width,
+            const std::uint32_t target_height,
+            const bool apply_gamma_corection = false,
+            const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK,
+            const bool force_bottom_up = false
         ) noexcept;
 
     };
@@ -702,6 +701,12 @@ namespace bmpl
     // BMPBestFittingSizeImage
     //---------------------------------------------------------------------------
     template<typename PixelT>
+    BMPBestFittingSizeImage<PixelT>::BMPBestFittingSizeImage(const bmpl::BMPImage<PixelT> image) noexcept
+        : MyImageBaseClass(image)
+    {}
+
+    //---------------------------------------------------------------------------
+    template<typename PixelT>
     inline BMPBestFittingSizeImage<PixelT>::BMPBestFittingSizeImage(
         const std::string& filepath,
         const std::uint32_t target_width,
@@ -712,7 +717,7 @@ namespace bmpl
     ) noexcept
         : MyImageBaseClass()
     {
-        load_image(
+        *this = load_image(
             filepath,
             target_width,
             target_height,
@@ -724,25 +729,69 @@ namespace bmpl
 
     //---------------------------------------------------------------------------
     template<typename PixelT>
-    const bool BMPBestFittingSizeImage<PixelT>::load_image(
+    BMPBestFittingSizeImage<PixelT> BMPBestFittingSizeImage<PixelT>::load_image(
         const std::string& filepath,
         const std::uint32_t target_width,
         const std::uint32_t target_height,
-        const bool apply_gamma_corrction,
+        const bool apply_gamma_correction,
         const bmpl::clr::ESkippedPixelsMode skipped_mode,
         const bool force_bottom_up
     ) noexcept
     {
-        /*
-        if (!_set_bmp_loader(filepath, apply_gamma_correction, skipped_mode, force_bottom_up))
-            return false;
+        if (!bmpl::frmt::BAHeader::is_BA_file(filepath)) {
+            // only one image to be loaded, can't provide a better one.
+            return MyImageBaseClass(filepath, apply_gamma_correction, skipped_mode, force_bottom_up);
+        }
 
-        if (this->_bmp_loader_ptr->load_best_fitting_size_image_content(target_width, target_height))
-            return _clr_err();
-        else
-            return _set_err(this->_bmp_loader_ptr->get_error());
-        */
-        return false;
+        // ok, "BA" file
+        bmpl::utils::LEInStream in_stream(filepath);
+        if (in_stream.failed()) {
+            // some error happenned while attempting to open the compressed image file
+            return MyImageBaseClass(in_stream.get_error());
+        }
+
+        bmpl::frmt::BAHeadersList ba_headers_list{ bmpl::frmt::BAHeader::get_BA_headers(in_stream) };
+        if (ba_headers_list.failed()) {
+            // an error happened while reading the list of BA headers
+            return MyImageBaseClass(ba_headers_list.get_error());
+        }
+
+        std::uint32_t min_diff_dims{ 0xffff'ffff };
+        bmpl::frmt::BAHeader best_fitting_header{};
+        bool found{ false };
+
+        for (bmpl::frmt::BAHeader& ba_header : ba_headers_list) {
+            // let's compare dimensions of images
+            const std::uint32_t hdr_width{ ba_header.get_width() };
+            const std::uint32_t hdr_height{ ba_header.get_height() };
+
+            if (hdr_width <= target_width && hdr_height <= target_height) {
+                std::uint32_t diff{ (target_width - hdr_width) + (target_height - hdr_height) };
+
+                if (diff < min_diff_dims) {
+                    min_diff_dims = diff;
+                    best_fitting_header = ba_header;
+                    found = true;
+
+                    if (diff == 0)
+                        break;  // prunning: we've just found the perfect targetted image!
+                }
+            }
+        }
+
+        if (!found) {
+            // no best fitting image found, so let's return the first one in list as the BMP standard asks for
+            best_fitting_header = ba_headers_list[0];
+        }
+
+        return MyImageBaseClass(
+            in_stream,
+            best_fitting_header,
+            apply_gamma_correction,
+            skipped_mode,
+            force_bottom_up
+        );
+
     }
 
 
