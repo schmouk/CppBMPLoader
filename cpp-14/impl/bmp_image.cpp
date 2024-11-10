@@ -30,35 +30,52 @@ SOFTWARE.
 */
 
 
-#include <cmath>
+// Let's exclude rarely-used stuff from Windows headers
+// (gets no effect on non Windows platforms)
+#define WIN32_LEAN_AND_MEAN
 
-#include "types.h"
 
+#include "../bmp_image.h"
 
 namespace bmpl
 {
-    namespace utils
+    //---------------------------------------------------------------------------
+    NextImageLoader::NextImageLoader(const std::string& filepath) noexcept
+        : MyErrBaseClass()
+        , _filepath(filepath)
+        , _ba_headers(bmpl::frmt::BAHeader::get_BA_headers(filepath))
+        , _ba_hdr_iter(filepath, _ba_headers)
     {
-        //===========================================================================
-        Frac16_16& Frac16_16::operator= (const double val) noexcept
-        {
-            if (val >= 65536.0) {
-                this->value = std::uint32_t(0xffff'ffff);
-            }
-            else if (val <= 0.0) {
-                this->value = std::uint32_t(0);
-            }
-            else {
-                const double d_mantissa{ std::trunc(val) };
-
-                const std::uint32_t mantissa{ std::uint32_t(d_mantissa)};
-                const std::uint32_t frac{ std::uint32_t((val - d_mantissa) * 65536.0) };
-                
-                this->value = (mantissa << 16) + (frac & 0xffff);
-            }
-
-            return *this;
+        if (this->_ba_headers.failed()) {
+            _set_err(this->_ba_headers.get_error());
         }
-
+        else if (this->_ba_hdr_iter.failed()) {
+            _set_err(this->_ba_hdr_iter.get_error());
+        }
+        else {
+            _clr_err();
+        }
     }
+
+
+    //---------------------------------------------------------------------------
+    const std::string NextImageLoader::get_error_msg() const noexcept
+    {
+        return bmpl::utils::error_msg(this->get_filepath(), get_error());
+    }
+
+
+    //---------------------------------------------------------------------------
+    const std::string NextImageLoader::get_filepath() const noexcept
+    {
+        return this->_filepath;
+    }
+
+
+    //---------------------------------------------------------------------------
+    void NextImageLoader::reset() noexcept
+    {
+        this->_ba_hdr_iter.reset();
+    }
+
 }

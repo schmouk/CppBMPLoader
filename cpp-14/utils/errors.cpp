@@ -25,7 +25,7 @@ SOFTWARE.
 
 /*
 * NOTICE: code here is implemented according to the c++14 standard.  It should
-* function  as  well  when  compiled  with  standard  c++11  because  no c++14
+* function  as  well  when  compiled  with  standard  c++11  since  no   c++14
 * specificities have been used there, but it has not been tested as such.
 */
 
@@ -36,8 +36,7 @@ namespace bmpl
 {
     namespace utils
     {
-
-
+        //---------------------------------------------------------------------------
         const std::string error_msg(const ErrorCode err_code) noexcept
         {
             switch (err_code)
@@ -64,6 +63,8 @@ namespace bmpl
                 return "bad specified size for data profile.";
             case ErrorCode::BMP_BAD_ENCODING:
                 return "bad BMP format encoding.";
+            case ErrorCode::BMP_LOADER_INSTANTIATION_FAILED:
+                return "no BMP Loader can be instantiated, maybe because of memory resource lacking.";
             case ErrorCode::BUFFER_OVERFLOW:
                 return "incoherent run length encoding creates a buffer overflow";
             case ErrorCode::CORRUPTED_BMP_FILE:
@@ -94,6 +95,8 @@ namespace bmpl
                 return "incoherent Run Length Encoding control value.";
             case ErrorCode::INPUT_OPERATION_FAILED:
                 return "some imput operation failed on file.";
+            case ErrorCode::INVALID_BA_NEXT_OFFSET_VALUE:
+                return "an invalid value for field 'next offset' has been detected in a BA file header.";
             case ErrorCode::INVALID_BITMAP_OFFSET:
                 return "the specified bitmap offset in file is invalid - gets a bigger value than the file size.";
             case ErrorCode::INVALID_DEVICE_RESOLUTION:
@@ -124,8 +127,6 @@ namespace bmpl
                 return "a bad type for a bitmap array file header has been detected.";
             case ErrorCode::NOT_INITIALIZED:
                 return "file is currently not initialized.";
-            case ErrorCode::NOT_OS2_BITMAP_FORMAT:
-                return "a not OS/2 bitmap format has been detected in this bitmap multi-image data file, which is forbidden.";
             case ErrorCode::NOT_WINDOWS_BMP:
                 return "file is not a Windows BMP file.";
             case ErrorCode::NOT_YET_IMPLEMENTED_HUFFMAN_1D_DECODING:
@@ -140,12 +141,15 @@ namespace bmpl
                 return "input operation on Run Length Encoded bitmap has failed.";
             case ErrorCode::TOO_BIG_BITS_PER_PIXEL_VALUE:
                 return "too big value for bits count per pixel.";
+            case ErrorCode::UNABLE_TO_CREATE_BITMAP_LOADER:
+                return "unable to internally create a bitmap loader - maybe ran out of memory.";
             default:
                 return "unkown error...";
             }
         }
 
 
+        //---------------------------------------------------------------------------
         const std::string error_msg(const std::string& file_path, const ErrorCode err_code) noexcept
         {
             std::strstream msg;

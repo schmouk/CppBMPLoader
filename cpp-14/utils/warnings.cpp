@@ -25,7 +25,7 @@ SOFTWARE.
 
 /*
 * NOTICE: code here is implemented according to the c++14 standard.  It should
-* function  as  well  when  compiled  with  standard  c++11  because  no c++14
+* function  as  well  when  compiled  with  standard  c++11  since  no   c++14
 * specificities have been used there, but it has not been tested as such.
 */
 
@@ -36,7 +36,7 @@ namespace bmpl
 {
     namespace utils
     {
-
+        //---------------------------------------------------------------------------
         const std::string warning_msg(const WarningCode warn_code) noexcept
         {
             switch (warn_code)
@@ -48,33 +48,33 @@ namespace bmpl
             case WarningCode::BAD_FILE_SIZE_IN_HEADER:
                 return "the file size indicated in header is not the actual size of this file.";
             case WarningCode::BAD_HALFTONING_MODE_VALUE:
-                return "an invalid value for the halftoning algorithm used on the bitmap data has been detected; CppBMPLoader decodes it nevertheless.";
+                return "an invalid value for the halftoning algorithm used with the bitmap data has been detected; CppBMPLoader decodes it nevertheless.";
             case WarningCode::BAD_IMPORTANT_COLORS_COUNT:
                 return "the 'important colors' count appears to be greater than the defined colors count.";
             case WarningCode::BAD_PALETTE_INDICES:
-                return "one or many palett indices used for pixels are not present in color palett - index 0 used instead.";
+                return "one or many palette indices used for pixels are not present in color palette - index 0 used instead.";
             case WarningCode::BAD_PALETTE_SIZE_IN_HEADER:
-                return "header indicates a bad color palett size - bigger than expected, for instance.";
+                return "the info header indicates a bad color palette size - bigger than expected, for instance.";
             case WarningCode::BAD_PLANES_VALUE:
-                return "header indicates a planes count value different from 1.";
+                return "the file header indicates a planes count value different from 1, which is forbidden; CppBMPLibrary decodes this image nevertheless.";
             case WarningCode::BAD_SCANLINE_BYTES_WIDTH:
-                return "the specified width for scan lines is incoherent with the expected true width; CppBMPLibrary tries to decode this image file nevertheless.";
+                return "the specified width for scan lines is incoherent with the expected true width; CppBMPLibrary tries to decode this image nevertheless.";
             case WarningCode::BITFIELDS_AND_PALETT:
-                return "a color palett is encoded while bitfields masks are defined.";
+                return "a color palette is encoded while bitfields masks are defined.";
             case WarningCode::CORRECTED_GAMMA_BLUE:
-                return "strange gamma value on blue component, forced to 2.2.";
+                return "strange gamma correction value on blue component, forced to 2.2.";
             case WarningCode::CORRECTED_GAMMA_GREEN:
-                return "strange gamma value on green component, forced to 2.2.";
+                return "strange gamma correction value on green component, forced to 2.2.";
             case WarningCode::CORRECTED_GAMMA_RED:
-                return "strange gamma value on red component, forced to 2.2.";
+                return "strange gamma correction value on red component, forced to 2.2.";
             case WarningCode::DELTA_MODE_MAY_OVERFLOW:
                 return "some value specified in RLE delta mode may cause buffers overflow.";
             case WarningCode::EMBEDDED_PROFILE_NOT_IMPLEMENTED:
                 return "ICC embedded profiles are not implemented in CppBMPLoader library which uses plain coded colors instead.";
             case WarningCode::FORBIDDEN_TOP_DOWN_ORIENTATION:
-                return "top-down orientation of image is not allowed with RLE-compression; CppBMPLoader library tries to decode it nevertheless.";
+                return "top-down orientation of image is not allowed with RLE-compression; CppBMPLoader library tries to decode this image nevertheless.";
             case WarningCode::GAP_BTW_COLORMAP_AND_BITMAP:
-                return "some gap exists between colormap and image bitmap; CppBMPLoader decodes the image nevertheless.";
+                return "some gap exists between colormap and image bitmap; CppBMPLoader decodes this image nevertheless.";
             case WarningCode::HOT_POINT_SET:
                 return "a hot point X and Y values are set in file header while they should not; CppBMPLoader library nevertheless decodes this file as a BMP one.";
             case WarningCode::INCOHERENT_IMAGE_SIZE:
@@ -88,27 +88,27 @@ namespace bmpl
             case WarningCode::INVALID_DAMPING_VALUE:
                 return "the specified damping value for the halftoning error diffusion is invalid (greater than 100%).";
             case WarningCode::INVALID_RESOLUTION_UNITS:
-                return "a non-zero resolution units value different has been detected - this is invalid; CppBMPLoader library decodes this file nevertheless.";
+                return "a non-zero resolution units value different has been detected - this is invalid; CppBMPLoader library decodes this image nevertheless.";
             case WarningCode::LINKED_PROFILE_NOT_IMPLEMENTED:
                 return "for security issues, ICC linked profiles are not implemented in CppBMPLoader library which uses plain coded colors instead.";
             case WarningCode::MISSING_BITFIELDS_MASKS:
                 return "at least on color bits mask is missing in bitfields definition.";
             case WarningCode::MISSING_COLORMAP_ENTRIES:
-                return "a less-than-full-sized colormap has been detected in file; CppBMPLoader library tries to decode it nevertheless.";
+                return "a less-than-full-sized colormap has been detected in file; CppBMPLoader library tries to decode this image nevertheless.";
             case WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP:
                 return "too small bitmap, last image pixels are set to default value.";
+            case WarningCode::NOT_OS2_BITMAP_FORMAT:
+                return "a not OS/2 bitmap format has been detected in a bitmap multi-image data file, which should be an encoding error; CppBMPLoader library decodes the related image nevertheless.";
             case WarningCode::NOT_ZERO_RESERVED:
-                return "a reserved word is not set to zero.";
+                return "a reserved word is not set to zero while it should have been; CppBMPLoader library tries to decode this image nevertheless.";
             case WarningCode::PALETT_WITH_FULL_COLORS:
-                return "a color palett is defined while this is a full-color bitmap.";
-            case WarningCode::SOME_GAP_BTW_PALETT_AND_BITMAP:
-                return "unused bytes appear between colors palett and start of bitmap.";
-            case WarningCode::SRGB_NOT_IMPLEMENTED:
-                return "the sRGB color space type embedded in this BMP file is not yet implemented here - a naive decoding is done instead.";
+                return "a color palette is defined while this is a full-color bitmap.";
+            case WarningCode::SOME_GAP_BTW_PALETTE_AND_BITMAP:
+                return "unused bytes appear between colors palette and start of bitmap.";
             case WarningCode::TOO_BIG_PALETTE:
                 return "too many colors are defined in palette, extra ones will be ignored.";
             case WarningCode::TOO_MANY_COLORS_IN_PALETT:
-                return "too many colors are defined in palett, some of them won't be used.";
+                return "too many colors are defined in palette, some of them won't be used.";
             case WarningCode::TOO_MANY_INDICES_IN_BITMAP:
                 return "bitmap contains too many indices according to final image size.";
             case WarningCode::UNUSED_BITS_SET_TO_1:
@@ -116,13 +116,14 @@ namespace bmpl
             case WarningCode::UNUSED_PALETTE:
                 return "An unused palette is defined in BMP file.";
             case WarningCode::WIN_CE_2_BITS_PIXELS:
-                return "An unusual 2-bits per pixel specification is only allowed with Windows CE; CppBMPLoader library decodes this nevertheless.";
+                return "The unusual 2-bits per pixel specification is only allowed with Windows CE; CppBMPLoader library decodes this image nevertheless.";
             default:
                 return "unkown warning...";
             }
         }
 
 
+        //---------------------------------------------------------------------------
         const std::string warning_msg(const std::string& file_path, const WarningCode warn_code) noexcept
         {
             std::strstream msg;
@@ -131,6 +132,7 @@ namespace bmpl
         }
 
 
+        //---------------------------------------------------------------------------
         void WarningStatus::set_unique_warnings()
         {
             std::sort(_warnings_list.begin(), _warnings_list.end());

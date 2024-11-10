@@ -27,7 +27,7 @@ SOFTWARE.
 
 /*
 * NOTICE: code here is implemented according to the c++14 standard.  It should
-* function  as  well  when  compiled  with  standard  c++11  because  no c++14
+* function  as  well  when  compiled  with  standard  c++11  since  no   c++14
 * specificities have been used there, but it has not been tested as such.
 */
 
@@ -55,6 +55,7 @@ namespace bmpl
             BAD_PROFILE_DATA_OFFSET,
             BAD_PROFILE_SIZE,
             BMP_BAD_ENCODING,
+            BMP_LOADER_INSTANTIATION_FAILED,
             BUFFER_OVERFLOW,
             CORRUPTED_BMP_FILE,
             END_OF_BITMAP_ARRAY,
@@ -70,6 +71,7 @@ namespace bmpl
             INCOHERENT_BMP_LOADER_IMPLEMENTATION,
             INCOHERENT_RUN_LENGTH_ENCODING,
             INPUT_OPERATION_FAILED,
+            INVALID_BA_NEXT_OFFSET_VALUE,
             INVALID_BITMAP_OFFSET,
             INVALID_DEVICE_RESOLUTION,
             INVALID_HEADER_SIZE,
@@ -85,7 +87,6 @@ namespace bmpl
             NOT_BITMAP_ARRAY_FILE_HEADER,
             NOT_BMP_ENCODING,
             NOT_INITIALIZED,
-            NOT_OS2_BITMAP_FORMAT,
             NOT_WINDOWS_BMP,
             NOT_YET_IMPLEMENTED_HUFFMAN_1D_DECODING,
             NOT_YET_IMPLEMENTED_JPEG_DECODING,
@@ -93,6 +94,7 @@ namespace bmpl
             OVERLAPPING_BITFIELD_MASKS,
             RLE_INPUT_OPERATION_FAILED,
             TOO_BIG_BITS_PER_PIXEL_VALUE,
+            UNABLE_TO_CREATE_BITMAP_LOADER,
         };
 
 
@@ -111,38 +113,43 @@ namespace bmpl
                 : _current_error_code(ErrorCode::NOT_INITIALIZED)
             {}
 
-
             inline ErrorStatus(const ErrorCode err_code) noexcept
                 : _current_error_code(err_code)
             {}
 
-            inline ErrorStatus(const ErrorStatus&) noexcept = default;
-            inline ErrorStatus(ErrorStatus&&) noexcept = default;
+            ErrorStatus(const ErrorStatus&) noexcept = default;
+            ErrorStatus(ErrorStatus&&) noexcept = default;
 
-            inline virtual ~ErrorStatus() noexcept = default;
+            virtual ~ErrorStatus() noexcept = default;
 
-            inline ErrorStatus& operator= (const ErrorStatus&) noexcept = default;
-            inline ErrorStatus& operator= (ErrorStatus&&) noexcept = default;
+            ErrorStatus& operator= (const ErrorStatus&) noexcept = default;
+            ErrorStatus& operator= (ErrorStatus&&) noexcept = default;
 
-
+            [[nodiscard]]
             inline operator bool() const noexcept
             {
                 return is_ok();
             }
 
+            [[nodiscard]]
+            virtual inline const bool operator! () const noexcept
+            {
+                return failed();
+            }
 
+            [[nodiscard]]
             inline const bmpl::utils::ErrorCode get_error() const noexcept
             {
                 return _current_error_code;
             }
 
-
+            [[nodiscard]]
             inline const bool is_ok() const noexcept
             {
                 return get_error() == ErrorCode::NO_ERROR;
             }
 
-
+            [[nodiscard]]
             inline const bool failed() const noexcept
             {
                 return !is_ok();

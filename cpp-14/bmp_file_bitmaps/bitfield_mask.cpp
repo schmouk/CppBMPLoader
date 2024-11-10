@@ -25,7 +25,7 @@ SOFTWARE.
 
 /*
 * NOTICE: code here is implemented according to the c++14 standard.  It should
-* function  as  well  when  compiled  with  standard  c++11  because  no c++14
+* function  as  well  when  compiled  with  standard  c++11  since  no   c++14
 * specificities have been used there, but it has not been tested as such.
 */
 
@@ -96,7 +96,7 @@ namespace bmpl
             // let's evaluate the set bits indexes in the mask
             std::uint32_t _mask{ mask };
             std::uint32_t bits_count{ 0 };
-            std::vector<std::uint8_t> bits_indexes;
+            std::vector<std::uint8_t> bits_indexes{ 0 };
             for (int index = 31; _mask != 0 && index >= 0; --index) {
                 if (_mask & 0x8000'0000) {
                     bits_indexes.push_back(index);

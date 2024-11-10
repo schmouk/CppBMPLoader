@@ -46,4 +46,5 @@ docs
 # This project specifics
 archive
 cpp-bmp-loader
+create_ba_files
 tests

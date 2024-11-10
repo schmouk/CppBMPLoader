@@ -1,3 +1,5 @@
+#pragma once
+
 /*
 MIT License
 
@@ -30,9 +32,14 @@ SOFTWARE.
 */
 
 
-#include <cmath>
+// Let's exclude rarely-used stuff from Windows headers
+// (gets no effect on non Windows platforms)
+#define WIN32_LEAN_AND_MEAN
 
-#include "types.h"
+
+#include <vector>
+
+#include "errors.h"
 
 
 namespace bmpl
@@ -40,25 +47,37 @@ namespace bmpl
     namespace utils
     {
         //===========================================================================
-        Frac16_16& Frac16_16::operator= (const double val) noexcept
+        template<typename ItemT>
+        struct ListWithStatus : public std::vector<ItemT>, public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
         {
-            if (val >= 65536.0) {
-                this->value = std::uint32_t(0xffff'ffff);
-            }
-            else if (val <= 0.0) {
-                this->value = std::uint32_t(0);
-            }
-            else {
-                const double d_mantissa{ std::trunc(val) };
+            inline ListWithStatus() noexcept
+                : std::vector<ItemT>()
+                , bmpl::utils::ErrorStatus(bmpl::utils::ErrorCode::NO_ERROR)
+                , bmpl::utils::WarningStatus()
+            {}
 
-                const std::uint32_t mantissa{ std::uint32_t(d_mantissa)};
-                const std::uint32_t frac{ std::uint32_t((val - d_mantissa) * 65536.0) };
-                
-                this->value = (mantissa << 16) + (frac & 0xffff);
+
+            inline ListWithStatus(const bmpl::utils::ErrorStatus error_code) noexcept
+                : std::vector<ItemT>()
+                , bmpl::utils::ErrorStatus(error_code)
+                , bmpl::utils::WarningStatus()
+            {}
+
+
+            ListWithStatus(const ListWithStatus&) noexcept = default;
+            ListWithStatus(ListWithStatus&&) noexcept = default;
+
+            virtual ~ListWithStatus() noexcept = default;
+
+            ListWithStatus& operator= (const ListWithStatus&) noexcept = default;
+            ListWithStatus& operator= (ListWithStatus&&) noexcept = default;
+
+            inline void set_error(const bmpl::utils::ErrorCode err_code) noexcept
+            {
+                _set_err(err_code);
             }
 
-            return *this;
-        }
+        };
 
     }
 }

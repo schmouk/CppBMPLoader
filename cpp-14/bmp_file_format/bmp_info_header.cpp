@@ -25,7 +25,7 @@ SOFTWARE.
 
 /*
 * NOTICE: code here is implemented according to the c++14 standard.  It should
-* function  as  well  when  compiled  with  standard  c++11  because  no c++14
+* function  as  well  when  compiled  with  standard  c++11  since  no   c++14
 * specificities have been used there, but it has not been tested as such.
 */
 
@@ -66,16 +66,16 @@ namespace bmpl
         //===========================================================================
         const bool BMPInfoHeaderV3::load(bmpl::utils::LEInStream& in_stream, const bool is_V3_base, const bool is_V5_base) noexcept
         {
-            if (!(in_stream >> width
-                            >> height
-                            >> planes_count
-                            >> bits_per_pixel
-                            >> compression_mode
-                            >> bitmap_size
-                            >> device_x_resolution
-                            >> device_y_resolution
-                            >> used_colors_count
-                            >> important_colors_count))
+            if ((in_stream >> width
+                           >> height
+                           >> planes_count
+                           >> bits_per_pixel
+                           >> compression_mode
+                           >> bitmap_size
+                           >> device_x_resolution
+                           >> device_y_resolution
+                           >> used_colors_count
+                           >> important_colors_count).failed())
             {
                 return _set_err(in_stream.get_error());
             }
@@ -134,12 +134,10 @@ namespace bmpl
             if (bits_per_pixel > 64)
                 return _set_err(bmpl::utils::ErrorCode::TOO_BIG_BITS_PER_PIXEL_VALUE);
 
-            if (is_V3_base && bits_per_pixel != 1 && bits_per_pixel != 2 && bits_per_pixel != 4 && bits_per_pixel != 8) {
-                if (used_colors_count != 0)
-                    set_warning(bmpl::utils::WarningCode::UNUSED_PALETTE);
-            }
+            if (is_V3_base && bits_per_pixel != 1 && bits_per_pixel != 2 && bits_per_pixel != 4 && bits_per_pixel != 8 && used_colors_count != 0)
+                set_warning(bmpl::utils::WarningCode::UNUSED_PALETTE);
 
-            if (used_colors_count == 0 && bits_per_pixel <= 8)  //< 24)
+            if (used_colors_count == 0 && bits_per_pixel <= 8)
                 used_colors_count = 256;
 
             return _clr_err();
@@ -156,11 +154,11 @@ namespace bmpl
                 compression_mode == COMPR_ALPHABITFIELDS ||
                 is_V4_base)
             {
-                if (!(in_stream >> red_mask >> green_mask >> blue_mask))
+                if ((in_stream >> red_mask >> green_mask >> blue_mask).failed())
                     return _set_err(in_stream.get_error());
 
                 if (compression_mode == COMPR_ALPHABITFIELDS)
-                    if (!(in_stream >> alpha_mask))
+                    if ((in_stream >> alpha_mask).failed())
                         return _set_err(in_stream.get_error());
             }
             else {
@@ -184,15 +182,16 @@ namespace bmpl
             if (compression_mode > COMPR_RLE_COLOR_BITMASKS && compression_mode != COMPR_ALPHABITFIELDS)
                 return _set_err(bmpl::utils::ErrorCode::BMP_BAD_ENCODING);
 
-            if (compression_mode == COMPR_RLE_COLOR_BITMASKS) {
-                if (bits_per_pixel != 16 && bits_per_pixel != 32)
-                    return _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
+            if (compression_mode == COMPR_RLE_COLOR_BITMASKS && bits_per_pixel != 16 && bits_per_pixel != 32) {
+                return _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
             }
             else {
                 // checks pixels depth in bits count
                 if (bits_per_pixel != 1 && bits_per_pixel != 2 && bits_per_pixel != 4 && bits_per_pixel != 8 &&
                     bits_per_pixel != 16 && bits_per_pixel != 24 && bits_per_pixel != 32 && bits_per_pixel != 64)
+                {
                     return _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
+                }
             }
 
             return _clr_err();
@@ -205,7 +204,7 @@ namespace bmpl
             if (failed())
                 return false;
 
-            if (!(in_stream >> alpha_mask))
+            if ((in_stream >> alpha_mask).failed())
                 return _set_err(in_stream.get_error());
 
             if ((red_mask & alpha_mask) || (green_mask & alpha_mask) || (blue_mask & alpha_mask))
@@ -232,22 +231,23 @@ namespace bmpl
 
             if (compression_mode == COMPR_EMBEDS_JPEG)
                 return _set_err(bmpl::utils::ErrorCode::NOT_YET_IMPLEMENTED_JPEG_DECODING);
-            else if (compression_mode == COMPR_EMBEDS_PNG)
+            
+            if (compression_mode == COMPR_EMBEDS_PNG)
                 return _set_err(bmpl::utils::ErrorCode::NOT_YET_IMPLEMENTED_PNG_DECODING);
 
-            if (!(in_stream >> (std::uint32_t&)cs_type
-                            >> red_endX
-                            >> red_endY
-                            >> red_endZ
-                            >> green_endX
-                            >> green_endY
-                            >> green_endZ
-                            >> blue_endX
-                            >> blue_endY
-                            >> blue_endZ
-                            >> gamma_red.value
-                            >> gamma_green.value
-                            >> gamma_blue.value))
+            if ((in_stream >> (std::uint32_t&)cs_type
+                           >> red_endX
+                           >> red_endY
+                           >> red_endZ
+                           >> green_endX
+                           >> green_endY
+                           >> green_endZ
+                           >> blue_endX
+                           >> blue_endY
+                           >> blue_endZ
+                           >> gamma_red.value
+                           >> gamma_green.value
+                           >> gamma_blue.value).failed())
                 return _set_err(in_stream.get_error());
 
             if (cs_type != bmpl::clr::ELogicalColorSpace::CALIBRATED_RGB &&
@@ -318,7 +318,7 @@ namespace bmpl
             if (failed())
                 return false;
 
-            if (!(in_stream >> intent >> profile_data >> profile_size >> reserved))
+            if ((in_stream >> intent >> profile_data >> profile_size >> reserved).failed())
                 return _set_err(in_stream.get_error());
 
             if (intent != LCS_GM_BUSINESS && intent != LCS_GM_GRAPHICS && intent != LCS_GM_IMAGES && intent != LCS_GM_ABS_COLORIMETRIC)
@@ -374,29 +374,29 @@ namespace bmpl
         const bool BMPInfoHeaderVOS22::load(bmpl::utils::LEInStream& in_stream) noexcept
         {
 
-            if (!(in_stream >> width
-                            >> height
-                            >> planes_count
-                            >> bits_per_pixel))
+            if ((in_stream >> width
+                           >> height
+                           >> planes_count
+                           >> bits_per_pixel).failed())
             {
                 return _set_err(in_stream.get_error());
             }
 
             if (this->header_size == 64) {
-                if (!(in_stream >> compression_mode
-                                >> bitmap_size
-                                >> device_x_resolution
-                                >> device_y_resolution
-                                >> used_colors_count
-                                >> important_colors_count
-                                >> resolution_units
-                                >> reserved
-                                >> recording_algorithm
-                                >> halftoning_rendering_algorithm
-                                >> halftoning_param_1
-                                >> halftoning_param_2
-                                >> color_encoding
-                                >> application_identifier))
+                if ((in_stream >> compression_mode
+                               >> bitmap_size
+                               >> device_x_resolution
+                               >> device_y_resolution
+                               >> used_colors_count
+                               >> important_colors_count
+                               >> resolution_units
+                               >> reserved
+                               >> recording_algorithm
+                               >> halftoning_rendering_algorithm
+                               >> halftoning_param_1
+                               >> halftoning_param_2
+                               >> color_encoding
+                               >> application_identifier).failed())
                 {
                     return _set_err(in_stream.get_error());
                 }
@@ -472,8 +472,9 @@ namespace bmpl
             {
                 return get_halftoning_param_1();
             }
-            else
+            else {
                 return 0;
+            }
         }
 
 
@@ -485,8 +486,9 @@ namespace bmpl
             {
                 return get_halftoning_param_2();
             }
-            else
+            else {
                 return 0;
+            }
         }
 
 
@@ -508,7 +510,7 @@ namespace bmpl
 
             // let's first load the size of the info header
             std::uint32_t header_size{ 0 };
-            if (!(in_stream >> header_size))
+            if ((in_stream >> header_size).failed())
                 return nullptr;
 
             // then, select the correct class to instantiate

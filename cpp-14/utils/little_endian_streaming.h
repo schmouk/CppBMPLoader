@@ -27,7 +27,7 @@ SOFTWARE.
 
 /*
 * NOTICE: code here is implemented according to the c++14 standard.  It should
-* function  as  well  when  compiled  with  standard  c++11  because  no c++14
+* function  as  well  when  compiled  with  standard  c++11  since  no   c++14
 * specificities have been used there, but it has not been tested as such.
 */
 
@@ -64,13 +64,15 @@ namespace bmpl
 
             using pos_type = MyBaseClass::pos_type;
 
+            std::string filepath{};
 
-            inline LEInStream() noexcept = default;
+            LEInStream() noexcept = default;
 
 
             inline LEInStream(const char* filepath) noexcept
                 : MyBaseClass(filepath, std::ios::binary)
                 , MyErrClass()
+                , filepath(filepath)
             {
                 _check_creation_ok();
             }
@@ -79,12 +81,13 @@ namespace bmpl
             inline LEInStream(const std::string& filepath) noexcept
                 : MyBaseClass(filepath, std::ios::binary)
                 , MyErrClass()
+                , filepath(filepath)
             {
                 _check_creation_ok();
             }
 
 
-            virtual inline ~LEInStream() noexcept = default;
+            virtual ~LEInStream() noexcept = default;
 
 
             const pos_type get_size() noexcept;  // notice: type 'pos_type' is inherited from base class std::ifstream
@@ -101,9 +104,7 @@ namespace bmpl
             
 
         private:
-            
             void _check_creation_ok() noexcept;
-
             void _set_err() noexcept;
 
         };

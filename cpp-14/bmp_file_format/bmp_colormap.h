@@ -27,7 +27,7 @@ SOFTWARE.
 
 /*
 * NOTICE: code here is implemented according to the c++14 standard.  It should
-* function  as  well  when  compiled  with  standard  c++11  because  no c++14
+* function  as  well  when  compiled  with  standard  c++11  since  no   c++14
 * specificities have been used there, but it has not been tested as such.
 */
 
@@ -60,14 +60,14 @@ namespace bmpl
             std::uint32_t colors_count{ 0 };
 
 
-            inline BMPColorMap() noexcept = default;
-            inline BMPColorMap(const BMPColorMap&) noexcept = default;
-            inline BMPColorMap(BMPColorMap&&) noexcept = default;
+            BMPColorMap() noexcept = default;
+            BMPColorMap(const BMPColorMap&) noexcept = default;
+            BMPColorMap(BMPColorMap&&) noexcept = default;
 
-            virtual inline ~BMPColorMap() noexcept = default;
+            virtual ~BMPColorMap() noexcept = default;
 
-            inline BMPColorMap& operator= (const BMPColorMap&) noexcept = default;
-            inline BMPColorMap& operator= (BMPColorMap&&) noexcept = default;
+            BMPColorMap& operator= (const BMPColorMap&) noexcept = default;
+            BMPColorMap& operator= (BMPColorMap&&) noexcept = default;
 
             BMPColorMap(
                 bmpl::utils::LEInStream& in_stream,

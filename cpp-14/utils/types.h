@@ -27,7 +27,7 @@ SOFTWARE.
 
 /*
 * NOTICE: code here is implemented according to the c++14 standard.  It should
-* function  as  well  when  compiled  with  standard  c++11  because  no c++14
+* function  as  well  when  compiled  with  standard  c++11  since  no   c++14
 * specificities have been used there, but it has not been tested as such.
 */
 
@@ -44,8 +44,8 @@ namespace bmpl
         {
             std::uint32_t value{ 0x0001'0000 };  // i.e. 1.0
 
-            inline Frac16_16() noexcept = default;
-            inline virtual ~Frac16_16() noexcept = default;
+            Frac16_16() noexcept = default;
+            virtual ~Frac16_16() noexcept = default;
 
             inline Frac16_16(const std::uint32_t val) noexcept
                 : value(val)
@@ -60,7 +60,6 @@ namespace bmpl
             {
                 *this = val;
             }
-
 
             inline operator float() const noexcept
             {

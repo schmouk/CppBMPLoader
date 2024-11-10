@@ -27,7 +27,7 @@ SOFTWARE.
 
 /*
 * NOTICE: code here is implemented according to the c++14 standard.  It should
-* function  as  well  when  compiled  with  standard  c++11  because  no c++14
+* function  as  well  when  compiled  with  standard  c++11  since  no   c++14
 * specificities have been used there, but it has not been tested as such.
 */
 
@@ -75,10 +75,10 @@ namespace bmpl
             MISSING_BITFIELDS_MASKS,
             MISSING_COLORMAP_ENTRIES,
             NOT_ENOUGH_INDICES_IN_BITMAP,
+            NOT_OS2_BITMAP_FORMAT,
             NOT_ZERO_RESERVED,
             PALETT_WITH_FULL_COLORS,
-            SOME_GAP_BTW_PALETT_AND_BITMAP,
-            SRGB_NOT_IMPLEMENTED,
+            SOME_GAP_BTW_PALETTE_AND_BITMAP,
             TOO_BIG_PALETTE,
             TOO_MANY_COLORS_IN_PALETT,
             TOO_MANY_INDICES_IN_BITMAP,
@@ -102,14 +102,14 @@ namespace bmpl
         class WarningStatus
         {
         public:
-            inline WarningStatus() noexcept = default;
-            inline WarningStatus(const WarningStatus&) noexcept = default;
-            inline WarningStatus(WarningStatus&&) noexcept = default;
+            WarningStatus() noexcept = default;
+            WarningStatus(const WarningStatus&) noexcept = default;
+            WarningStatus(WarningStatus&&) noexcept = default;
 
-            inline virtual ~WarningStatus() noexcept = default;
+            virtual ~WarningStatus() noexcept = default;
 
-            inline WarningStatus& operator= (const WarningStatus&) noexcept = default;
-            inline WarningStatus& operator= (WarningStatus&&) noexcept = default;
+            WarningStatus& operator= (const WarningStatus&) noexcept = default;
+            WarningStatus& operator= (WarningStatus&&) noexcept = default;
 
 
             inline void append_warnings(const WarningStatus& other) noexcept

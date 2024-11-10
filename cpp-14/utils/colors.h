@@ -27,7 +27,7 @@ SOFTWARE.
 
 /*
 * NOTICE: code here is implemented according to the c++14 standard.  It should
-* function  as  well  when  compiled  with  standard  c++11  because  no c++14
+* function  as  well  when  compiled  with  standard  c++11  since  no   c++14
 * specificities have been used there, but it has not been tested as such.
 */
 
@@ -42,7 +42,6 @@ namespace bmpl
 {
     namespace clr
     {
-
         //===========================================================================
         enum class ELogicalColorSpace : std::uint32_t
         {

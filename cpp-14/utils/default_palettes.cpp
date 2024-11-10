@@ -25,7 +25,7 @@ SOFTWARE.
 
 /*
 * NOTICE: code here is implemented according to the c++14 standard.  It should
-* function  as  well  when  compiled  with  standard  c++11  because  no c++14
+* function  as  well  when  compiled  with  standard  c++11  since  no   c++14
 * specificities have been used there, but it has not been tested as such.
 */
 
@@ -41,14 +41,14 @@ namespace bmpl
     namespace clr
     {
         //---------------------------------------------------------------------------
-        const WindowsDefaultPalettes::Default2Palette WindowsDefaultPalettes::win_2{
+        constexpr WindowsDefaultPalettes::Default2Palette WindowsDefaultPalettes::win_2{
             RGB{ 0x00, 0x00, 0x00 },
             RGB{ 0xff, 0xff, 0xff }
         };
 
 
         //---------------------------------------------------------------------------
-        const WindowsDefaultPalettes::Default16Palette WindowsDefaultPalettes::win95_16{
+        constexpr WindowsDefaultPalettes::Default16Palette WindowsDefaultPalettes::win95_16{
             RGB{ 0x00, 0x00, 0x00 },
             RGB{ 0x00, 0x00, 0xa8 },
             RGB{ 0x00, 0xa8, 0x00 },
@@ -69,7 +69,7 @@ namespace bmpl
 
 
         //---------------------------------------------------------------------------
-        const WindowsDefaultPalettes::Default16Palette WindowsDefaultPalettes::winNT_16{
+        constexpr WindowsDefaultPalettes::Default16Palette WindowsDefaultPalettes::winNT_16{
             RGB{ 0x00, 0x00, 0x00 },
             RGB{ 0x00, 0x00, 0x80 },
             RGB{ 0x00, 0x80, 0x00 },
@@ -90,7 +90,7 @@ namespace bmpl
 
 
         //---------------------------------------------------------------------------
-        const WindowsDefaultPalettes::Default16Palette WindowsDefaultPalettes::win10_16{
+        constexpr WindowsDefaultPalettes::Default16Palette WindowsDefaultPalettes::win10_16{
             RGB{ 0x0c, 0x0c, 0x0c },
             RGB{ 0x00, 0x37, 0xda },
             RGB{ 0x13, 0xa1, 0x0e },
@@ -111,7 +111,7 @@ namespace bmpl
 
 
         //---------------------------------------------------------------------------
-        const WindowsDefaultPalettes::Default256Palette WindowsDefaultPalettes::win95_256{
+        constexpr WindowsDefaultPalettes::Default256Palette WindowsDefaultPalettes::win95_256{
             RGB{ 0x00, 0x00, 0x00 },
             RGB{ 0x80, 0x00, 0x00 },
             RGB{ 0x00, 0x80, 0x00 },
