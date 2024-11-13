@@ -174,20 +174,20 @@ namespace bmpl
         inline BMPBestFittingResolutionImage(const bmpl::BMPImage<PixelT> image) noexcept;
 
         inline BMPBestFittingResolutionImage(
-            const std::string& filepath_,
-            const std::int32_t target_dpi_x_resolution_,
-            std::int32_t target_dpi_y_resolution_,
-            const bool apply_gamma_corection_ = false,
-            const bmpl::clr::ESkippedPixelsMode skipped_mode_ = bmpl::clr::ESkippedPixelsMode::BLACK,
-            const bool force_bottom_up_ = false
+            const std::string& filepath,
+            const std::int32_t target_dpi_x_resolution,
+            std::int32_t target_dpi_y_resolution,
+            const bool apply_gamma_corection = false,
+            const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK,
+            const bool force_bottom_up = false
         ) noexcept;
 
         inline BMPBestFittingResolutionImage(
-            const std::string& filepath_,
-            const std::int32_t target_dpi_resolution_,
-            const bool apply_gamma_corection_ = false,
-            const bmpl::clr::ESkippedPixelsMode skipped_mode_ = bmpl::clr::ESkippedPixelsMode::BLACK,
-            const bool force_bottom_up_ = false
+            const std::string& filepath,
+            const std::int32_t target_dpi_resolution,
+            const bool apply_gamma_corection = false,
+            const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK,
+            const bool force_bottom_up = false
         ) noexcept;
 
         BMPBestFittingResolutionImage(const BMPBestFittingResolutionImage&) noexcept = default;

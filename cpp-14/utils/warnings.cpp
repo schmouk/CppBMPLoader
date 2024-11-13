@@ -88,11 +88,11 @@ namespace bmpl
             case WarningCode::INVALID_DAMPING_VALUE:
                 return "the specified damping value for the halftoning error diffusion is invalid (greater than 100%).";
             case WarningCode::INVALID_RESOLUTION_UNITS:
-                return "a non-zero resolution units value different has been detected - this is invalid; CppBMPLoader library decodes this image nevertheless.";
+                return "a non-zero resolution units value difference has been detected - this is invalid; CppBMPLoader library decodes this image nevertheless.";
             case WarningCode::LINKED_PROFILE_NOT_IMPLEMENTED:
                 return "for security issues, ICC linked profiles are not implemented in CppBMPLoader library which uses plain coded colors instead.";
             case WarningCode::MISSING_BITFIELDS_MASKS:
-                return "at least on color bits mask is missing in bitfields definition.";
+                return "at least one color bits mask is missing in bitfields definition.";
             case WarningCode::MISSING_COLORMAP_ENTRIES:
                 return "a less-than-full-sized colormap has been detected in file; CppBMPLoader library tries to decode this image nevertheless.";
             case WarningCode::NOT_ENOUGH_INDICES_IN_BITMAP:
@@ -103,14 +103,10 @@ namespace bmpl
                 return "a reserved word is not set to zero while it should have been; CppBMPLoader library tries to decode this image nevertheless.";
             case WarningCode::PALETT_WITH_FULL_COLORS:
                 return "a color palette is defined while this is a full-color bitmap.";
-            case WarningCode::SOME_GAP_BTW_PALETTE_AND_BITMAP:
-                return "unused bytes appear between colors palette and start of bitmap.";
             case WarningCode::TOO_BIG_PALETTE:
                 return "too many colors are defined in palette, extra ones will be ignored.";
-            case WarningCode::TOO_MANY_COLORS_IN_PALETT:
-                return "too many colors are defined in palette, some of them won't be used.";
             case WarningCode::TOO_MANY_INDICES_IN_BITMAP:
-                return "bitmap contains too many indices according to final image size.";
+                return "bitmap contains too many indices according to final image size; extra ones will be ignored.";
             case WarningCode::UNUSED_BITS_SET_TO_1:
                 return "some pixels have bitfields unused bits set to 1.";
             case WarningCode::UNUSED_PALETTE:

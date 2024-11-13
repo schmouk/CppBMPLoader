@@ -69,12 +69,10 @@ namespace bmpl
                 return "incoherent run length encoding creates a buffer overflow";
             case ErrorCode::CORRUPTED_BMP_FILE:
                 return "corrupted BMP file.";
-            case ErrorCode::END_OF_BITMAP_ARRAY:
-                return "no more BMP image to be loaded from file.";
-            case ErrorCode::END_OF_FILE:
-                return "encountered unexpected end-of-file.";
             case ErrorCode::END_OF_BA_HEADERS_LIST:
                 return "the end of BA headers list has been reached.";
+            case ErrorCode::END_OF_FILE:
+                return "encountered unexpected end-of-file.";
             case ErrorCode::ERRONEOUS_BITMAP_OFFSET:
                 return "the offset of the bitmap as specified in the file header appears to be invalid.";
             case ErrorCode::FILE_NOT_FOUND:

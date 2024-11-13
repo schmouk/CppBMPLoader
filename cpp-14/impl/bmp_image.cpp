@@ -59,6 +59,16 @@ namespace bmpl
 
 
     //---------------------------------------------------------------------------
+    const bool NextImageLoader::end() const noexcept
+    {
+        if (!this->_ba_hdr_iter.failed())
+            return this->_ba_hdr_iter.end();
+        else
+            return true;
+    }
+
+
+    //---------------------------------------------------------------------------
     const std::string NextImageLoader::get_error_msg() const noexcept
     {
         return bmpl::utils::error_msg(this->get_filepath(), get_error());
