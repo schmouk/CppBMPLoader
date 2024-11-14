@@ -93,7 +93,7 @@ namespace bmpl
             if (info_header_ptr->failed())
                 return _set_err(info_header_ptr->get_error());
 
-            if (!info_header_ptr->may_embed_color_palette())
+            if (!info_header_ptr->may_embed_color_palette() && !info_header_ptr->is_v1())
                 return _set_err(bmpl::utils::ErrorCode::INCOHERENT_BMP_LOADER_IMPLEMENTATION);
 
             this->colors_count = info_header_ptr->get_colors_count();

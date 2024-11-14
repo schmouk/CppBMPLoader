@@ -96,7 +96,7 @@ namespace bmpl
             // let's evaluate the set bits indexes in the mask
             std::uint32_t _mask{ mask };
             std::uint32_t bits_count{ 0 };
-            std::vector<std::uint8_t> bits_indexes{ 0 };
+            std::vector<std::uint8_t> bits_indexes{};
             for (int index = 31; _mask != 0 && index >= 0; --index) {
                 if (_mask & 0x8000'0000) {
                     bits_indexes.push_back(index);
