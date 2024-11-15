@@ -35,15 +35,14 @@ programming concepts, e.g. *ranges* and *views* or STL extensions).
 ## Notice (1/2)
 The c++14 standard version of **CppBMPLoader** does not use any c++14 
 specificities but only c++11 ones. It has been compiled and validated with
-a c++14 compiler but should as well be compilable with a c++11 compiler as
-well.
+a c++14 compiler but should as well be compilable with a c++11 compiler.
 
 ## Notice (2/2)
 All released code has been validated. For this purpose, we used the great
 [**BMP Suite Image List**](https://entropymine.com/jason/bmpsuite/bmpsuite/html/bmpsuite.html)
 provided by Jason Summers - see also 
 [https://entropymine.com/jason/bmpsuite/](https://entropymine.com/jason/bmpsuite/)
-and augmented it with images we created by our own for the version 1 of Windows 
+and we augmented it with images we created by our own for the version 1 of Windows 
 BMP format (lacking in Jason's suite) and with OS/2 **BA** files that we either 
 created from scratch or downloaded from the Web, extracted from some original 
 ISO images of OS/2.
@@ -58,6 +57,12 @@ Shortly speeking, this API offers a templated class BMPImage<> for the loading
 of BMP images content and classes and functions to extract and load all images 
 from a **BA** file or just the one of them that best fits size, colors and/or 
 resolution criterias.
+
+Many error cases and warnings are detected by **CppBMPLoader**. Errors are always 
+fatal. Execution stops on any encountered error. Warnings do not stop your 
+application and are accumulated along the processing of BMP and BA files. You 
+get access to the error code and to a list of warning codes as well to the 
+associated messages at will since they are attached to faulty BMP images.
 
 
 # Reading the code
