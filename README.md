@@ -30,7 +30,8 @@ can be found on *GitHub*, programmed in c++ or in other programming languages.
 ## c++14 and c++20 versions
 Initially, two versions of the library are offerred, one responding to standard 
 c++14 and the other responding to standard c++20 (offering more advanced 
-programming concepts, e.g. *ranges* and *views* or STL extensions).
+programming concepts, e.g. *ranges* and *views* or STL extensions).  
+Notice: by November 2024, the c++20 version of the library is not yet released.
 
 ## Notice (1/2)
 The c++14 standard version of **CppBMPLoader** does not use any c++14 
