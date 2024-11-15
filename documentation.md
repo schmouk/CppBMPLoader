@@ -525,7 +525,7 @@ Resets the internal state of the next-image-loader. The next call to method *`lo
 
 
 ---
-## How to load the image that best fit a specified colors count from a `BA` file
+## How to load the image that best fits a specified colors count from a `BA` file
 
 The colors count is determined by the number of bits per pixel : 1 bit -> 2 colors, 4 bits -> 16 colors, 8 bits -> 256 colors, 16 bits -> 65,536 colors, 24 bits -> "true" colors, 32 bits -> "true" colors plus alpha channel, 64 bits -> HDR encoding (13 bits per color component according to `BMP` specifications).
 
@@ -772,7 +772,7 @@ Inherited from class *`bmpl::BMPImage<>`*.
 
 
 ---
-## How to load the image that best fit specified dimensions from a `BA` file
+## How to load the image that best fits specified dimensions from a `BA` file
 
 The dimensions are the width and the height of an image.
 
@@ -1025,7 +1025,7 @@ Inherited from class *`bmpl::BMPImage<>`*.
 
 
 ---
-## How to load the image that best fit sspecified resolutions from a `BA` file
+## How to load the image that best fits specified resolutions from a `BA` file
 
 Every `BMP` image header contains its resolutions definition, the horizontal and the vertical ones. The `BMP` format evaluates these resolutions in dots per meter as their unit. Library **CPPBmpLoader** evaluates them as dots per inch (i.e. dpi). As such, most images prepared for their displaying on screens have 72 dpi resolutions (2835 dots per meter). Images prepared for their printing on other devices may have higher resolutions (e.g. for printers). It may be then that in some `BA` files some of the contained images are provided with different resolutions.
 
