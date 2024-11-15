@@ -32,8 +32,8 @@ SOFTWARE.
 
 /*
 * The code provided here is an example of  use  of  library  CppBMPLoader.  It
-* creates  a  BMP  loader  for  every type of BMPImage defined in this library
-* and loads then the related BMP images.
+* instantiates BMPImage's defined in this library and decodes then the related 
+* images buffer.
 * It uses OpenCV as a mean to display the loaded  images.  For  a  use  of  Qt
 * instead, just have a look to example code `example_qt.cpp`.
 * 

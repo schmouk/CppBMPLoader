@@ -98,7 +98,7 @@ namespace bmpl
             }
 
             if (device_x_resolution > 2.5 * device_y_resolution || device_y_resolution > 2.5 * device_x_resolution)
-                // notice: factor 2.5 is per pure convention and has nothing to do with the BMP format
+                // notice: factor 2.5 is per pure convention here and has nothing to do with the BMP format
                 set_warning(bmpl::utils::WarningCode::INCOHERENT_RESOLUTIONS);
 
             if (planes_count != 1)
