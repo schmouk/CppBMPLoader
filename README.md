@@ -2,7 +2,7 @@
 An exhaustive BMP Loader, MIT-licensed, implemented for c++14 and c++20
 
 This BMP loader library decodes **Windows** BMP files encoded according to 
-BMP format versions 1 up to 5, as well as the specific *OS/2 .x* and *OS/2 
+BMP format versions 1 up to 5, as well as the specific *OS/2 1.x* and *OS/2 
 2.x* BMP (*BitMaP*) and BA (*Bitmap multi images Array*) file formats.
 
 It nevertheless currently does not decode JPEG and PNG encoded images that 
@@ -11,12 +11,12 @@ color profiles.
 
 ## Genesis of this project
 The genesis of this project is the initial creation of another library that
-needed to be associate with an external library for loading BMP images under
+needed to be associated with an external library for loading BMP images under
 the **MIT license** or from the public domain, free of rights, to associate 
 them with icons. 
 
 Unfortunately, no such library has been found under this type of license that 
-would provide the docoding of **all** the different standardized formats of 
+would provide for the decoding of **all** the different standardized formats of 
 BMP images.
 
 ## CppBMPLoader is the implemented solution
@@ -30,7 +30,8 @@ can be found on *GitHub*, programmed in c++ or in other programming languages.
 ## c++14 and c++20 versions
 Initially, two versions of the library are offerred, one responding to standard 
 c++14 and the other responding to standard c++20 (offering more advanced 
-programming concepts, e.g. *ranges* and *views* or STL extensions).  
+programming concepts, e.g. *ranges* and *views* or STL extensions).
+
 Notice: by November 2024, the c++20 version of the library is not yet released.
 
 ## Notice (1/2)
@@ -56,14 +57,14 @@ the library.
 
 Shortly speeking, this API offers a templated class BMPImage<> for the loading 
 of BMP images content and classes and functions to extract and load all images 
-from a **BA** file or just the one of them that best fits size, colors and/or 
-resolution criterias.
+from a **BA** file or just the one of them that best fits dimensions, colors 
+and/or resolutions criterias.
 
 Many error cases and warnings are detected by **CppBMPLoader**. Errors are always 
 fatal. Execution stops on any encountered error. Warnings do not stop your 
 application and are accumulated along the processing of BMP and BA files. You 
 get access to the error code and to a list of warning codes as well to the 
-associated messages at will since they are attached to faulty BMP images.
+associated messages at will, since they are attached to the faulty BMP images.
 
 
 # Reading the code
@@ -75,11 +76,13 @@ The design decision made for its first implementation, a.k.a. cpp-14, has been
 to factorize as much code as possible. This was a tremendous decision when at 
 bugs fixing time: each bug had to be fixed in one and only one place. This was 
 also a very deceptive decision about the final readability of the code. So, you 
-should avoid to have a first look at this code: prefer to go into the c++20 
-implementation of **CppBMPLoader** to have a far easier reading of it. There, 
-we've preferred to duplicate the already debugged code, to provide a clear 
-class for each type of object that is internally managed by the library.
+should avoid to have a first look at this code. Prefer to go into the c++20 
+implementation of **CppBMPLoader** instead to have a far easier reading of it. 
+There, we've preferred to duplicate the already debugged code, to provide a 
+clear class for each type of object and for each format version that is 
+internally managed by the library.
 
 Meanwhile, experienced c++ developers should get no trouble in understanding 
-the directories tree structure and the code itself as well.  
+the directories tree structure and the code itself as well, which is 
+commented everywhere it seemed to be useful.  
 See directories **cpp-14** or **cpp-20** and enjoy!
