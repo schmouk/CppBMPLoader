@@ -1,3 +1,5 @@
+#pragma once
+
 /*
 MIT License
 
@@ -35,57 +37,47 @@ SOFTWARE.
 #define WIN32_LEAN_AND_MEAN
 
 
-#include "../bmp_image.h"
+#include <vector>
+
+#include "errors.h"
+
 
 namespace bmpl
 {
-    //---------------------------------------------------------------------------
-    NextImageLoader::NextImageLoader(const std::string& filepath) noexcept
-        : MyErrBaseClass()
-        , _filepath(filepath)
-        , _ba_headers(bmpl::frmt::BAHeader::get_BA_headers(filepath))
-        , _ba_hdr_iter(filepath, _ba_headers)
+    namespace utils
     {
-        if (this->_ba_headers.failed()) {
-            _set_err(this->_ba_headers.get_error());
-        }
-        else if (this->_ba_hdr_iter.failed()) {
-            _set_err(this->_ba_hdr_iter.get_error());
-        }
-        else {
-            _clr_err();
-        }
+        //===========================================================================
+        template<typename ItemT>
+        struct ListWithStatus : public std::vector<ItemT>, public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
+        {
+            inline ListWithStatus() noexcept
+                : std::vector<ItemT>()
+                , bmpl::utils::ErrorStatus(bmpl::utils::ErrorCode::NO_ERROR)
+                , bmpl::utils::WarningStatus()
+            {}
+
+
+            inline ListWithStatus(const bmpl::utils::ErrorStatus error_code) noexcept
+                : std::vector<ItemT>()
+                , bmpl::utils::ErrorStatus(error_code)
+                , bmpl::utils::WarningStatus()
+            {}
+
+
+            ListWithStatus(const ListWithStatus&) noexcept = default;
+            ListWithStatus(ListWithStatus&&) noexcept = default;
+
+            virtual ~ListWithStatus() noexcept = default;
+
+            ListWithStatus& operator= (const ListWithStatus&) noexcept = default;
+            ListWithStatus& operator= (ListWithStatus&&) noexcept = default;
+
+            inline void set_error(const bmpl::utils::ErrorCode err_code) noexcept
+            {
+                _set_err(err_code);
+            }
+
+        };
+
     }
-
-
-    //---------------------------------------------------------------------------
-    const bool NextImageLoader::end() const noexcept
-    {
-        if (!this->_ba_hdr_iter.failed())
-            return this->_ba_hdr_iter.end();
-        else
-            return true;
-    }
-
-
-    //---------------------------------------------------------------------------
-    const std::string NextImageLoader::get_error_msg() const noexcept
-    {
-        return bmpl::utils::error_msg(this->get_filepath(), get_error());
-    }
-
-
-    //---------------------------------------------------------------------------
-    const std::string NextImageLoader::get_filepath() const noexcept
-    {
-        return this->_filepath;
-    }
-
-
-    //---------------------------------------------------------------------------
-    void NextImageLoader::reset() noexcept
-    {
-        this->_ba_hdr_iter.reset();
-    }
-
 }

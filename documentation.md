@@ -20,7 +20,7 @@ Finally, there must still be typos that are remaining in this documentation. The
 Examples of code are provided in directory [examples](./examples).
 
 There,
-* [example_opencv.cpp](./examples/example_opencv.cpp) shows code that displays images using external library ***OpenCV***;
+* [example_opencv.cpp](./examples/example_opencv.cpp) and [example_opencv.h](./examples/example_opencv.h) show code that displays images using external library ***OpenCV***;
 * [example_qt.cpp](.examples/example_qt.cpp) and [example_qt.h](.:examples/example_qt.h) show code that displays images using external library ***Qt***.
 
 Notice: `example_opencv.cpp` is the only code example that has been validated with the associated external library. The ***Qt*** example is just provided as an example of code and has not been validated by our side.
