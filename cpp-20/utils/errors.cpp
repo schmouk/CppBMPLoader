@@ -29,6 +29,8 @@ SOFTWARE.
 * specificities have been used there, but it has not been tested as such.
 */
 
+#include <format>
+
 #include "errors.h"
 
 
@@ -150,9 +152,7 @@ namespace bmpl
         //---------------------------------------------------------------------------
         const std::string error_msg(const std::string& file_path, const ErrorCode err_code) noexcept
         {
-            std::strstream msg;
-            msg << "file \"" << file_path << "\": ERROR #" << int(err_code) << " - " << error_msg(err_code) << std::ends;
-            return msg.str();
+            return std::format("file \"{:s}\": ERROR #{:d} - {:s}", file_path, int(err_code), error_msg(err_code));
         }
 
     }

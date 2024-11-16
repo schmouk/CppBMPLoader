@@ -34,7 +34,6 @@ SOFTWARE.
 
 #include <cstdint>
 #include <string>
-#include <strstream>
 
 
 namespace bmpl

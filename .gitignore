@@ -16,10 +16,6 @@
 *.dylib
 *.dll
 
-# Fortran module files
-*.mod
-*.smod
-
 # Compiled Static libraries
 *.lai
 *.la
@@ -36,7 +32,8 @@
 *.vcxproj
 *.vcxproj.*
 *.sln
-x84
+x86
+x64
 Release
 Debug
 
@@ -47,4 +44,5 @@ docs
 archive
 cpp-bmp-loader
 create_ba_files
-tests
+tests*
+examples-cpp20
