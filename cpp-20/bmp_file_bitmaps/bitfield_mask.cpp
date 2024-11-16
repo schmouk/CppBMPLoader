@@ -34,6 +34,7 @@ namespace bmpl
 {
     namespace bmpf
     {
+        //---------------------------------------------------------------------------
         const std::uint32_t BitfieldMaskBase::get_component_value(const std::uint32_t pixel_value) const noexcept
         {
             std::uint32_t color_component{ this->_evaluate_component(pixel_value) };
@@ -41,7 +42,7 @@ namespace bmpl
             if (color_component == 0)
                 return 0;
 
-            switch (_bits_count)
+            switch (this->_bits_count)
             {
             case 0:
                 return 0;
@@ -67,7 +68,19 @@ namespace bmpl
 
         }
 
+        //---------------------------------------------------------------------------
+        const std::uint32_t BitfieldMaskBase::_evaluate_component(const std::uint32_t pixel_value) const noexcept
+        {
+            return 0;
+        }
 
+        //---------------------------------------------------------------------------
+        BitfieldMask::BitfieldMask(const std::vector<std::uint8_t>& bits_indices, const std::uint32_t bits_count) noexcept
+            : BitfieldMaskBase(bits_count)
+            , _bits_indexes(bits_indices)
+        {}
+
+        //---------------------------------------------------------------------------
         const std::uint32_t BitfieldMask::_evaluate_component(const std::uint32_t pixel_value) const noexcept
         {
             std::uint32_t color_component{ 0 };
@@ -81,7 +94,24 @@ namespace bmpl
             return color_component;
         }
 
+        //---------------------------------------------------------------------------
+        BitfieldContiguousMask::BitfieldContiguousMask(
+            const std::uint32_t mask,
+            const std::uint32_t shift_count,
+            const std::uint32_t bits_count
+        ) noexcept
+            : BitfieldMaskBase(bits_count)
+            , _mask(mask)
+            , _shift(shift_count)
+        {}
 
+        //---------------------------------------------------------------------------
+        const std::uint32_t BitfieldContiguousMask::_evaluate_component(const std::uint32_t pixel_value) const noexcept
+        {
+            return (pixel_value & this->_mask) >> this->_shift;
+        }
+
+        //---------------------------------------------------------------------------
         const BitfieldMaskBase* create_bitfield_mask(const std::uint32_t mask) noexcept
         {
             // are there set bits in the mask?

@@ -105,13 +105,9 @@ namespace bmpl
         {
         public:
 
-            inline ErrorStatus() noexcept
-                : _current_error_code(ErrorCode::NOT_INITIALIZED)
-            {}
+            ErrorStatus() noexcept;
 
-            inline ErrorStatus(const ErrorCode err_code) noexcept
-                : _current_error_code(err_code)
-            {}
+            ErrorStatus(const ErrorCode err_code) noexcept;
 
             ErrorStatus(const ErrorStatus&) noexcept = default;
             ErrorStatus(ErrorStatus&&) noexcept = default;
@@ -122,50 +118,26 @@ namespace bmpl
             ErrorStatus& operator= (ErrorStatus&&) noexcept = default;
 
             [[nodiscard]]
-            inline operator bool() const noexcept
-            {
-                return is_ok();
-            }
+            operator bool() const noexcept;
 
             [[nodiscard]]
-            virtual inline const bool operator! () const noexcept
-            {
-                return failed();
-            }
+            virtual const bool operator! () const noexcept;
 
             [[nodiscard]]
-            inline const bmpl::utils::ErrorCode get_error() const noexcept
-            {
-                return _current_error_code;
-            }
+            const bool failed() const noexcept;
 
             [[nodiscard]]
-            inline const bool is_ok() const noexcept
-            {
-                return get_error() == ErrorCode::NO_ERROR;
-            }
+            const bmpl::utils::ErrorCode get_error() const noexcept;
 
             [[nodiscard]]
-            inline const bool failed() const noexcept
-            {
-                return !is_ok();
-            }
+            const bool is_ok() const noexcept;
 
 
         protected:
             ErrorCode _current_error_code;
 
-            inline const bool _clr_err() noexcept
-            {
-                _set_err(ErrorCode::NO_ERROR);
-                return true;
-            }
-
-            inline const bool _set_err(const ErrorCode err_code) noexcept
-            {
-                _current_error_code = err_code;
-                return is_ok();
-            }
+            const bool _clr_err() noexcept;
+            const bool _set_err(const ErrorCode err_code) noexcept;
 
         };
 

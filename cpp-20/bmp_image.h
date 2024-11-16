@@ -502,7 +502,7 @@ namespace bmpl
             [&in_stream, apply_gamma_correction, skipped_mode, force_bottom_up](bmpl::frmt::BAHeader& ba_hdr)
             { return BMPImageT(in_stream, ba_hdr, apply_gamma_correction, skipped_mode, force_bottom_up); };
         
-        std::ranges::copy(std::views::transform(ba_headers, _load_image), std::back_inserter(images_list));
+        std::ranges::move(std::views::transform(ba_headers, _load_image), std::back_inserter(images_list));
 
         return std::move(images_list);
     }

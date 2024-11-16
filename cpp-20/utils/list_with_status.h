@@ -48,19 +48,8 @@ namespace bmpl
         template<typename ItemT>
         struct ListWithStatus : public std::vector<ItemT>, public bmpl::utils::ErrorStatus, public bmpl::utils::WarningStatus
         {
-            inline ListWithStatus() noexcept
-                : std::vector<ItemT>()
-                , bmpl::utils::ErrorStatus(bmpl::utils::ErrorCode::NO_ERROR)
-                , bmpl::utils::WarningStatus()
-            {}
-
-
-            inline ListWithStatus(const bmpl::utils::ErrorStatus error_code) noexcept
-                : std::vector<ItemT>()
-                , bmpl::utils::ErrorStatus(error_code)
-                , bmpl::utils::WarningStatus()
-            {}
-
+            inline ListWithStatus() noexcept;
+            inline ListWithStatus(const bmpl::utils::ErrorStatus error_code) noexcept;
 
             ListWithStatus(const ListWithStatus&) noexcept = default;
             ListWithStatus(ListWithStatus&&) noexcept = default;
@@ -70,12 +59,35 @@ namespace bmpl
             ListWithStatus& operator= (const ListWithStatus&) noexcept = default;
             ListWithStatus& operator= (ListWithStatus&&) noexcept = default;
 
-            inline void set_error(const bmpl::utils::ErrorCode err_code) noexcept
-            {
-                _set_err(err_code);
-            }
+            inline void set_error(const bmpl::utils::ErrorCode err_code) noexcept;
 
         };
+
+
+        //===========================================================================
+        // Local implementations
+        //---------------------------------------------------------------------------
+        template<typename ItemT>
+        inline ListWithStatus<ItemT>::ListWithStatus() noexcept
+            : std::vector<ItemT>()
+            , bmpl::utils::ErrorStatus(bmpl::utils::ErrorCode::NO_ERROR)
+            , bmpl::utils::WarningStatus()
+        {}
+
+        //---------------------------------------------------------------------------
+        template<typename ItemT>
+        inline ListWithStatus<ItemT>::ListWithStatus(const bmpl::utils::ErrorStatus error_code) noexcept
+            : std::vector<ItemT>()
+            , bmpl::utils::ErrorStatus(error_code)
+            , bmpl::utils::WarningStatus()
+        {}
+
+        //---------------------------------------------------------------------------
+        template<typename ItemT>
+        inline void ListWithStatus<ItemT>::set_error(const bmpl::utils::ErrorCode err_code) noexcept
+        {
+            _set_err(err_code);
+        }
 
     }
 }

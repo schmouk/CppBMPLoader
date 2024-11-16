@@ -45,92 +45,30 @@ namespace bmpl
             Frac16_16() noexcept = default;
             virtual ~Frac16_16() noexcept = default;
 
-            inline Frac16_16(const std::uint32_t val) noexcept
-                : value(val)
-            {}
+            Frac16_16(const std::uint32_t val) noexcept;
+            Frac16_16(const float val) noexcept;
+            Frac16_16(const double val) noexcept;
 
-            inline Frac16_16(const float val) noexcept
-            {
-                *this = val;
-            }
+            operator float() const noexcept;
+            operator double() const noexcept;
 
-            inline Frac16_16(const double val) noexcept
-            {
-                *this = val;
-            }
-
-            inline operator float() const noexcept
-            {
-                return float(value >> 16) + float(value & 0xffff) / 65536.0f;
-            }
-
-            inline operator double() const noexcept
-            {
-                return double(value >> 16) + double(value & 0xffff) / 65536.0;
-            }
-
-            inline Frac16_16& operator= (const std::uint32_t val) noexcept
-            {
-                value = val;
-                return *this;
-            }
-
-            inline Frac16_16& operator= (const float val) noexcept
-            {
-                return operator=(double(val));
-            }
-
+            Frac16_16& operator= (const std::uint32_t val) noexcept;
+            Frac16_16& operator= (const float val) noexcept;
             Frac16_16& operator= (const double val) noexcept;
 
-            inline const bool operator== (const std::uint32_t val) const noexcept
-            {
-                return this->value == val;
-            }
+            const bool operator== (const std::uint32_t val) const noexcept;
+            const bool operator== (const float val) const noexcept;
+            const bool operator== (const double val) const noexcept;
 
-            inline const bool operator== (const float val) const noexcept
-            {
-                return float(*this) == val;
-            }
+            const bool operator!= (const std::uint32_t val) const noexcept;
+            const bool operator!= (const float val) const noexcept;
+            const bool operator!= (const double val) const noexcept;
 
-            inline const bool operator== (const double val) const noexcept
-            {
-                return double(*this) == val;
-            }
+            const bool operator< (const float val) const noexcept;
+            const bool operator< (const double val) const noexcept;
 
-            inline const bool operator!= (const std::uint32_t val) const noexcept
-            {
-                return this->value != val;
-            }
-
-            inline const bool operator!= (const float val) const noexcept
-            {
-                return float(*this) != val;
-            }
-
-            inline const bool operator!= (const double val) const noexcept
-            {
-                return double(*this) != val;
-            }
-
-            inline const bool operator< (const float val) const noexcept
-            {
-                return float(*this) < val;
-            }
-
-            inline const bool operator< (const double val) const noexcept
-            {
-                return double(*this) < val;
-            }
-
-            inline const bool operator> (const float val) const noexcept
-            {
-                return float(*this) > val;
-            }
-
-            inline const bool operator> (const double val) const noexcept
-            {
-                return double(*this) > val;
-            }
+            const bool operator> (const float val) const noexcept;
+            const bool operator> (const double val) const noexcept;
 
         };
 

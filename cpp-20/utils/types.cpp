@@ -37,7 +37,49 @@ namespace bmpl
 {
     namespace utils
     {
-        //===========================================================================
+        //---------------------------------------------------------------------------
+        Frac16_16::Frac16_16(const std::uint32_t val) noexcept
+            : value(val)
+        {}
+
+        //---------------------------------------------------------------------------
+        Frac16_16::Frac16_16(const float val) noexcept
+        {
+            *this = val;
+        }
+
+        //---------------------------------------------------------------------------
+        Frac16_16::Frac16_16(const double val) noexcept
+        {
+            *this = val;
+        }
+
+        //---------------------------------------------------------------------------
+        Frac16_16::operator float() const noexcept
+        {
+            return float(value >> 16) + float(value & 0xffff) / 65536.0f;
+        }
+
+        //---------------------------------------------------------------------------
+        Frac16_16::operator double() const noexcept
+        {
+            return double(value >> 16) + double(value & 0xffff) / 65536.0;
+        }
+
+        //---------------------------------------------------------------------------
+        Frac16_16& Frac16_16::operator= (const std::uint32_t val) noexcept
+        {
+            value = val;
+            return *this;
+        }
+
+        //---------------------------------------------------------------------------
+        Frac16_16& Frac16_16::operator= (const float val) noexcept
+        {
+            return operator=(double(val));
+        }
+
+        //---------------------------------------------------------------------------
         Frac16_16& Frac16_16::operator= (const double val) noexcept
         {
             if (val >= 65536.0) {
@@ -49,13 +91,73 @@ namespace bmpl
             else {
                 const double d_mantissa{ std::trunc(val) };
 
-                const std::uint32_t mantissa{ std::uint32_t(d_mantissa)};
+                const std::uint32_t mantissa{ std::uint32_t(d_mantissa) };
                 const std::uint32_t frac{ std::uint32_t((val - d_mantissa) * 65536.0) };
-                
+
                 this->value = (mantissa << 16) + (frac & 0xffff);
             }
 
             return *this;
+        }
+
+        //---------------------------------------------------------------------------
+        const bool Frac16_16::operator== (const std::uint32_t val) const noexcept
+        {
+            return this->value == val;
+        }
+
+        //---------------------------------------------------------------------------
+        const bool Frac16_16::operator== (const float val) const noexcept
+        {
+            return float(*this) == val;
+        }
+
+        //---------------------------------------------------------------------------
+        const bool Frac16_16::operator== (const double val) const noexcept
+        {
+            return double(*this) == val;
+        }
+
+        //---------------------------------------------------------------------------
+        const bool Frac16_16::operator!= (const std::uint32_t val) const noexcept
+        {
+            return this->value != val;
+        }
+
+        //---------------------------------------------------------------------------
+        const bool Frac16_16::operator!= (const float val) const noexcept
+        {
+            return float(*this) != val;
+        }
+
+        //---------------------------------------------------------------------------
+        const bool Frac16_16::operator!= (const double val) const noexcept
+        {
+            return double(*this) != val;
+        }
+
+        //---------------------------------------------------------------------------
+        const bool Frac16_16::operator< (const float val) const noexcept
+        {
+            return float(*this) < val;
+        }
+
+        //---------------------------------------------------------------------------
+        const bool Frac16_16::operator< (const double val) const noexcept
+        {
+            return double(*this) < val;
+        }
+
+        //---------------------------------------------------------------------------
+        const bool Frac16_16::operator> (const float val) const noexcept
+        {
+            return float(*this) > val;
+        }
+
+        //---------------------------------------------------------------------------
+        const bool Frac16_16::operator> (const double val) const noexcept
+        {
+            return double(*this) > val;
         }
 
     }

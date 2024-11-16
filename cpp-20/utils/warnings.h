@@ -106,25 +106,25 @@ namespace bmpl
             WarningStatus& operator= (WarningStatus&&) noexcept = default;
 
             [[nodiscard]]
-            inline operator bool() const noexcept;
+            operator bool() const noexcept;
 
-            inline void append_warnings(const WarningStatus& other) noexcept;
-
-            [[nodiscard]]
-            inline const WarningsList& get_warnings() const noexcept;
+            void append_warnings(const WarningStatus& other) noexcept;
 
             [[nodiscard]]
-            inline const bool has_warnings() const noexcept;
+            const WarningsList& get_warnings() const noexcept;
+
+            [[nodiscard]]
+            const bool has_warnings() const noexcept;
 
             void set_unique_warnings();
 
-            inline void set_warning(const WarningCode warn_code) noexcept;
+            void set_warning(const WarningCode warn_code) noexcept;
 
 
         protected:
             WarningsList _warnings_list{};
 
-            inline void _clr_warnings() noexcept;
+            void _clr_warnings() noexcept;
 
         };
 

@@ -146,11 +146,64 @@ namespace bmpl
             }
         }
 
-
         //---------------------------------------------------------------------------
         const std::string error_msg(const std::string& file_path, const ErrorCode err_code) noexcept
         {
             return std::format("file \"{:s}\": ERROR #{:d} - {:s}", file_path, int(err_code), error_msg(err_code));
+        }
+
+        //---------------------------------------------------------------------------
+        ErrorStatus::ErrorStatus() noexcept
+            : _current_error_code(ErrorCode::NOT_INITIALIZED)
+        {}
+
+        //---------------------------------------------------------------------------
+        ErrorStatus::ErrorStatus(const ErrorCode err_code) noexcept
+            : _current_error_code(err_code)
+        {}
+
+        //---------------------------------------------------------------------------
+        const bool ErrorStatus::operator! () const noexcept
+        {
+            return failed();
+        }
+
+        //---------------------------------------------------------------------------
+        ErrorStatus::operator bool() const noexcept
+        {
+            return is_ok();
+        }
+
+        //---------------------------------------------------------------------------
+        const bool ErrorStatus::failed() const noexcept
+        {
+            return !is_ok();
+        }
+
+        //---------------------------------------------------------------------------
+        const bmpl::utils::ErrorCode ErrorStatus::get_error() const noexcept
+        {
+            return _current_error_code;
+        }
+
+        //---------------------------------------------------------------------------
+        const bool ErrorStatus::is_ok() const noexcept
+        {
+            return get_error() == ErrorCode::NO_ERROR;
+        }
+
+        //---------------------------------------------------------------------------
+        const bool ErrorStatus::_clr_err() noexcept
+        {
+            _set_err(ErrorCode::NO_ERROR);
+            return true;
+        }
+
+        //---------------------------------------------------------------------------
+        const bool ErrorStatus::_set_err(const ErrorCode err_code) noexcept
+        {
+            _current_error_code = err_code;
+            return is_ok();
         }
 
     }

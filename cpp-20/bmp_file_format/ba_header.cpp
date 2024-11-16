@@ -45,21 +45,21 @@ namespace bmpl
             , info_header_ptr{ create_bmp_info_header(in_stream, file_header_ptr) }
             , color_map(in_stream, file_header_ptr, info_header_ptr)
         {
-            if (in_stream.failed())
+            if (in_stream.failed()) [[unlikely]]
                 _set_err(in_stream.get_error());
-            else if (ba_file_header.failed())
+            else if (ba_file_header.failed()) [[unlikely]]
                 _set_err(ba_file_header.get_error());
-            else if (file_header_ptr == nullptr)
+            else if (file_header_ptr == nullptr) [[unlikely]]
                 _set_err(bmpl::utils::ErrorCode::BAD_BITS_PER_PIXEL_VALUE);
-            else if (file_header_ptr->failed())
+            else if (file_header_ptr->failed()) [[unlikely]]
                 _set_err(file_header_ptr->get_error());
-            else if (info_header_ptr == nullptr)
+            else if (info_header_ptr == nullptr) [[unlikely]]
                 _set_err(bmpl::utils::ErrorCode::BAD_INFO_HEADER);
-            else if (info_header_ptr->failed())
+            else if (info_header_ptr->failed()) [[unlikely]]
                 _set_err(info_header_ptr->get_error());
-            else if (color_map.failed())
+            else if (color_map.failed()) [[unlikely]]
                 _set_err(color_map.get_error());
-            else {
+            else [[likely]] {
                 if (!info_header_ptr->is_vOS21() && !info_header_ptr->is_vOS22())
                     set_warning(bmpl::utils::WarningCode::NOT_OS2_BITMAP_FORMAT);
                 _clr_err();
@@ -97,11 +97,11 @@ namespace bmpl
 
                 bmpl::frmt::BAHeader ba_header(in_stream);
 
-                if (ba_header.failed()) {
+                if (ba_header.failed()) [[unlikely]] {
                     ret_headers.set_error(ba_header.get_error());
                     break;
                 }
-                else {
+                else [[likely]] {
                     ret_headers.push_back(ba_header);
 
                     try {
@@ -128,18 +128,18 @@ namespace bmpl
         //---------------------------------------------------------------------------
         const std::uint32_t BAHeader::get_bits_per_pixel() const noexcept
         {
-            if (this->info_header_ptr == nullptr)
+            if (this->info_header_ptr == nullptr) [[unlikely]]
                 return 0;
-            else
+            else [[likely]]
                 return this->info_header_ptr->bits_per_pixel;
         }
 
         //---------------------------------------------------------------------------
         const std::uint32_t BAHeader::get_colors_count() const noexcept
         {
-            if (this->info_header_ptr == nullptr)
+            if (this->info_header_ptr == nullptr) [[unlikely]]
                 return 0;
-            else
+            else [[likely]]
                 return this->info_header_ptr->get_colors_count();
         }
 
@@ -158,36 +158,36 @@ namespace bmpl
         //---------------------------------------------------------------------------
         const std::int32_t BAHeader::get_device_x_resolution_dpi() const noexcept
         {
-            if (this->info_header_ptr == nullptr)
+            if (this->info_header_ptr == nullptr) [[unlikely]]
                 return 0;
-            else
+            else [[likely]]
                 return std::int32_t(this->info_header_ptr->get_device_x_resolution() * 2.54 / 100 + 0.5);
         }
 
         //---------------------------------------------------------------------------
         const std::int32_t BAHeader::get_device_y_resolution_dpi() const noexcept
         {
-            if (this->info_header_ptr == nullptr)
+            if (this->info_header_ptr == nullptr) [[unlikely]]
                 return 0;
-            else
+            else [[likely]]
                 return std::int32_t(this->info_header_ptr->get_device_y_resolution() * 2.54 / 100 + 0.5);
         }
 
         //---------------------------------------------------------------------------
         const std::uint32_t BAHeader::get_height() const noexcept
         {
-            if (this->info_header_ptr == nullptr)
+            if (this->info_header_ptr == nullptr) [[unlikely]]
                 return 0;
-            else
+            else [[likely]]
                 return this->info_header_ptr->get_height();
         }
 
         //---------------------------------------------------------------------------
         const std::uint32_t BAHeader::get_width() const noexcept
         {
-            if (this->info_header_ptr == nullptr)
+            if (this->info_header_ptr == nullptr) [[unlikely]]
                 return 0;
-            else
+            else [[likely]]
                 return this->info_header_ptr->get_width();
         }
 
@@ -236,10 +236,10 @@ namespace bmpl
         //---------------------------------------------------------------------------
         const bmpl::frmt::BAHeader& BAHeadersIterStatus::operator*() noexcept
         {
-            if (this->_iter != this->_sentinel) {
+            if (this->_iter != this->_sentinel) [[likely]] {
                 return *(this->_iter);
             }
-            else {
+            else [[unlikely]] {
                 _set_err(bmpl::utils::ErrorCode::END_OF_BA_HEADERS_LIST);
                 return BAHeadersIterStatus::_EMPTY_BA_HEADER;  // notice: method .failed() returns true on an empty-constructed BA header; the associated error code is NOT_INITIALIZED
             }
@@ -248,10 +248,10 @@ namespace bmpl
         //---------------------------------------------------------------------------
         BAHeadersList::const_iterator BAHeadersIterStatus::operator++() noexcept
         {
-            if (this->_iter != this->_sentinel) {
+            if (this->_iter != this->_sentinel) [[likely]] {
                 return ++(this->_iter);
             }
-            else {
+            else [[unlikely]] {
                 _set_err(bmpl::utils::ErrorCode::END_OF_BA_HEADERS_LIST);
                 return this->_sentinel;
             }
@@ -260,12 +260,12 @@ namespace bmpl
         //---------------------------------------------------------------------------
         BAHeadersList::const_iterator BAHeadersIterStatus::operator++(int) noexcept
         {
-            if (this->_iter != this->_sentinel) {
+            if (this->_iter != this->_sentinel) [[likely]] {
                 BAHeadersList::const_iterator ret_iter{ this->_iter };
                 this->_iter++;
                 return ret_iter;
             }
-            else {
+            else [[unlikely]] {
                 _set_err(bmpl::utils::ErrorCode::END_OF_BA_HEADERS_LIST);
                 return this->_sentinel;
             }

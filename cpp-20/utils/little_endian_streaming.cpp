@@ -34,6 +34,33 @@ namespace bmpl
     namespace utils
     {
         //---------------------------------------------------------------------------
+        constexpr bool check_little_endianness() noexcept
+        {
+            std::uint16_t one{ 1 };
+            return (*(std::uint8_t*)(&one) == 1);
+        }
+
+
+        //---------------------------------------------------------------------------
+        LEInStream::LEInStream(const char* filepath) noexcept
+            : MyBaseClass(filepath, std::ios::binary)
+            , MyErrClass()
+            , filepath(filepath)
+        {
+            _check_creation_ok();
+        }
+
+
+        //---------------------------------------------------------------------------
+        LEInStream::LEInStream(const std::string& filepath) noexcept
+            : MyBaseClass(filepath, std::ios::binary)
+            , MyErrClass()
+            , filepath(filepath)
+        {
+            _check_creation_ok();
+        }
+
+        //---------------------------------------------------------------------------
         const LEInStream::pos_type LEInStream::get_size() noexcept
         {
             pos_type current_stream_pos{ tellg() };

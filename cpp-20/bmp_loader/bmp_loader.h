@@ -180,10 +180,7 @@ namespace bmpl
 
             const bool _allocate_image_space(const std::size_t image_width, const std::size_t image_height) noexcept;
 
-            inline const std::uint32_t _evaluate_colors_count(const std::uint32_t colors_count) const noexcept
-            {
-                return (colors_count == 0) ? 0xffff'ffff : colors_count;
-            }
+            inline const std::uint32_t _evaluate_colors_count(const std::uint32_t colors_count) const noexcept;
 
             const bool _load_image_content(const std::size_t content_offset, const std::uint32_t image_width, const std::uint32_t image_height) noexcept;
 
@@ -201,25 +198,19 @@ namespace bmpl
                 const std::string& filepath,
                 const bool apply_gamma_correction = false,
                 const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK
-            ) noexcept
-                : MyBaseClass(filepath, apply_gamma_correction, skipped_mode)
-            {}
+            ) noexcept;
 
             inline BMPLoader(
                 const std::string& filepath,
                 const bmpl::clr::ESkippedPixelsMode skipped_mode
-            ) noexcept
-                : MyBaseClass(filepath, skipped_mode)
-            {}
+            ) noexcept;
 
             BMPLoader(
                 const bmpl::utils::LEInStream& in_stream,
                 const bmpl::frmt::BAHeader& ba_header,
                 const bool apply_gamma_correction = false,
                 const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK
-            ) noexcept
-                : MyBaseClass(in_stream, ba_header, apply_gamma_correction, skipped_mode)
-            {}
+            ) noexcept;
 
             virtual inline ~BMPLoader() noexcept = default;
 
@@ -235,35 +226,23 @@ namespace bmpl
 
         //===========================================================================
         template<typename PixelT>
-        BMPLoaderBase<PixelT>* create_bmp_loader(
+        inline BMPLoaderBase<PixelT>* create_bmp_loader(
             const std::string& filepath,
             const bool apply_gamma_correction = false,
             const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK,
             const bool force_bottom_up = false
-        ) noexcept
-        {
-            if (force_bottom_up)
-                return new bmpl::lodr::BMPBottomUpLoader<PixelT>(filepath, apply_gamma_correction, skipped_mode);
-            else
-                return new bmpl::lodr::BMPLoader<PixelT>(filepath, apply_gamma_correction, skipped_mode);
-        }
+        ) noexcept;
 
 
         //===========================================================================
         template<typename PixelT>
-        BMPLoaderBase<PixelT>* create_bmp_loader(
+        inline BMPLoaderBase<PixelT>* create_bmp_loader(
             const bmpl::utils::LEInStream& in_stream,
             const bmpl::frmt::BAHeader& ba_header,
             const bool apply_gamma_correction = false,
             const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK,
             const bool force_bottom_up = false
-        ) noexcept
-        {
-            if (force_bottom_up)
-                return new bmpl::lodr::BMPBottomUpLoader<PixelT>(in_stream, ba_header, apply_gamma_correction, skipped_mode);
-            else
-                return new bmpl::lodr::BMPLoader<PixelT>(in_stream, ba_header, apply_gamma_correction, skipped_mode);
-        }
+        ) noexcept;
 
 
 
@@ -625,6 +604,14 @@ namespace bmpl
 
         //---------------------------------------------------------------------------
         template<typename PixelT>
+        const std::uint32_t BMPBottomUpLoader<PixelT>::_evaluate_colors_count(const std::uint32_t colors_count) const noexcept
+        {
+            return (colors_count == 0) ? 0xffff'ffff : colors_count;
+        }
+
+
+        //---------------------------------------------------------------------------
+        template<typename PixelT>
         const bool BMPBottomUpLoader<PixelT>::_load_image_content(
             const std::size_t content_offset,
             const std::uint32_t image_width,
@@ -711,6 +698,36 @@ namespace bmpl
         // Local implementations  -  BMPLoader<PixelT>
         //---------------------------------------------------------------------------
         template<typename PixelT>
+        BMPLoader<PixelT>::BMPLoader(
+            const std::string& filepath,
+            const bool apply_gamma_correction,
+            const bmpl::clr::ESkippedPixelsMode skipped_mode
+        ) noexcept
+            : MyBaseClass(filepath, apply_gamma_correction, skipped_mode)
+        {}
+
+        //---------------------------------------------------------------------------
+        template<typename PixelT>
+        BMPLoader<PixelT>::BMPLoader(
+            const std::string& filepath,
+            const bmpl::clr::ESkippedPixelsMode skipped_mode
+        ) noexcept
+            : MyBaseClass(filepath, skipped_mode)
+        {}
+
+        //---------------------------------------------------------------------------
+        template<typename PixelT>
+        BMPLoader<PixelT>::BMPLoader(
+            const bmpl::utils::LEInStream& in_stream,
+            const bmpl::frmt::BAHeader& ba_header,
+            const bool apply_gamma_correction,
+            const bmpl::clr::ESkippedPixelsMode skipped_mode
+        ) noexcept
+            : MyBaseClass(in_stream, ba_header, apply_gamma_correction, skipped_mode)
+        {}
+
+        //---------------------------------------------------------------------------
+        template<typename PixelT>
         const bool BMPLoader<PixelT>::load_image_content() noexcept
         {
             if (MyBaseClass::load_image_content()) {
@@ -753,6 +770,40 @@ namespace bmpl
                 }
             }
         }
-    }
 
+
+        //===========================================================================
+        // Local implementations  -  create_bmp_loader<PixelT>
+        //---------------------------------------------------------------------------
+        template<typename PixelT>
+        BMPLoaderBase<PixelT>* create_bmp_loader(
+            const std::string& filepath,
+            const bool apply_gamma_correction,
+            const bmpl::clr::ESkippedPixelsMode skipped_mode,
+            const bool force_bottom_up
+        ) noexcept
+        {
+            if (force_bottom_up) [[unlikely]]
+                return new bmpl::lodr::BMPBottomUpLoader<PixelT>(filepath, apply_gamma_correction, skipped_mode);
+            else [[likely]]
+                return new bmpl::lodr::BMPLoader<PixelT>(filepath, apply_gamma_correction, skipped_mode);
+        }
+
+        //---------------------------------------------------------------------------
+        template<typename PixelT>
+        BMPLoaderBase<PixelT>* create_bmp_loader(
+            const bmpl::utils::LEInStream& in_stream,
+            const bmpl::frmt::BAHeader& ba_header,
+            const bool apply_gamma_correction,
+            const bmpl::clr::ESkippedPixelsMode skipped_mode,
+            const bool force_bottom_up
+        ) noexcept
+        {
+            if (force_bottom_up) [[unlikely]]
+                return new bmpl::lodr::BMPBottomUpLoader<PixelT>(in_stream, ba_header, apply_gamma_correction, skipped_mode);
+            else [[likely]]
+                return new bmpl::lodr::BMPLoader<PixelT>(in_stream, ba_header, apply_gamma_correction, skipped_mode);
+        }
+
+    }
 }

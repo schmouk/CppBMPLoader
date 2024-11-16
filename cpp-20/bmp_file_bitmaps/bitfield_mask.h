@@ -55,19 +55,14 @@ namespace bmpl
             BitfieldMaskBase& operator=(const BitfieldMaskBase&) noexcept = delete;
             BitfieldMaskBase& operator=(BitfieldMaskBase&&) noexcept = delete;
 
-
             [[nodiscard]]
             const std::uint32_t get_component_value(const std::uint32_t pixel_value) const noexcept;
-
 
         protected:
             std::uint32_t _bits_count{ 0 };
 
             [[nodiscard]]
-            virtual inline const std::uint32_t _evaluate_component(const std::uint32_t pixel_value) const noexcept
-            {
-                return 0;
-            }
+            virtual const std::uint32_t _evaluate_component(const std::uint32_t pixel_value) const noexcept;
 
         };
 
@@ -76,11 +71,7 @@ namespace bmpl
         class BitfieldMask : public BitfieldMaskBase
         {
         public:
-            inline BitfieldMask(const std::vector<std::uint8_t>& bits_indices, const std::uint32_t bits_count) noexcept
-                : BitfieldMaskBase(bits_count)
-                , _bits_indexes(bits_indices)
-            {}
-
+            inline BitfieldMask(const std::vector<std::uint8_t>& bits_indices, const std::uint32_t bits_count) noexcept;
 
         protected:
             [[nodiscard]]
@@ -101,20 +92,11 @@ namespace bmpl
                 const std::uint32_t mask,
                 const std::uint32_t shift_count,
                 const std::uint32_t bits_count
-            ) noexcept
-                : BitfieldMaskBase(bits_count)
-                , _mask(mask)
-                , _shift(shift_count)
-            {}
-
+            ) noexcept;
 
         protected:
             [[nodiscard]]
-            virtual inline const std::uint32_t _evaluate_component(const std::uint32_t pixel_value) const noexcept
-            {
-                return (pixel_value & this->_mask) >> this->_shift;
-            }
-
+            virtual inline const std::uint32_t _evaluate_component(const std::uint32_t pixel_value) const noexcept;
 
         private:
             const std::uint32_t _mask{ 0 };

@@ -55,35 +55,13 @@ namespace bmpl
             static const Default256Palette win95_256;
 
 
-            inline static const Default2Palette& get_default_2() noexcept
-            {
-                return _default_2_palette;
-            }
+            static const Default2Palette& get_default_2() noexcept;
+            static const Default16Palette& get_default_16() noexcept;
+            static const Default256Palette& get_default_256() noexcept;
 
-            inline static const Default16Palette& get_default_16() noexcept
-            {
-                return _default_16_palette;
-            }
-
-            inline static const Default256Palette& get_default_256() noexcept
-            {
-                return _default_256_palette;
-            }
-
-            inline static void set_default_2(const Default2Palette& default_2) noexcept
-            {
-                _default_2_palette = default_2;
-            }
-
-            inline static void set_default_16(const Default16Palette& default_16) noexcept
-            {
-                _default_16_palette = default_16;
-            }
-
-            inline static void set_default_256(const Default256Palette& default_256) noexcept
-            {
-                _default_256_palette = default_256;
-            }
+            static void set_default_2(const Default2Palette& default_2) noexcept;
+            static void set_default_16(const Default16Palette& default_16) noexcept;
+            static void set_default_256(const Default256Palette& default_256) noexcept;
 
 
         private:

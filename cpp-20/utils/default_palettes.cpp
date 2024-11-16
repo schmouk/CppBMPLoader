@@ -376,6 +376,43 @@ namespace bmpl
 
         WindowsDefaultPalettes::Default256Palette WindowsDefaultPalettes::_default_256_palette{ WindowsDefaultPalettes::win95_256 };
 
+
+        //---------------------------------------------------------------------------
+        const WindowsDefaultPalettes::Default2Palette& WindowsDefaultPalettes::get_default_2() noexcept
+        {
+            return WindowsDefaultPalettes::_default_2_palette;
+        }
+
+        //---------------------------------------------------------------------------
+        const WindowsDefaultPalettes::Default16Palette& WindowsDefaultPalettes::get_default_16() noexcept
+        {
+            return WindowsDefaultPalettes::_default_16_palette;
+        }
+
+        //---------------------------------------------------------------------------
+        const WindowsDefaultPalettes::Default256Palette& WindowsDefaultPalettes::get_default_256() noexcept
+        {
+            return WindowsDefaultPalettes::_default_256_palette;
+        }
+
+        //---------------------------------------------------------------------------
+        void WindowsDefaultPalettes::set_default_2(const WindowsDefaultPalettes::Default2Palette& default_2) noexcept
+        {
+            WindowsDefaultPalettes::_default_2_palette = default_2;
+        }
+
+        //---------------------------------------------------------------------------
+        void WindowsDefaultPalettes::set_default_16(const WindowsDefaultPalettes::Default16Palette& default_16) noexcept
+        {
+            WindowsDefaultPalettes::_default_16_palette = default_16;
+        }
+
+        //---------------------------------------------------------------------------
+        void WindowsDefaultPalettes::set_default_256(const WindowsDefaultPalettes::Default256Palette& default_256) noexcept
+        {
+            WindowsDefaultPalettes::_default_256_palette = default_256;
+        }
+
     }
 
 }

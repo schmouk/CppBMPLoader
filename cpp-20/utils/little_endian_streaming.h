@@ -42,14 +42,9 @@ namespace bmpl
     namespace utils
     {
         //===========================================================================
-        static inline constexpr bool check_little_endianness() noexcept
-        {
-            std::uint16_t one{ 1 };
-            return (*(std::uint8_t*)(&one) == 1);
-        }
+        constexpr bool check_little_endianness() noexcept;
 
-
-        static const bool PLATFORM_IS_LITTLE_ENDIAN{ check_little_endianness() };
+        static inline const bool PLATFORM_IS_LITTLE_ENDIAN{ check_little_endianness() };
 
 
         //===========================================================================
@@ -67,23 +62,8 @@ namespace bmpl
             LEInStream() noexcept = default;
 
 
-            inline LEInStream(const char* filepath) noexcept
-                : MyBaseClass(filepath, std::ios::binary)
-                , MyErrClass()
-                , filepath(filepath)
-            {
-                _check_creation_ok();
-            }
-
-
-            inline LEInStream(const std::string& filepath) noexcept
-                : MyBaseClass(filepath, std::ios::binary)
-                , MyErrClass()
-                , filepath(filepath)
-            {
-                _check_creation_ok();
-            }
-
+            LEInStream(const char* filepath) noexcept;
+            LEInStream(const std::string& filepath) noexcept;
 
             virtual ~LEInStream() noexcept = default;
 

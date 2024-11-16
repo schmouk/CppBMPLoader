@@ -36,7 +36,7 @@ namespace bmpl
 {
     namespace frmt
     {
-        //===========================================================================
+        //---------------------------------------------------------------------------
         BMPColorMap::BMPColorMap(
             bmpl::utils::LEInStream& in_stream,
             const bmpl::frmt::BMPFileHeaderBase* file_header_ptr,
@@ -50,10 +50,10 @@ namespace bmpl
         }
 
 
-        //===========================================================================
+        //---------------------------------------------------------------------------
         BMPColorMap::pixel_type& BMPColorMap::operator[] (const std::uint32_t index) noexcept
         {
-            if (index >= this->colors_count) {
+            if (index >= this->colors_count) [[unlikely]] {
                 if (!_bad_index_warn_already_set) {
                     set_warning(bmpl::utils::WarningCode::BAD_PALETTE_INDICES);
                     _bad_index_warn_already_set = true;
@@ -61,13 +61,20 @@ namespace bmpl
                 // Notice: we use entry 0 as the default color for bad indices
                 return MyContainerBaseClass::operator[](0);
             }
-            else {
+            else [[likely]] {
                 return MyContainerBaseClass::operator[](index);
             }
         }
 
 
-        //===========================================================================
+        //---------------------------------------------------------------------------
+        const BMPColorMap::pixel_type& BMPColorMap::operator[] (const std::uint32_t index) const noexcept
+        {
+            return operator[](index);
+        }
+
+
+        //---------------------------------------------------------------------------
         const bool BMPColorMap::load(
             bmpl::utils::LEInStream& in_stream,
             const bmpl::frmt::BMPFileHeaderBase* file_header_ptr,
