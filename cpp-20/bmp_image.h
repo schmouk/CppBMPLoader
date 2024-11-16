@@ -24,6 +24,9 @@ OUT  OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+/*
+* NOTICE: code here is implemented according to the c++20 standard.
+*/
 
 // Let's exclude rarely-used stuff from Windows headers
 // (gets no effect on non Windows platforms)
