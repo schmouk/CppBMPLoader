@@ -34,6 +34,7 @@ SOFTWARE.
 
 
 #include <cstring>
+#include <ranges>
 #include <string>
 #include <utility>
 #include <vector>
@@ -214,8 +215,8 @@ namespace bmpl
         bmpl::frmt::BAHeadersIterStatus _ba_hdr_iter{};
         std::string _filepath{};
         const bmpl::clr::ESkippedPixelsMode _skipped_mode{ bmpl::clr::ESkippedPixelsMode::BLACK };
-        bool _apply_gamma_correction{ false };
-        bool _force_bottom_up{ false };
+        const bool _apply_gamma_correction{ false };
+        const bool _force_bottom_up{ false };
 
     };
 
@@ -496,11 +497,14 @@ namespace bmpl
             return BMPImagesList<BMPImageT>(ba_headers.get_error());
 
         BMPImagesList<BMPImageT> images_list{};
+        
+        auto _load_image =
+            [&in_stream, apply_gamma_correction, skipped_mode, force_bottom_up](bmpl::frmt::BAHeader& ba_hdr)
+            { return BMPImageT(in_stream, ba_hdr, apply_gamma_correction, skipped_mode, force_bottom_up); };
+        
+        std::ranges::copy(std::views::transform(ba_headers, _load_image), std::back_inserter(images_list));
 
-        for (auto& ba_hdr : ba_headers)
-            images_list.push_back(BMPImageT(in_stream, ba_hdr, apply_gamma_correction, skipped_mode, force_bottom_up));
-
-        return images_list;
+        return std::move(images_list);
     }
 
 
