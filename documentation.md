@@ -14,6 +14,7 @@ Up to november 2024, the c++20 version of the code is not yet released.
 Finally, there must still be typos that are remaining in this documentation. They'll be fixed over time. Or not. We'll see.
 
 ---
+## Table of Content <!-- omit from toc -->
 - [CppBMPLoader documentation](#cppbmploader-documentation)
 - [Examples of code](#examples-of-code)
 - [How to load an image from a BMP file](#how-to-load-an-image-from-a-bmp-file)
