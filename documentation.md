@@ -19,13 +19,13 @@ Finally, there must still be typos that are remaining in this documentation. The
 - [Examples of code](#examples-of-code)
 - [How to load an image from a BMP file](#how-to-load-an-image-from-a-bmp-file)
   - [Code example](#code-example)
-  - [class `bmpl::BMPImage<>`](#class-bmplbmpimage)
+  - [class *`bmpl::BMPImage<>`*](#class-bmplbmpimage)
     - [Introduction](#introduction)
     - [Constructors](#constructors)
     - [Operators](#operators)
     - [Methods](#methods)
   - [A specific case: version 1 of BMP format](#a-specific-case-version-1-of-bmp-format)
-    - [class `bmpl::clr::WindowsDefaultPalettes`](#class-bmplclrwindowsdefaultpalettes)
+    - [class *`bmpl::clr::WindowsDefaultPalettes`*](#class-bmplclrwindowsdefaultpalettes)
     - [Code example](#code-example-1)
 - [How to load images from a `BA` file](#how-to-load-images-from-a-ba-file)
   - [How to load all images at once from a `BA` file](#how-to-load-all-images-at-once-from-a-ba-file)
@@ -128,7 +128,7 @@ Finally, library **CppBMPLoader** delivers images with top line being line 0, wh
 
 
 ---
-## class `bmpl::BMPImage<>`
+## class *`bmpl::BMPImage<>`*
 
 ### Introduction
 This templated class provides access to the loading of images from BMP files.
@@ -308,7 +308,7 @@ The version 1 of `BMP` format uses default color palettes that were defined by W
 Header file `utils/default_palettes.h`, automatically included when you include header file `bmp_image.h`, declares default palettes and defines an interface to get access to them. See below.
 
 ---
-### class `bmpl::clr::WindowsDefaultPalettes`
+### class *`bmpl::clr::WindowsDefaultPalettes`*
 This class belongs to namespace `bmpl::clr`.
 
 This class defines three types of color palettes:
