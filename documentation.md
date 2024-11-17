@@ -25,7 +25,7 @@ Finally, there must still be typos that are remaining in this documentation. The
     - [Operators](#operators)
     - [Methods](#methods)
   - [A specific case: version 1 of BMP format](#a-specific-case-version-1-of-bmp-format)
-    - [*`struct WindowsDefaultPalettes`*](#struct-windowsdefaultpalettes)
+    - [class `bmpl::clr::WindowsDefaultPalettes`](#class-bmplclrwindowsdefaultpalettes)
     - [Code example](#code-example-1)
 - [How to load images from a `BA` file](#how-to-load-images-from-a-ba-file)
   - [How to load all images at once from a `BA` file](#how-to-load-all-images-at-once-from-a-ba-file)
@@ -308,7 +308,7 @@ The version 1 of `BMP` format uses default color palettes that were defined by W
 Header file `utils/default_palettes.h`, automatically included when you include header file `bmp_image.h`, declares default palettes and defines an interface to get access to them. See below.
 
 ---
-### *`struct WindowsDefaultPalettes`*
+### class `bmpl::clr::WindowsDefaultPalettes`
 This class belongs to namespace `bmpl::clr`.
 
 This class defines three types of color palettes:
@@ -344,7 +344,7 @@ This class defines also three static methods to set the default color palettes:
     static void WindowsDefaultPalettes::set_default_256(const Default256Palette& default_256) noexcept;
 ```
 
-The class *`bmpl::BMPImage<>`* defines also a dedicated method, which has intentionnally not been listed previously: *`const bool is_v1() const`*. This method returns `true` when a BMP image has been encoded according to version v1 of format `BMP`, or `false` otherwise. This method is provided just for convenience, but it does not need to be called to know if a default palette has to be set. The default palettes are already predefined this way:
+The class *`bmpl::BMPImage<>`* defines also a method dedicated to version 1 of BMP format, which has intentionnally not been listed previously: *`const bool is_v1() const`*. This method returns `true` when a BMP image has been encoded according to version v1 of format `BMP`, or `false` otherwise. This method is provided just for convenience, but it does not need to be called to know if a default palette has to be set. The default palettes are already predefined this way:
 - black and white colors for the default 2-colors palette;
 - Win 95 default palettes for the default 16- and 256- colors palettes.
 Should you want to use any other palette, just set the internal related default palette by calling method *`.set_default_2()`*, *`.set_default_16()`* or *`.set_default_256()`*. These will then be used for the next decoding of v1 BMP images if any is encountered.
