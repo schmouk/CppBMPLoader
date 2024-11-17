@@ -13,6 +13,58 @@ Up to november 2024, the c++20 version of the code is not yet released.
 
 Finally, there must still be typos that are remaining in this documentation. They'll be fixed over time. Or not. We'll see.
 
+---
+- [CppBMPLoader documentation](#cppbmploader-documentation)
+- [Examples of code](#examples-of-code)
+- [How to load an image from a BMP file](#how-to-load-an-image-from-a-bmp-file)
+  - [Code example](#code-example)
+  - [class `bmpl::BMPImage<>`](#class-bmplbmpimage)
+    - [Introduction](#introduction)
+    - [Constructors](#constructors)
+    - [Operators](#operators)
+    - [Methods](#methods)
+  - [A specific case: version 1 of BMP format](#a-specific-case-version-1-of-bmp-format)
+    - [*`struct WindowsDefaultPalettes`*](#struct-windowsdefaultpalettes)
+    - [Code example](#code-example-1)
+- [How to load images from a `BA` file](#how-to-load-images-from-a-ba-file)
+  - [How to load all images at once from a `BA` file](#how-to-load-all-images-at-once-from-a-ba-file)
+    - [Code example](#code-example-2)
+    - [*`template<typename BMPImageT> const BMPImagesList<BMPImageT> load_all_images<BMPImageT>(const std::string& filepath, const bool apply_gamma_correction = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*](#templatetypename-bmpimaget-const-bmpimageslistbmpimaget-load_all_imagesbmpimagetconst-stdstring-filepath-const-bool-apply_gamma_correction--false-const-bmplclreskippedpixelsmode-skipped_mode--bmplclreskippedpixelsmodeblack-const-bool-force_bottom_up--false-noexcept)
+    - [*`template<typename BMPImageT> struct BMPImagesList;`*](#templatetypename-bmpimaget-struct-bmpimageslist)
+      - [Methods](#methods-1)
+  - [How to load images one after the other from a `BA` file](#how-to-load-images-one-after-the-other-from-a-ba-file)
+    - [Code example](#code-example-3)
+    - [*`class bmpl::NextImageLoader`*](#class-bmplnextimageloader)
+      - [Constructors](#constructors-1)
+      - [Operators](#operators-1)
+      - [Methods](#methods-2)
+  - [How to load the image that best fits a specified colors count from a `BA` file](#how-to-load-the-image-that-best-fits-a-specified-colors-count-from-a-ba-file)
+    - [Code example](#code-example-4)
+    - [*`class bmpl::BMPBestFittingColorsImage`*](#class-bmplbmpbestfittingcolorsimage)
+      - [Constructors](#constructors-2)
+      - [Operators](#operators-2)
+      - [Methods](#methods-3)
+  - [How to load the image that best fits specified dimensions from a `BA` file](#how-to-load-the-image-that-best-fits-specified-dimensions-from-a-ba-file)
+    - [Code example](#code-example-5)
+    - [*`class bmpl::BMPBestFittingSizeImage`*](#class-bmplbmpbestfittingsizeimage)
+      - [Constructors](#constructors-3)
+      - [Operators](#operators-3)
+      - [Methods](#methods-4)
+  - [How to load the image that best fits specified resolutions from a `BA` file](#how-to-load-the-image-that-best-fits-specified-resolutions-from-a-ba-file)
+    - [Code example](#code-example-6)
+    - [*`class bmpl::BMPBestFittingResolutionImage`*](#class-bmplbmpbestfittingresolutionimage)
+      - [Constructors](#constructors-4)
+      - [Operators](#operators-4)
+      - [Methods](#methods-5)
+  - [How to load the image that best fits specified dimensions, then resolutions, then colors count from a `BA` file](#how-to-load-the-image-that-best-fits-specified-dimensions-then-resolutions-then-colors-count-from-a-ba-file)
+    - [Code example](#code-example-7)
+    - [*`class bmpl::BMPBestFittingImage`*](#class-bmplbmpbestfittingimage)
+      - [Constructors](#constructors-5)
+      - [Operators](#operators-5)
+      - [Methods](#methods-6)
+  - [The Error Codes and related Messages](#the-error-codes-and-related-messages)
+  - [The Warnings Codes and related Messages](#the-warnings-codes-and-related-messages)
+
 
 ---
 # Examples of code
@@ -102,21 +154,21 @@ They all inherit from `bmpl::utils::ErrorStatus` and `bmpl::utils::WarningStatus
 ### Constructors
 
 ---
-#### *`BMPImage() noexcept = default;`*
+#### *`BMPImage() noexcept = default;`*  <!-- omit from toc -->
 The default empty constructor.  
 The error status associated with an empty image is `bmpl::utils::ErrorCode::NOT_INITIALIZED`.  
 A later call to method `load()` will then initialize the image and set its error status accordingly: `bmpl::utils::ErrorCode::NO_ERROR` if things went fine, or any other error code in case of some loading failure - **CppBMPLoader** detects many of them.  
 You may use this default constructor to declare a `bmpl::BMPImage<>` image while the path to the BMP file will be later known. You'll then later load the image with the `load_image()` method, passing it the file path as an argument.
 
 ---
-#### *`BMPImage(const BMPImage&) noexcept = default;`*
+#### *`BMPImage(const BMPImage&) noexcept = default;`*  <!-- omit from toc -->
 The default copy constructor.
 
-#### *`BMPImage(BMPImage&&) noexcept = default;`*
+#### *`BMPImage(BMPImage&&) noexcept = default;`*  <!-- omit from toc -->
 The default move constructor.
 
 ---
-#### *`BMPImage(const std::string& filepath, const bool apply_gamma_correction = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*
+#### *`BMPImage(const std::string& filepath, const bool apply_gamma_correction = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*  <!-- omit from toc -->
 This is the constructor you will mainly call to load BMP images from files at creation time. It automatically loads the BMP image and sets its error status and warnings list.  
 See also *`load_image()`*.
 
@@ -143,14 +195,14 @@ Arguments:
 ### Operators
 
 ---
-#### *`BMPImage& operator=(const BMPImage&) noexcept = default;`*
+#### *`BMPImage& operator=(const BMPImage&) noexcept = default;`*  <!-- omit from toc -->
 The default copy assignment.
 
-#### *`BMPImage& operator=(BMPImage&&) noexcept = default;`*
+#### *`BMPImage& operator=(BMPImage&&) noexcept = default;`*  <!-- omit from toc -->
 The default move assignment.
 
 ---
-#### *`const bool operator! () const noexcept;`*
+#### *`const bool operator! () const noexcept;`*  <!-- omit from toc -->
 Returns `true` when some error occured or while the image is not yet initialized. Returns `false` otherwise (i.e. no error).  
 Seel also `is_ok()`, `failed()` and `get_error_msg()`.  
 Notice: this is a wrapper to method `failed()`. It is inherited from class `bmpl::utils::ErrorStatus`.
@@ -159,7 +211,7 @@ Notice: this is a wrapper to method `failed()`. It is inherited from class `bmpl
 ### Methods
 
 ---
-#### *`const bool load_image(const std::string& filepath, const bool apply_gamma_correction = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*
+#### *`const bool load_image(const std::string& filepath, const bool apply_gamma_correction = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*  <!-- omit from toc -->
 Loads an image from a specified `BMP` file and sets its error status and its list of warnings.  
 Returns `true` if loading was successfull or `false` otherwise.  
 You will mainly call this method to load BMP images from files after having instantiating a `BMPImage` with the default empty constructor, or to load a new image from another `BMP` file once the image has already been created and loaded.
@@ -184,74 +236,164 @@ Arguments:
   Defaults to `false`.
 
 ---
-#### *`PixelT* get_content_ptr() noexcept;`*
+#### *`PixelT* get_content_ptr() noexcept;`*  <!-- omit from toc -->
 Returns a pointer to the very first pixel of the image buffer.  
 You will call this to apply any processing of your own on the image content or, more often, to display its content.
 
 ---
-#### *`const bool is_ok() const noexcept;`*
+#### *`const bool is_ok() const noexcept;`*  <!-- omit from toc -->
 Returns `true` when the image has been successfully loaded, or `false` if no image has yet been loaded or when loading failed.  
 See also *`failed()`*, *`operator !`* and *`get_error_msg()`*.  
 Notice: inherited from class `bmpl::utils::ErrorStatus`.
 
-#### *`const bool failed() const noexcept;`*
+#### *`const bool failed() const noexcept;`*  <!-- omit from toc -->
 Returns `true` when some arror occured or while the image is not yet initialized. Returns `false` otherwise (i.e. no error).  
 See also *`is_ok()`*, *`operator !`* and *`get_error_msg()`*.  
 Notice: inherited from class `bmpl::utils::ErrorStatus`.
 
-#### *`const std::string get_error_msg() const noexcept;`*
+#### *`const std::string get_error_msg() const noexcept;`*  <!-- omit from toc -->
 Returns a formatted string containing English text related to the error encountered, if any.  
 See also *`is_ok()`*, *`operator !`* and *`failed()`*.  
 
 ---
-#### *`const bool has_warnings() const noexcept`*
+#### *`const bool has_warnings() const noexcept`*  <!-- omit from toc -->
 Returns `true` is some warnings have been detected while loading the image from file, or `false` otherwise.  
 See also *`get_warnings_msg()`*.  
 Notice: inherited from class `bmpl::utils::WarningStatus`.
 
-#### *`std::vector<std::string> get_warnings_msg() const noexcept;`*
+#### *`std::vector<std::string> get_warnings_msg() const noexcept;`*  <!-- omit from toc -->
 Returns a vector of strings, each containing formatted English text related to a warning detected while loading the image from file. Multiple same warnings are returned only once each in this list.  
 See also *`has_warnings()`*.
 
 ---
-#### *`const std::uint32_t get_height() const noexcept;`*
+#### *`const std::uint32_t get_height() const noexcept;`*  <!-- omit from toc -->
 Returns the height of the image (i.e. its lines count) once it has been successfully loaded, or zero otherwise.  
 See also *`get_width()`* and *`image_size()`*
 
-#### *`const std::uint32_t get_width() const noexcept;`*
+#### *`const std::uint32_t get_width() const noexcept;`*  <!-- omit from toc -->
 Returns the width of the image (i.e. its lines count) once it has been successfully loaded, or zero otherwise.  
 See also *`get_height()`* and *`image_size()`*
 
-#### *`const std::uint64_t image_size() const noexcept;`*
+#### *`const std::uint64_t image_size() const noexcept;`*  <!-- omit from toc -->
 Returns the size (i.e. overall pixels count) of the image once it has been successfully loaded, or zero otherwise.  
 See also *`get_height()`* and *`get_width()`*
 
 ---
-#### *`const std::string get_filepath() const noexcept;`*
+#### *`const std::string get_filepath() const noexcept;`*  <!-- omit from toc -->
 Returns the filepath string associated with the image, i.e. the path to the loaded BMP file.
 
 ---
-#### *`const std::uint32_t get_colors_count() const noexcept;`*
+#### *`const std::uint32_t get_colors_count() const noexcept;`*  <!-- omit from toc -->
 Returns the number of colors encoded in the color palette as specified in the BMP file. May be zero if no color palette is present in the BMP file.
 
 ---
-#### *`const std::int32_t get_device_x_resolution_dpi() const noexcept;`*
+#### *`const std::int32_t get_device_x_resolution_dpi() const noexcept;`*  <!-- omit from toc -->
 Returns the resolution along the horizontal axis used to encode the image in the BMP file. This value is provided by **CppBMPLoader** in dots-per-inch units (i.e. *dpi*; it will mostly get `72` dpi as a value), while the BMP format specifies resolutions in pixels-per-meter units (mostly `2835` as its value).  
 See also *`get_device_y_resolution_dpi()`*.
 
-#### *`const std::int32_t get_device_y_resolution_dpi() const noexcept;`*
+#### *`const std::int32_t get_device_y_resolution_dpi() const noexcept;`*  <!-- omit from toc -->
 Returns the resolution along the vertical axis used to encode the image in the BMP file. This value is provided by **CppBMPLoader** in dots-per-inch units (i.e. *dpi*; it will mostly get `72` dpi as a value), while the BMP format specifies resolutions in pixels-per-meter units (mostly `2835` as its value).  
 See also *`get_device_x_resolution_dpi()`*.
 
 ---
-#### *`static const bool BMPImage<PixelT>::is_BA_file(const std::string& filepath) noexcept;`*
+#### *`static const bool BMPImage<PixelT>::is_BA_file(const std::string& filepath) noexcept;`*  <!-- omit from toc -->
 Returns `true` if the file specified by the passed filepath is a `BA` file, or `false` otherwise. Might not be of a great interest to you since **CppBMPLoader** automatically deals with such files.  
 Notice: this is a class method. It can be called without instantiating the class.
 
 
+## A specific case: version 1 of BMP format
+The version 1 of `BMP` format uses default color palettes that were defined by Windows OS. **CppBMPLoader** implements a simple mechanism to ensure the decoding of v1 BMP images using such palettes.
+
+Header file `utils/default_palettes.h`, automatically included when you include header file `bmp_image.h`, declares default palettes and defines an interface to get access to them. See below.
+
+---
+### *`struct WindowsDefaultPalettes`*
+This class belongs to namespace `bmpl::clr`.
+
+This class defines three types of color palettes:
+```
+    using Default2Palette   = std::array<bmpl::clr::RGB, 2>;
+    using Default16Palette  = std::array<bmpl::clr::RGB, 16>;
+    using Default256Palette = std::array<bmpl::clr::RGB, 256>;
+```
+
+This class declares also five default palettes:
+- *`Default2Palette WindowsDefaultPalettes::win2`*  
+  a two colors palette, initialized with black (0, 0, 0) at entry 0 and white (255, 255, 255) at entry 1 of the palette;
+- *`Default16Palette WindowsDefaultPalettes::win95_16`*  
+  the default 16 colors palette defined by Windows 95;
+- *`Default16Palette WindowsDefaultPalettes::winNT_16`*  
+  the default 16 colors palette defined by Windows NT;
+- *`Default16Palette WindowsDefaultPalettes::win10_16`*  
+  the default 16 colors palette defined by Windows 10;
+- *`Default256Palette WindowsDefaultPalettes::win95_256`*  
+  the default 256 colors palette defined by Windows 95.
+
+This class internally maintains three default palettes for 2, 16 and 256 colors for which content can be accessed via three static methods:
+```
+    static const Default2Palette&   WindowsDefaultPalettes::get_default_2() noexcept;
+    static const Default16Palette&  WindowsDefaultPalettes::get_default_16() noexcept;
+    static const Default256Palette& WindowsDefaultPalettes::get_default_256() noexcept;
+```
+
+This class defines also three static methods to set the default color palettes:
+```
+    static void WindowsDefaultPalettes::set_default_2(const Default2Palette& default_2) noexcept;
+    static void WindowsDefaultPalettes::set_default_16(const Default16Palette& default_16) noexcept;
+    static void WindowsDefaultPalettes::set_default_256(const Default256Palette& default_256) noexcept;
+```
+
+The class *`bmpl::BMPImage<>`* defines also a dedicated method, which has intentionnally not been listed previously: *`const bool is_v1() const`*. This method returns `true` when a BMP image has been encoded according to version v1 of format `BMP`, or `false` otherwise. This method is provided just for convenience, but it does not need to be called to know if a default palette has to be set. The default palettes are already predefined this way:
+- black and white colors for the default 2-colors palette;
+- Win 95 default palettes for the default 16- and 256- colors palettes.
+Should you want to use any other palette, just set the internal related default palette by calling method *`.set_default_2()`*, *`.set_default_16()`* or *`.set_default_256()`*. These will then be used for the next decoding of v1 BMP images if any is encountered.
+
+---
+### Code example
+This code is extracted from the internal tests we developed to validate the code of library **CppBMPLoader**. We provide it here in a simplified form.
+```
+#include <cstring>
+#include <iostream>
+
+#include "bmp_image.h"
+
+void test_images(const std::string& filepath)
+{
+    bmpl::BMPImage<bmpl::clr::BGR> bmp_image(filepath);
+    if (bmp_image.is_v1())
+        std::cout << "'" << filepath << "\" is BMP v1 encoded!" << std::endl;
+
+    if (bmp_image.failed()) {  // if (!bmp_image) would fit also, maybe less explicit
+        std::cout << bmp_image.get_error_msg() << std::endl;
+    }
+    else {
+        for (auto& msg : bmp_image.get_warnings_msg())
+            std::cout << msg << std::endl;
+        _display_(bmp_image)  // whatever our display function was ;-)
+    }
+}
+
+void main()
+{
+    test_images("images/v1/2.bmp");    // uses the default black & white 2-colors palette
+
+    test_images("images/v1/16.bmp");   // uses the default Win95 16-colors palette
+    bmpl::clr::WindowsDefaultPalettes::set_default_16(bmpl::clr::WindowsDefaultPalettes::winNT_16);
+    test_images("images/v1/16.bmp");   // uses now the WinNT 16-colors palette with same image
+    bmpl::clr::WindowsDefaultPalettes::set_default_16(bmpl::clr::WindowsDefaultPalettes::win10_16);
+    test_images("images/v1/16.bmp");   // uses now the Win10 16-colors palette with same image
+
+    test_images("images/v1/256.bmp");  // uses the default Win95 256-colors palette
+
+    return 0;
+}
+
+```
+
+
 ---
 ---
-# Loading images from a 'BA' file
+# How to load images from a `BA` file
 This is a specificity of library **CppBMPLoader**. It helps loading also images from `BA` files. These files embed arrays of `BMP` encoded images. It is an OS/2 format rather than a Windows one which rather uses the Windows `BMP` format for the encoding of images.
 
 This format has mostly been used to associate in one single file many encodings of a same image with different number of colors, different resolutions or different dimensions, the best fitting one with the finally targetted device being used then for display or printing.
@@ -264,7 +406,7 @@ So, **CppBMPLoader** helps loading:
 Notice: `BA` files names get the same suffix as `BMP` files ones: `.bmp`. Both formats are differenciated by the two first bytes of the files content: `'BM'` for `BMP` files and `'BA'` for `BA` files. **CppBMPLoader** takes care of this and sets proper error code and message if needed. You can also check the 'BA'-ness of a file with a call to the library method *`const bool bmpl::BMPImage<>::is_BA_file(const std::string& filepath)`*. There is no need here to specify a pixel type as the template argument of class `BMPImage` since a default one is specified in the declaration of this templated class in the header file `bmp_image.h`. So, the angle brackets may be used empty here.
 
 ---
-## How to load all images from a `BA` file
+## How to load all images at once from a `BA` file
 First, include the next header file in your code.
 ```
 #include "bmp_image.h"
@@ -307,7 +449,7 @@ else {
 
 
 ---
-#### *`template<typename BMPImageT> const BMPImagesList<BMPImageT> load_all_images<BMPImageT>(const std::string& filepath, const bool apply_gamma_correction = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*
+### *`template<typename BMPImageT> const BMPImagesList<BMPImageT> load_all_images<BMPImageT>(const std::string& filepath, const bool apply_gamma_correction = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*
 Loads all BMP images that are contained in a `BA` file. Returns a vector of the loaded BMP images, associated with an error status and a warnings list - see also the documentation of the type of the returned vector of images: `class BMPImagesList<BMPImageT>`.
 
 The template argument may be one of next predefined types:
@@ -346,7 +488,7 @@ Arguments:
   Defaults to `false`.
 
 ---
-#### *`template<typename BMPImageT> struct BMPImagesList;`*
+### *`template<typename BMPImageT> struct BMPImagesList;`*
 The template class for lists of BMP images.
 
 It is declared in header file `"bmp_image.h"`. It can be understood as:
@@ -363,28 +505,31 @@ namespace bmpl
 So, you get access to all operators and methods of inherited class `std::vector` (e.g. indexing, iterators, size, etc.) plus **CppBMPLoader** next goodies (errors and warnings, see next subsection).  
 Should any error or warning have been detected while loading images from file, the resulting list contains the error and warning codes so that you can check failure status and get related error and warnings messages.
 
+
+#### Methods
+
 ---
-##### *`const bool is_ok() const noexcept;`*
+##### *`const bool is_ok() const noexcept;`*  <!-- omit from toc -->
 Returns `true` when the images list has been successfully loaded, or `false` otherwise. The list may have been loaded without error while some loaded images were faulty; always check the error status of loaded images before using any of them.  
 See also *`failed()`*, *`operator !`* and *`get_error_msg()`*.  
 Notice: inherited from class `bmpl::utils::ErrorStatus`.
 
-##### *`const bool failed() const noexcept;`*
+##### *`const bool failed() const noexcept;`*  <!-- omit from toc -->
 Returns `true` when some arror occured or while loading the list of images, or `false` otherwise (i.e. no error). The list may have been loaded without error while some loaded images were faulty; always check the error status of loaded images before using any of them.  
 See also *`is_ok()`*, *`operator !`* and *`get_error_msg()`*.  
 Notice: inherited from class `bmpl::utils::ErrorStatus`.
 
-##### *`const std::string get_error_msg() const noexcept;`*
+##### *`const std::string get_error_msg() const noexcept;`*  <!-- omit from toc -->
 Returns a string containing formatted English text related to the error encountered while loading the list of images, if any.  
 See also *`is_ok()`*, *`operator !`* and *`failed()`*.  
 
 ---
-##### *`const bool has_warnings() const noexcept`*
+##### *`const bool has_warnings() const noexcept`*  <!-- omit from toc -->
 Returns `true` is some warnings have been detected while loading the list of images from file, or `false` otherwise.  
 See also *`get_warnings_msg()`*.  
 Notice: inherited from class `bmpl::utils::WarningStatus`.
 
-##### *`std::vector<std::string> get_warnings_msg() const noexcept;`*
+##### *`std::vector<std::string> get_warnings_msg() const noexcept;`*  <!-- omit from toc -->
 Returns a vector of strings, each containing formatted English text related to a warning detected while loading the list of images from file. Multiple same warnings are returned only once each in this list.  
 See also *`has_warnings()`*.
 
@@ -448,14 +593,14 @@ Declared as
 
 Notice: it inherits from `bmpl::utils::ErrorStatus` which is usefull to get access to error status. The inherited methods are explained further.
 
-### Constructors
+#### Constructors
 
 ---
-#### *`NextImageLoader() noexcept = delete;`*
+##### *`NextImageLoader() noexcept = delete;`*  <!-- omit from toc -->
 The empty constructor is deleted. Instantiation of this class with no parameter is then forbidden, as well as are copy and move constructors and copy and move assignment operators.
 
 ---
-#### *`NextImageLoader(const std::string& filepath, const bool apply_gamma_correction = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*
+##### *`NextImageLoader(const std::string& filepath, const bool apply_gamma_correction = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*  <!-- omit from toc -->
 This is the constructor you must call to isntantiate a next-image-loader. It automatically sets internal state for the loading of all BMP images and for the running through them.  
 See also *`load_image()`*.
 
@@ -478,48 +623,48 @@ Arguments:
   **CppBMPLoader** automatically loads images with top line first and bottom line last in buffer. In some circumstances you may wish to load images in the reverse order (which is the default oredring of lines in `BMP` format as well as the one specified by **OpenGL**). Set this argument to `true` if you want to load the image with bottom line first and top line last in the image buffer.  
   Defaults to `false`.
 
-### Operators
+#### Operators
 
 ---
-#### *`const bool operator! () const noexcept;`*
+##### *`const bool operator! () const noexcept;`*  <!-- omit from toc -->
 Returns `true` when some arror occured while instantiating the next-image-loader or when the last loading of an image was faulty. Returns `false` otherwise (i.e. no error).  
 Seel also `is_ok()`, `failed()` and `get_error_msg()`.  
 Notice: this is a wrapper to method `failed()`. It is inherited from class `bmpl::utils::ErrorStatus`.
 
-### Methods
+#### Methods
 
 ---
-#### *`const bool end() const noexcept;`*
+##### *`const bool end() const noexcept;`*  <!-- omit from toc -->
 Returns `true` when the list of contained images has been exhausted, or `false` otherwise.
 
 ---
-#### *`const bool is_ok() const noexcept;`*
+##### *`const bool is_ok() const noexcept;`*  <!-- omit from toc -->
 Returns `true` when the instantiation of the next-image-loader was ok, or `false` otherwise.  
 See also *`failed()`*, *`operator !`* and *`get_error_msg()`*.  
 Notice: inherited from class `bmpl::utils::ErrorStatus`.
 
-#### *`const bool failed() const noexcept;`*
+##### *`const bool failed() const noexcept;`*  <!-- omit from toc -->
 Returns `true` when some arror occured at instantiation time, or `false` otherwise (i.e. no error).  
 See also *`is_ok()`*, *`operator !`* and *`get_error_msg()`*.  
 Notice: inherited from class `bmpl::utils::ErrorStatus`.
 
-#### *`const std::string get_error_msg() const noexcept;`*
+##### *`const std::string get_error_msg() const noexcept;`*  <!-- omit from toc -->
 Returns a string containing formatted English text related to the error encountered, if any, at instantiation time.  
 See also *`is_ok()`*, *`operator !`* and *`failed()`*.  
 
 ---
-#### *`const std::string get_filepath() const noexcept;`*
+##### *`const std::string get_filepath() const noexcept;`*  <!-- omit from toc -->
 Returns the filepath to the BA file.
 
 ---
-#### *`BMPImageT load_image() noexcept;`*
+##### *`BMPImageT load_image() noexcept;`*  <!-- omit from toc -->
 Loads next image in the specified `BA` file and sets its error status and warnings list.  
 Returns a copy of the loaded image.  
 If the end of the list of images contained in the BA file has been reached, the returned image is set to be faulty: method *`.is_ok()`* applied to the returned image returns `false` (*`.failed()`* and *`operator !`* return `true`) and the associated error code is *`bmpl::utils::ErrorCode::END_OF_BA_HEADERS_LIST`*. Meanwhile, a call to the next-image-loader method *`.end()`* returns `true` also.  
 Notice: after loading an image, always check its error status before using its content. A faulty image does not limit the running through the contained images in the `BA` file so its faulty status is only associated with it and not with the next-image-loader.
 
 ---
-#### *`void reset() noexcept;`*
+##### *`void reset() noexcept;`*  <!-- omit from toc -->
 Resets the internal state of the next-image-loader. The next call to method *`load_image()`* returns the very first image in the `BA` file, as long as the next-image-loader is not faulty itself of course. Then, next calls to *`load_image()`*  run through the whole list until its completion, one image after the other and until the last one in file.
 
 
@@ -608,19 +753,20 @@ namespace bmpl
 These are the ones you should use in the code of your application.
 
 
-### Constructors
+#### Constructors
 
 ---
-#### *`BMPBestFittingColorsImage() noexcept = default;`*
+##### *`BMPBestFittingColorsImage() noexcept = default;`*  <!-- omit from toc -->
 The default empty constructor.  
 You may instantiate an empty image with this constructor. Its error status is then be set to `bmpl::utils::ErrorCode::NOT_INITIALIZED`. You will then call method *`load_image()`* to load the best fitting image from a BA file.
 
 ---
-#### *`BMPBestFittingColorsImage(const bmpl::BMPImage<PixelT> image) noexcept;`*
+##### *`BMPBestFittingColorsImage(const bmpl::BMPImage<PixelT> image) noexcept;`*  <!-- omit from toc -->
 This constructors copies a *`bmpl::BMPImage<>`* with same template argument into this best-fitting-image. It might be that you will never have to use this constructor in your applications, but it gets uses internally in library **CppBMPLoader**.
 
 ---
-#### *`BMPBestFittingColorsImage(const std::string& filepath, const std::uint32_t target_bits_per_pixel, const bool apply_gamma_corection = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*
+##### *`BMPBestFittingColorsImage(const std::string& filepath, const std::uint32_t target_bits_per_pixel, const bool apply_gamma_corection = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*  <!-- omit from toc -->
+Decodes the best fitting image from file.
 
 Arguments:
 - *`const std::string& filepath`*  
@@ -645,34 +791,34 @@ Arguments:
   Defaults to `false`.
 
 ---
-#### *`BMPBestFittingColorsImage(const BMPBestFittingColorsImage&) noexcept = default;`*
+##### *`BMPBestFittingColorsImage(const BMPBestFittingColorsImage&) noexcept = default;`*  <!-- omit from toc -->
 The default copy constructor.
 
-#### *`BMPBestFittingColorsImage(BMPBestFittingColorsImage&&) noexcept = default;`*
+##### *`BMPBestFittingColorsImage(BMPBestFittingColorsImage&&) noexcept = default;`*  <!-- omit from toc -->
 The default move constructor.
 
 
-### Operators
+#### Operators
 
 ---
-#### *`BMPBestFittingColorsImage& operator=(const BMPBestFittingColorsImage&) noexcept = default;`*
+##### *`BMPBestFittingColorsImage& operator=(const BMPBestFittingColorsImage&) noexcept = default;`*  <!-- omit from toc -->
 The default copy assignement operator.
 
-#### *`BMPBestFittingColorsImage& operator=(BMPBestFittingColorsImage&&) noexcept = default;`*
+##### *`BMPBestFittingColorsImage& operator=(BMPBestFittingColorsImage&&) noexcept = default;`*  <!-- omit from toc -->
 The default move assignment operator.
 
 ---
-#### *`const bool operator! () const noexcept;`*
+##### *`const bool operator! () const noexcept;`*  <!-- omit from toc -->
 Returns `true` when some arror occured while loading the image was faulty. Returns `false` otherwise (i.e. no error).  
 Seel also `is_ok()`, `failed()` and `get_error_msg()`.  
 Notice: this is a wrapper to method `failed()`.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 
-### Methods
+#### Methods
 
 ---
-#### *`const bool load_image(const std::string& filepath, const std::uint32_t target_bits_per_pixel, const bool apply_gamma_correction = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*
+##### *`const bool load_image(const std::string& filepath, const std::uint32_t target_bits_per_pixel, const bool apply_gamma_correction = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*  <!-- omit from toc -->
 Loads an image from a specified `BA` file and sets its error status and warnings list.  
 Returns `true` if loading was successfull or `false` otherwise.  
 You will mainly call this method to load BMP images from BA files after having instantiating a *`BMPBestFittingColorsImage`* with the default empty constructor, or to load a new image from another `BA` file.
@@ -700,71 +846,71 @@ Arguments:
   Defaults to `false`.
 
 ---
-#### *`PixelT* get_content_ptr() noexcept;`*
+##### *`PixelT* get_content_ptr() noexcept;`*  <!-- omit from toc -->
 Returns a pointer to the very first pixel of the image buffer.  
 You will call this to apply any processing of your own on the image content or, more often, to display its content.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 ---
-#### *`const bool is_ok() const noexcept;`*
+##### *`const bool is_ok() const noexcept;`*  <!-- omit from toc -->
 Returns `true` when the image has been successfully loaded, or `false` if no image has yet been loaded or when loading failed.  
 See also *`failed()`*, *`operator !`* and *`get_error_msg()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`const bool failed() const noexcept;`*
+##### *`const bool failed() const noexcept;`*  <!-- omit from toc -->
 Returns `true` when some arror occured or while the image is not yet initialized. Returns `false` otherwise (i.e. no error).  
 See also *`is_ok()`*, *`operator !`* and *`get_error_msg()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`const std::string get_error_msg() const noexcept;`*
+##### *`const std::string get_error_msg() const noexcept;`*  <!-- omit from toc -->
 Returns a string containing English text related to the error encountered, if any.  
 See also *`is_ok()`*, *`operator !`* and *`failed()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.  
 
 ---
-#### *`const bool has_warnings() const noexcept`*
+##### *`const bool has_warnings() const noexcept`*  <!-- omit from toc -->
 Returns `true` is some warnings have been detected while loading the image from file, or `false` otherwise.  
 See also *`get_warnings_msg()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`std::vector<std::string> get_warnings_msg() const noexcept;`*
+##### *`std::vector<std::string> get_warnings_msg() const noexcept;`*  <!-- omit from toc -->
 Returns a vector of strings, each containing English text related to a warning detected while loading the image from file. Multiple same warnings are returned only once each in this list.  
 See also *`has_warnings()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 ---
-#### *`const std::uint32_t get_height() const noexcept;`*
+##### *`const std::uint32_t get_height() const noexcept;`*  <!-- omit from toc -->
 Returns the height of the image (i.e. lines count) once it has been loaded, or zero otherwise.  
 See also *`get_width()`* and *`image_size()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`const std::uint32_t get_width() const noexcept;`*
+##### *`const std::uint32_t get_width() const noexcept;`*  <!-- omit from toc -->
 Returns the width of the image (i.e. lines count) once it has been loaded, or zero otherwise.  
 See also *`get_height()`* and *`image_size()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`const std::uint64_t image_size() const noexcept;`*
+##### *`const std::uint64_t image_size() const noexcept;`*  <!-- omit from toc -->
 Returns the size (i.e. overall pixels count) of the image once it has been loaded, or zero otherwise.  
 See also *`get_height()`* and *`get_width()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 ---
-#### *`const std::string get_filepath() const noexcept;`*
+##### *`const std::string get_filepath() const noexcept;`*  <!-- omit from toc -->
 Returns the filepath string associated with the image, i.e. the path to the loaded BMP file.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 ---
-#### *`const std::uint32_t get_colors_count() const noexcept;`*
+##### *`const std::uint32_t get_colors_count() const noexcept;`*  <!-- omit from toc -->
 Returns the number of colors encoded in the color palette as specified in the BMP file. May be zero if no color palette is present in the BMP file.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 ---
-#### *`const std::int32_t get_device_x_resolution_dpi() const noexcept;`*
+##### *`const std::int32_t get_device_x_resolution_dpi() const noexcept;`*  <!-- omit from toc -->
 Returns the resolution along the horizontal axis used to encode the image in the BMP file. This value is provided by **CppBMPLoader** in dots-per-inch units (it will mostly get `72` dpi as a value), while the BMP format specifies resolutions in pixels-per-meter units (mostly `2835` as its value).  
 See also *`get_device_y_resolution_dpi()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`const std::int32_t get_device_y_resolution_dpi() const noexcept;`*
+##### *`const std::int32_t get_device_y_resolution_dpi() const noexcept;`*  <!-- omit from toc -->
 Returns the resolution along the vertical axis used to encode the image in the BMP file. This value is provided by **CppBMPLoader** in dots-per-inch units (it will mostly get `72` dpi as a value), while the BMP format specifies resolutions in pixels-per-meter units (mostly `2835` as its value).  
 See also *`get_device_x_resolution_dpi()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
@@ -855,19 +1001,20 @@ namespace bmpl
 These are the ones you should use in the code of your application.
 
 
-### Constructors
+#### Constructors
 
 ---
-#### *`BMPBestFittingSizeImage() noexcept = default;`*
+##### *`BMPBestFittingSizeImage() noexcept = default;`*  <!-- omit from toc -->
 The default empty constructor.  
 You may instantiate an empty image with this constructor. Its error status is then be set to `bmpl::utils::ErrorCode::NOT_INITIALIZED`. You will then call method *`load_image()`* to load the best fitting image from a BA file.
 
 ---
-#### *`BMPBestFittingSizeImage(const bmpl::BMPImage<PixelT> image) noexcept;`*
+##### *`BMPBestFittingSizeImage(const bmpl::BMPImage<PixelT> image) noexcept;`*  <!-- omit from toc -->
 This constructors copies a *`bmpl::BMPImage<>`* with same template argument into this best-fitting-image. It might be that you will never have to use this constructor in your applications, but it gets uses internally in library **CppBMPLoader**.
 
 ---
-#### *`BMPBestFittingSizeImage(const std::string& filepath, const std::uint32_t target_width, const std::uint32_t target_height, const bool apply_gamma_corection = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*
+##### *`BMPBestFittingSizeImage(const std::string& filepath, const std::uint32_t target_width, const std::uint32_t target_height, const bool apply_gamma_corection = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*  <!-- omit from toc -->
+Decodes a best fitting image from file.
 
 Arguments:
 - *`const std::string& filepath`*  
@@ -895,34 +1042,34 @@ Arguments:
   Defaults to `false`.
 
 ---
-#### *`BMPBestFittingSizeImage(const BMPBestFittingSizeImage&) noexcept = default;`*
+##### *`BMPBestFittingSizeImage(const BMPBestFittingSizeImage&) noexcept = default;`*  <!-- omit from toc -->
 The default copy constructor.
 
-#### *`BMPBestFittingSizeImage(BMPBestFittingSizeImage&&) noexcept = default;`*
+##### *`BMPBestFittingSizeImage(BMPBestFittingSizeImage&&) noexcept = default;`*  <!-- omit from toc -->
 The default move constructor.
 
 
-### Operators
+#### Operators
 
 ---
-#### *`BMPBestFittingSizeImage& operator=(const BMPBestFittingSizeImage&) noexcept = default;`*
+##### *`BMPBestFittingSizeImage& operator=(const BMPBestFittingSizeImage&) noexcept = default;`*  <!-- omit from toc -->
 The default copy assignement operator.
 
-#### *`BMPBestFittingSizeImage& operator=(BMPBestFittingSizeImage&&) noexcept = default;`*
+##### *`BMPBestFittingSizeImage& operator=(BMPBestFittingSizeImage&&) noexcept = default;`*  <!-- omit from toc -->
 The default move assignment operator.
 
 ---
-#### *`const bool operator! () const noexcept;`*
+##### *`const bool operator! () const noexcept;`*  <!-- omit from toc -->
 Returns `true` when some arror occured while loading the image was faulty. Returns `false` otherwise (i.e. no error).  
 Seel also `is_ok()`, `failed()` and `get_error_msg()`.  
 Notice: this is a wrapper to method `failed()`.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 
-### Methods
+#### Methods
 
 ---
-#### *`const bool load_image(const std::string& filepath, const std::uint32_t target_width, const std::uint32_t target_height, const bool apply_gamma_correction = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*
+##### *`const bool load_image(const std::string& filepath, const std::uint32_t target_width, const std::uint32_t target_height, const bool apply_gamma_correction = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*  <!-- omit from toc -->
 Loads an image from a specified `BA` file and sets its error status and warnings list.  
 Returns `true` if loading was successfull or `false` otherwise.  
 You will mainly call this method to load BMP images from BA files after having instantiating a *`BMPBestFittingSizeImage`* with the default empty constructor, or to load a new image from another `BA` file.
@@ -953,71 +1100,71 @@ Arguments:
   Defaults to `false`.
 
 ---
-#### *`PixelT* get_content_ptr() noexcept;`*
+##### *`PixelT* get_content_ptr() noexcept;`*  <!-- omit from toc -->
 Returns a pointer to the very first pixel of the image buffer.  
 You will call this to apply any processing of your own on the image content or, more often, to display its content.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 ---
-#### *`const bool is_ok() const noexcept;`*
+##### *`const bool is_ok() const noexcept;`*  <!-- omit from toc -->
 Returns `true` when the image has been successfully loaded, or `false` if no image has yet been loaded or when loading failed.  
 See also *`failed()`*, *`operator !`* and *`get_error_msg()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`const bool failed() const noexcept;`*
+##### *`const bool failed() const noexcept;`*  <!-- omit from toc -->
 Returns `true` when some arror occured or while the image is not yet initialized. Returns `false` otherwise (i.e. no error).  
 See also *`is_ok()`*, *`operator !`* and *`get_error_msg()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`const std::string get_error_msg() const noexcept;`*
+##### *`const std::string get_error_msg() const noexcept;`*  <!-- omit from toc -->
 Returns a string containing English text related to the error encountered, if any.  
 See also *`is_ok()`*, *`operator !`* and *`failed()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.  
 
 ---
-#### *`const bool has_warnings() const noexcept`*
+##### *`const bool has_warnings() const noexcept`*  <!-- omit from toc -->
 Returns `true` is some warnings have been detected while loading the image from file, or `false` otherwise.  
 See also *`get_warnings_msg()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`std::vector<std::string> get_warnings_msg() const noexcept;`*
+##### *`std::vector<std::string> get_warnings_msg() const noexcept;`*  <!-- omit from toc -->
 Returns a vector of strings, each containing English text related to a warning detected while loading the image from file. Multiple same warnings are returned only once each in this list.  
 See also *`has_warnings()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 ---
-#### *`const std::uint32_t get_height() const noexcept;`*
+##### *`const std::uint32_t get_height() const noexcept;`*  <!-- omit from toc -->
 Returns the height of the image (i.e. lines count) once it has been loaded, or zero otherwise.  
 See also *`get_width()`* and *`image_size()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`const std::uint32_t get_width() const noexcept;`*
+##### *`const std::uint32_t get_width() const noexcept;`*  <!-- omit from toc -->
 Returns the width of the image (i.e. lines count) once it has been loaded, or zero otherwise.  
 See also *`get_height()`* and *`image_size()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`const std::uint64_t image_size() const noexcept;`*
+##### *`const std::uint64_t image_size() const noexcept;`*  <!-- omit from toc -->
 Returns the size (i.e. overall pixels count) of the image once it has been loaded, or zero otherwise.  
 See also *`get_height()`* and *`get_width()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 ---
-#### *`const std::string get_filepath() const noexcept;`*
+##### *`const std::string get_filepath() const noexcept;`*  <!-- omit from toc -->
 Returns the filepath string associated with the image, i.e. the path to the loaded BMP file.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 ---
-#### *`const std::uint32_t get_colors_count() const noexcept;`*
+##### *`const std::uint32_t get_colors_count() const noexcept;`*  <!-- omit from toc -->
 Returns the number of colors encoded in the color palette as specified in the BMP file. May be zero if no color palette is present in the BMP file.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 ---
-#### *`const std::int32_t get_device_x_resolution_dpi() const noexcept;`*
+##### *`const std::int32_t get_device_x_resolution_dpi() const noexcept;`*  <!-- omit from toc -->
 Returns the resolution along the horizontal axis used to encode the image in the BMP file. This value is provided by **CppBMPLoader** in dots-per-inch units (it will mostly get `72` dpi as a value), while the BMP format specifies resolutions in pixels-per-meter units (mostly `2835` as its value).  
 See also *`get_device_y_resolution_dpi()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`const std::int32_t get_device_y_resolution_dpi() const noexcept;`*
+##### *`const std::int32_t get_device_y_resolution_dpi() const noexcept;`*  <!-- omit from toc -->
 Returns the resolution along the vertical axis used to encode the image in the BMP file. This value is provided by **CppBMPLoader** in dots-per-inch units (it will mostly get `72` dpi as a value), while the BMP format specifies resolutions in pixels-per-meter units (mostly `2835` as its value).  
 See also *`get_device_x_resolution_dpi()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
@@ -1108,19 +1255,20 @@ namespace bmpl
 These are the ones you should use in the code of your application.
 
 
-### Constructors
+#### Constructors
 
 ---
-#### *`BMPBestFittingResolutionImage() noexcept = default;`*
+##### *`BMPBestFittingResolutionImage() noexcept = default;`*  <!-- omit from toc -->
 The default empty constructor.  
 You may instantiate an empty image with this constructor. Its error status is then set to `bmpl::utils::ErrorCode::NOT_INITIALIZED`. You will then call method *`load_image()`* to load the best fitting image from a `BA` file.
 
 ---
-#### *`BMPBestFittingResolutionImage(const bmpl::BMPImage<PixelT> image) noexcept;`*
+##### *`BMPBestFittingResolutionImage(const bmpl::BMPImage<PixelT> image) noexcept;`*  <!-- omit from toc -->
 This constructors copies a *`bmpl::BMPImage<>`* with same template argument into this best-fitting-image. It might be that you will never have to use this constructor in your applications, but it gets uses internally in library **CppBMPLoader**.
 
 ---
-#### *`BMPBestFittingResolutionImage(const std::string& filepath, const std::int32_t target_dpi_x_resolution, const std::int32_t target_dpi_y_resolution, const bool apply_gamma_corection = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*
+##### *`BMPBestFittingResolutionImage(const std::string& filepath, const std::int32_t target_dpi_x_resolution, const std::int32_t target_dpi_y_resolution, const bool apply_gamma_corection = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*  <!-- omit from toc -->
+Decodes a best fitting image from file.
 
 Arguments:
 - *`const std::string& filepath`*  
@@ -1148,8 +1296,8 @@ Arguments:
   Defaults to `false`.
 
 ---
-#### *`BMPBestFittingResolutionImage(const std::string& filepath, const std::int32_t target_dpi_resolution, const bool apply_gamma_corection = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*
-Same as above, but with same resolution specified for both horizontal and vertical axis.
+##### *`BMPBestFittingResolutionImage(const std::string& filepath, const std::int32_t target_dpi_resolution, const bool apply_gamma_corection = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*  <!-- omit from toc -->
+Same as above, but with a same resolution specified for both horizontal and vertical axis.
 
 Arguments:
 - *`const std::string& filepath`*  
@@ -1174,34 +1322,34 @@ Arguments:
   Defaults to `false`.
 
 ---
-#### *`BMPBestFittingResolutionImage(const BMPBestFittingSizeImage&) noexcept = default;`*
+##### *`BMPBestFittingResolutionImage(const BMPBestFittingSizeImage&) noexcept = default;`*  <!-- omit from toc -->
 The default copy constructor.
 
-#### *`BMPBestFittingResolutionImage(BMPBestFittingSizeImage&&) noexcept = default;`*
+##### *`BMPBestFittingResolutionImage(BMPBestFittingSizeImage&&) noexcept = default;`*  <!-- omit from toc -->
 The default move constructor.
 
 
-### Operators
+#### Operators
 
 ---
-#### *`BMPBestFittingResolutionImage& operator=(const BMPBestFittingResolutionImage&) noexcept = default;`*
+##### *`BMPBestFittingResolutionImage& operator=(const BMPBestFittingResolutionImage&) noexcept = default;`*  <!-- omit from toc -->
 The default copy assignement operator.
 
-#### *`BMPBestFittingResolutionImage& operator=(BMPBestFittingResolutionImage&&) noexcept = default;`*
+##### *`BMPBestFittingResolutionImage& operator=(BMPBestFittingResolutionImage&&) noexcept = default;`*  <!-- omit from toc -->
 The default move assignment operator.
 
 ---
-#### *`const bool operator! () const noexcept;`*
+##### *`const bool operator! () const noexcept;`*  <!-- omit from toc -->
 Returns `true` when some arror occured while loading the image was faulty. Returns `false` otherwise (i.e. no error).  
 Seel also `is_ok()`, `failed()` and `get_error_msg()`.  
 Notice: this is a wrapper to method `failed()`.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 
-### Methods
+#### Methods
 
 ---
-#### *`const bool load_image(const std::string& filepath, const std::int32_t target_dpi_x_resolution, const std::int32_t target_dpi_y_resolution, const bool apply_gamma_correction = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*
+##### *`const bool load_image(const std::string& filepath, const std::int32_t target_dpi_x_resolution, const std::int32_t target_dpi_y_resolution, const bool apply_gamma_correction = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*  <!-- omit from toc -->
 Loads an image from a specified `BA` file and sets its error status and warnings list.  
 Returns `true` if loading was successfull or `false` otherwise.  
 You will mainly call this method to load BMP images from BA files after having instantiating a *`BMPBestFittingResolutionImage`* with the default empty constructor, or to load a new image from another `BA` file.
@@ -1232,7 +1380,7 @@ Arguments:
   Defaults to `false`.
 
 ---
-#### *`const bool load_image(const std::string& filepath, const std::int32_t target_dpi_resolution, cconst bool apply_gamma_correction = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*
+##### *`const bool load_image(const std::string& filepath, const std::int32_t target_dpi_resolution, cconst bool apply_gamma_correction = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*  <!-- omit from toc -->
 Same as above, but with same resolution specified for both horizontal and vertical axis.  
 Loads an image from a specified `BA` file and sets its error status and warnings list.  
 Returns `true` if loading was successfull or `false` otherwise.  
@@ -1261,71 +1409,71 @@ Arguments:
   Defaults to `false`.
 
 ---
-#### *`PixelT* get_content_ptr() noexcept;`*
+##### *`PixelT* get_content_ptr() noexcept;`*  <!-- omit from toc -->
 Returns a pointer to the very first pixel of the image buffer.  
 You will call this to apply any processing of your own on the image content or, more often, to display its content.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 ---
-#### *`const bool is_ok() const noexcept;`*
+##### *`const bool is_ok() const noexcept;`*  <!-- omit from toc -->
 Returns `true` when the image has been successfully loaded, or `false` if no image has been loaded or when loading failed.  
 See also *`failed()`*, *`operator !`* and *`get_error_msg()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`const bool failed() const noexcept;`*
+##### *`const bool failed() const noexcept;`*  <!-- omit from toc -->
 Returns `true` when some arror occured or while the image is not yet initialized. Returns `false` otherwise (i.e. no error).  
 See also *`is_ok()`*, *`operator !`* and *`get_error_msg()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`const std::string get_error_msg() const noexcept;`*
+##### *`const std::string get_error_msg() const noexcept;`*  <!-- omit from toc -->
 Returns a string containing English text related to the error encountered, if any.  
 See also *`is_ok()`*, *`operator !`* and *`failed()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.  
 
 ---
-#### *`const bool has_warnings() const noexcept`*
+##### *`const bool has_warnings() const noexcept`*  <!-- omit from toc -->
 Returns `true` is some warnings have been detected while loading the image from file, or `false` otherwise.  
 See also *`get_warnings_msg()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`std::vector<std::string> get_warnings_msg() const noexcept;`*
+##### *`std::vector<std::string> get_warnings_msg() const noexcept;`*  <!-- omit from toc -->
 Returns a vector of strings, each containing English text related to a warning detected while loading the image from file. Multiple same warnings are returned only once each in this list.  
 See also *`has_warnings()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 ---
-#### *`const std::uint32_t get_height() const noexcept;`*
+##### *`const std::uint32_t get_height() const noexcept;`*  <!-- omit from toc -->
 Returns the height of the image (i.e. lines count) once it has been loaded, or zero otherwise.  
 See also *`get_width()`* and *`image_size()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`const std::uint32_t get_width() const noexcept;`*
+##### *`const std::uint32_t get_width() const noexcept;`*  <!-- omit from toc -->
 Returns the width of the image (i.e. lines count) once it has been loaded, or zero otherwise.  
 See also *`get_height()`* and *`image_size()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`const std::uint64_t image_size() const noexcept;`*
+##### *`const std::uint64_t image_size() const noexcept;`*  <!-- omit from toc -->
 Returns the size (i.e. overall pixels count) of the image once it has been loaded, or zero otherwise.  
 See also *`get_height()`* and *`get_width()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 ---
-#### *`const std::string get_filepath() const noexcept;`*
+##### *`const std::string get_filepath() const noexcept;`*  <!-- omit from toc -->
 Returns the filepath string associated with the image, i.e. the path to the loaded BMP file.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 ---
-#### *`const std::uint32_t get_colors_count() const noexcept;`*
+##### *`const std::uint32_t get_colors_count() const noexcept;`*  <!-- omit from toc -->
 Returns the number of colors encoded in the color palette as specified in the BMP file. May be zero if no color palette is present in the BMP file.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 ---
-#### *`const std::int32_t get_device_x_resolution_dpi() const noexcept;`*
+##### *`const std::int32_t get_device_x_resolution_dpi() const noexcept;`*  <!-- omit from toc -->
 Returns the resolution along the horizontal axis used to encode the image in the BMP file. This value is provided by **CppBMPLoader** in dots-per-inch units (it will mostly get `72` dpi as a value), while the BMP format specifies resolutions in pixels-per-meter units (mostly `2835` as its value).  
 See also *`get_device_y_resolution_dpi()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`const std::int32_t get_device_y_resolution_dpi() const noexcept;`*
+##### *`const std::int32_t get_device_y_resolution_dpi() const noexcept;`*  <!-- omit from toc -->
 Returns the resolution along the vertical axis used to encode the image in the BMP file. This value is provided by **CppBMPLoader** in dots-per-inch units (it will mostly get `72` dpi as a value), while the BMP format specifies resolutions in pixels-per-meter units (mostly `2835` as its value).  
 See also *`get_device_x_resolution_dpi()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
@@ -1414,19 +1562,20 @@ namespace bmpl
 These are the ones you should use in the code of your application.
 
 
-### Constructors
+#### Constructors
 
 ---
-#### *`BMPBestFittingImage() noexcept = default;`*
+##### *`BMPBestFittingImage() noexcept = default;`*  <!-- omit from toc -->
 The default empty constructor.  
 You may instantiate an empty image with this constructor. Its error status is then be set to `bmpl::utils::ErrorCode::NOT_INITIALIZED`. You will then call method *`load_image()`* to load the best fitting image from a BA file.
 
 ---
-#### *`BMPBestFittingImage(const bmpl::BMPImage<PixelT> image) noexcept;`*
+##### *`BMPBestFittingImage(const bmpl::BMPImage<PixelT> image) noexcept;`*  <!-- omit from toc -->
 This constructors copies a *`bmpl::BMPImage<>`* with same template argument into this best-fitting-image. It might be that you will never have to use this constructor in your applications, but it gets uses internally in library **CppBMPLoader**.
 
 ---
-#### *`BMPBestFittingImage(const std::string& filepath, const std::uint32_t target_width, const std::uint32_t target_height, const std::uint32_t target_bits_per_pixel, const std::int32_t target_dpi_x_resolution, std::int32_t target_dpi_y_resolution, const bool apply_gamma_corection = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*
+##### *`BMPBestFittingImage(const std::string& filepath, const std::uint32_t target_width, const std::uint32_t target_height, const std::uint32_t target_bits_per_pixel, const std::int32_t target_dpi_x_resolution, std::int32_t target_dpi_y_resolution, const bool apply_gamma_corection = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*  <!-- omit from toc -->
+Decodes a best fitting image from file.
 
 Arguments:
 - *`const std::string& filepath`*  
@@ -1463,7 +1612,7 @@ Arguments:
   Defaults to `false`.
 
 ---
-#### *`BMPBestFittingImage(const std::string& filepath, const std::uint32_t target_width, const std::uint32_t target_height, const std::uint32_t target_bits_per_pixel, const std::int32_t target_dpi_resolution, const bool apply_gamma_corection = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*
+##### *`BMPBestFittingImage(const std::string& filepath, const std::uint32_t target_width, const std::uint32_t target_height, const std::uint32_t target_bits_per_pixel, const std::int32_t target_dpi_resolution, const bool apply_gamma_corection = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*  <!-- omit from toc -->
 Same as above, but with same resolution specified for both horizontal and vertical axis.
 
 Arguments:
@@ -1498,34 +1647,34 @@ Arguments:
   Defaults to `false`.
 
 ---
-#### *`BMPBestFittingImage(const BMPBestFittingImage&) noexcept = default;`*
+##### *`BMPBestFittingImage(const BMPBestFittingImage&) noexcept = default;`*  <!-- omit from toc -->
 The default copy constructor.
 
-#### *`BMPBestFittingImage(BMPBestFittingImage&&) noexcept = default;`*
+##### *`BMPBestFittingImage(BMPBestFittingImage&&) noexcept = default;`*  <!-- omit from toc -->
 The default move constructor.
 
 
-### Operators
+#### Operators
 
 ---
-#### *`BMPBestFittingImage& operator=(const BMPBestFittingImage&) noexcept = default;`*
+##### *`BMPBestFittingImage& operator=(const BMPBestFittingImage&) noexcept = default;`*  <!-- omit from toc -->
 The default copy assignement operator.
 
-#### *`BMPBestFittingImage& operator=(BMPBestFittingImage&&) noexcept = default;`*
+##### *`BMPBestFittingImage& operator=(BMPBestFittingImage&&) noexcept = default;`*  <!-- omit from toc -->
 The default move assignment operator.
 
 ---
-#### *`const bool operator! () const noexcept;`*
+##### *`const bool operator! () const noexcept;`*  <!-- omit from toc -->
 Returns `true` when some arror occured while loading the image was faulty. Returns `false` otherwise (i.e. no error).  
 Seel also `is_ok()`, `failed()` and `get_error_msg()`.  
 Notice: this is a wrapper to method `failed()`.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 
-### Methods
+#### Methods
 
 ---
-#### *`const bool load_image(const std::string& filepath, const std::uint32_t target_width, const std::uint32_t target_height, const std::uint32_t target_bits_per_pixel, const std::int32_t target_dpi_x_resolution, const std::int32_t target_dpi_y_resolution, const bool apply_gamma_correction = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*
+##### *`const bool load_image(const std::string& filepath, const std::uint32_t target_width, const std::uint32_t target_height, const std::uint32_t target_bits_per_pixel, const std::int32_t target_dpi_x_resolution, const std::int32_t target_dpi_y_resolution, const bool apply_gamma_correction = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*  <!-- omit from toc -->
 Loads an image from a specified `BA` file and sets its error status and warnings list.  
 Returns `true` if loading was successfull or `false` otherwise.  
 You will mainly call this method to load BMP images from BA files after having instantiating a *`BMPBestFittingResolutionImage`* with the default empty constructor, or to load a new image from another `BA` file.
@@ -1565,7 +1714,7 @@ Arguments:
   Defaults to `false`.
 
 ---
-#### *`const bool load_image(const std::string& filepath, const std::uint32_t target_width, const std::uint32_t target_height, const std::uint32_t target_bits_per_pixel, const std::int32_t target_dpi_resolution, cconst bool apply_gamma_correction = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*
+##### *`const bool load_image(const std::string& filepath, const std::uint32_t target_width, const std::uint32_t target_height, const std::uint32_t target_bits_per_pixel, const std::int32_t target_dpi_resolution, cconst bool apply_gamma_correction = false, const bmpl::clr::ESkippedPixelsMode skipped_mode = bmpl::clr::ESkippedPixelsMode::BLACK, const bool force_bottom_up = false) noexcept;`*  <!-- omit from toc -->
 Same as above, but with same resolution specified for both horizontal and vertical axis.  
 Loads an image from a specified `BA` file and sets its error status and warnings list.  
 Returns `true` if loading was successfull or `false` otherwise.  
@@ -1603,71 +1752,71 @@ Arguments:
   Defaults to `false`.
 
 ---
-#### *`PixelT* get_content_ptr() noexcept;`*
+##### *`PixelT* get_content_ptr() noexcept;`*  <!-- omit from toc -->
 Returns a pointer to the very first pixel of the image buffer.  
 You will call this to apply any processing of your own on the image content or, more often, to display its content.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 ---
-#### *`const bool is_ok() const noexcept;`*
+##### *`const bool is_ok() const noexcept;`*  <!-- omit from toc -->
 Returns `true` when the image has been successfully loaded, or `false` if no image has been loaded or when loading failed.  
 See also *`failed()`*, *`operator !`* and *`get_error_msg()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`const bool failed() const noexcept;`*
+##### *`const bool failed() const noexcept;`*  <!-- omit from toc -->
 Returns `true` when some arror occured or while the image is not yet initialized. Returns `false` otherwise (i.e. no error).  
 See also *`is_ok()`*, *`operator !`* and *`get_error_msg()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`const std::string get_error_msg() const noexcept;`*
+##### *`const std::string get_error_msg() const noexcept;`*  <!-- omit from toc -->
 Returns a string containing English text related to the error encountered, if any.  
 See also *`is_ok()`*, *`operator !`* and *`failed()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.  
 
 ---
-#### *`const bool has_warnings() const noexcept`*
+##### *`const bool has_warnings() const noexcept`*  <!-- omit from toc -->
 Returns `true` is some warnings have been detected while loading the image from file, or `false` otherwise.  
 See also *`get_warnings_msg()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`std::vector<std::string> get_warnings_msg() const noexcept;`*
+##### *`std::vector<std::string> get_warnings_msg() const noexcept;`*  <!-- omit from toc -->
 Returns a vector of strings, each containing English text related to a warning detected while loading the image from file. Multiple same warnings are returned only once each in this list.  
 See also *`has_warnings()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 ---
-#### *`const std::uint32_t get_height() const noexcept;`*
+##### *`const std::uint32_t get_height() const noexcept;`*  <!-- omit from toc -->
 Returns the height of the image (i.e. lines count) once it has been loaded, or zero otherwise.  
 See also *`get_width()`* and *`image_size()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`const std::uint32_t get_width() const noexcept;`*
+##### *`const std::uint32_t get_width() const noexcept;`*  <!-- omit from toc -->
 Returns the width of the image (i.e. lines count) once it has been loaded, or zero otherwise.  
 See also *`get_height()`* and *`image_size()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`const std::uint64_t image_size() const noexcept;`*
+##### *`const std::uint64_t image_size() const noexcept;`*  <!-- omit from toc -->
 Returns the size (i.e. overall pixels count) of the image once it has been loaded, or zero otherwise.  
 See also *`get_height()`* and *`get_width()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 ---
-#### *`const std::string get_filepath() const noexcept;`*
+##### *`const std::string get_filepath() const noexcept;`*  <!-- omit from toc -->
 Returns the filepath string associated with the image, i.e. the path to the loaded BMP file.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 ---
-#### *`const std::uint32_t get_colors_count() const noexcept;`*
+##### *`const std::uint32_t get_colors_count() const noexcept;`*  <!-- omit from toc -->
 Returns the number of colors encoded in the color palette as specified in the BMP file. May be zero if no color palette is present in the BMP file.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
 ---
-#### *`const std::int32_t get_device_x_resolution_dpi() const noexcept;`*
+##### *`const std::int32_t get_device_x_resolution_dpi() const noexcept;`*  <!-- omit from toc -->
 Returns the resolution along the horizontal axis used to encode the image in the BMP file. This value is provided by **CppBMPLoader** in dots-per-inch units (it will mostly get `72` dpi as a value), while the BMP format specifies resolutions in pixels-per-meter units (mostly `2835` as its value).  
 See also *`get_device_y_resolution_dpi()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
 
-#### *`const std::int32_t get_device_y_resolution_dpi() const noexcept;`*
+##### *`const std::int32_t get_device_y_resolution_dpi() const noexcept;`*  <!-- omit from toc -->
 Returns the resolution along the vertical axis used to encode the image in the BMP file. This value is provided by **CppBMPLoader** in dots-per-inch units (it will mostly get `72` dpi as a value), while the BMP format specifies resolutions in pixels-per-meter units (mostly `2835` as its value).  
 See also *`get_device_x_resolution_dpi()`*.  
 Inherited from class *`bmpl::BMPImage<>`*.
