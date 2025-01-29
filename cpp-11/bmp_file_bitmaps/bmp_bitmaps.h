@@ -1060,7 +1060,7 @@ namespace bmpl
             masked_content.assign(mask_size, std::uint16_t(0));
 
             if (bmpl::utils::PLATFORM_IS_LITTLE_ENDIAN) {
-                if (!(this->in_stream.read(reinterpret_cast<char*>(masked_content.data()), mask_size * sizeof std::uint16_t))) {
+                if (!(this->in_stream.read(reinterpret_cast<char*>(masked_content.data()), mask_size * sizeof(std::uint16_t)))) {
                     if (this->in_stream.eof())
                         return this->_set_err(bmpl::utils::ErrorCode::END_OF_FILE);
                     else
@@ -1319,7 +1319,7 @@ namespace bmpl
             masked_content.assign(mask_size, std::uint32_t(0));
 
             if (bmpl::utils::PLATFORM_IS_LITTLE_ENDIAN) {
-                if (!(this->in_stream.read(reinterpret_cast<char*>(masked_content.data()), mask_size * sizeof std::uint32_t))) {
+                if (!(this->in_stream.read(reinterpret_cast<char*>(masked_content.data()), mask_size * sizeof(std::uint32_t)))) {
                     if (this->in_stream.eof())
                         return this->_set_err(bmpl::utils::ErrorCode::END_OF_FILE);
                     else
@@ -1372,7 +1372,7 @@ namespace bmpl
             bitmap.assign(bmp_size, bmpl::clr::BGRA_HDR());
 
             if (bmpl::utils::PLATFORM_IS_LITTLE_ENDIAN) {
-                if (!(this->in_stream.read(reinterpret_cast<char*>(bitmap.data()), bmp_size * sizeof bmpl::clr::BGRA_HDR))) {
+                if (!(this->in_stream.read(reinterpret_cast<char*>(bitmap.data()), bmp_size * sizeof(bmpl::clr::BGRA_HDR)))) {
                     if (this->in_stream.eof())
                         return this->_set_err(bmpl::utils::ErrorCode::END_OF_FILE);
                     else
