@@ -1,5 +1,5 @@
 # CppBMPLoader  [![Latest release](http://img.shields.io/github/release/schmouk/cppbmploader.svg?style=plastic&labelColor=blueviolet&color=success)](https://github.com/schmouk/cppbmploader/releases)
-An exhaustive BMP Loader, MIT-licensed, implemented for c++14 and c++20
+An exhaustive BMP Loader, MIT-licensed, implemented for c++11
 
 This BMP loader library decodes **Windows** BMP files encoded according to 
 BMP format versions 1 up to 5, as well as the specific *OS/2 1.x* and *OS/2 
@@ -27,17 +27,13 @@ sees the number of questions asked on this topic on the Internet and the
 number of BMPLoader libraries already existing, but apparently incomplete, that 
 can be found on *GitHub*, programmed in c++ or in other programming languages.
 
-## c++14 and c++20 versions
-Initially, two versions of the library are offerred, one responding to standard 
-c++14 and the other responding to standard c++20 (offering more advanced 
-programming concepts, e.g. *ranges* and *views* or STL extensions).
-
-Notice: by November 2024, the c++20 version of the library is not yet released.
+## c++11 version
+Initially, only a c++11 version of the library code is offerred.
 
 ## Notice (1/2)
-The c++14 standard version of **CppBMPLoader** does not use any c++14 
-specificities but only c++11 ones. It has been compiled and validated with
-a c++14 compiler but should as well be compilable with a c++11 compiler.
+The c++11 version of **CppBMPLoader** has been compiled with c++14 standard as provided by Visual Studio 2022. Meanwhile, it does not use any c++14 
+specificities but only c++11 ones. While having been compiled and validated with
+a c++14 compiler it should as well be compilable with a c++11 compiler.
 
 ## Notice (2/2)
 All released code has been validated. For this purpose, we used the great
@@ -52,8 +48,6 @@ ISO images of OS/2.
 
 # Documentation
 The API of **CppBMPLoader** is documented in [documentation.md](./documentation.doc).
-This API is exactly the same for both the c++14 and the c++20 implementations of
-the library.
 
 Shortly speeking, this API offers a templated class BMPImage<> for the loading 
 of BMP images content and classes and functions to extract and load all images 
@@ -72,15 +66,12 @@ For those of you who are the most motivated for deeply diving into this
 library code, please notice that no implementation documentation is provided 
 for **CppBMPLoader**.
 
-The design decision made for its first implementation, a.k.a. cpp-14, has been 
+The design decision made for its first implementation has been 
 to factorize as much code as possible. This was a tremendous decision when at 
 bugs fixing time: each bug had to be fixed in one and only one place. This was 
-also a very deceptive decision about the final readability of the code. So, you 
-should avoid to have a first look at this code. Prefer to go into the c++20 
-implementation of **CppBMPLoader** instead to have a far easier reading of it. 
-There, we've preferred to duplicate the already debugged code, to provide a 
-clear class for each type of object and for each format version that is 
-internally managed by the library.
+also a very deceptive decision about the final readability of the code. It might be that a further version of libray **CppBMPLoader** will embed c++20 or even c++23 code. Should this happen, a full refactoring would then happen. Duplicating the already debugged code, to provide a 
+single clear class for each type of object and for each format version that is 
+internally managed by the library, would eventually enhance the readiness of the code. So, wait and see.
 
 Meanwhile, experienced c++ developers should get no trouble in understanding 
 the directories tree structure and the code itself as well, which is 
