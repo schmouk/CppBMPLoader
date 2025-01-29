@@ -576,7 +576,7 @@ namespace bmpl
 
             if (is_BA_file()) {
                 // this is a multi array bitmaps file, let's load the content of the very first image in array
-                this->_in_stream.seekg(sizeof std::int16_t);
+                this->_in_stream.seekg(sizeof(std::int16_t));
                 bmpl::frmt::BAHeader first_ba_header(this->_in_stream);
                 this->_bitmap_loader_ptr = bmpl::bmpf::create_bitmap_loader<PixelT>(
                     this->_in_stream,
@@ -736,7 +736,7 @@ namespace bmpl
 
                 const std::size_t image_width{ this->image_width };
                 const std::size_t image_height{ this->image_height };
-                const std::size_t line_width{ image_width * sizeof PixelT };
+                const std::size_t line_width{ image_width * sizeof(PixelT) };
 
                 std::vector<std::uint8_t> tmp_line;
                 tmp_line.assign(line_width, 0);
