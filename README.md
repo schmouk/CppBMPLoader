@@ -1,4 +1,4 @@
-# CppBMPLoader  [![Latest release](http://img.shields.io/github/release/schmouk/cppbmploader.svg?style=plastic&labelColor=blueviolet&color=success)](https://github.com/schmouk/cppbmploader/releases)
+# CppBMPLoader  [![Latest release](http://img.shields.io/github/release/schmouk/cppbmploader.svg?style=plastic&labelColor=blueviolet&color=success)](https://github.com/schmouk/cppbmploader/releases/latest)
 An exhaustive BMP Loader, MIT-licensed, implemented for c++11
 
 This BMP loader library decodes **Windows** BMP files encoded according to 
