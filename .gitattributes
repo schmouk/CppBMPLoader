@@ -1,0 +1,3 @@
+images/* linguist-vendored
+*.html linguist-vendored
+*.md linguist-vendored
