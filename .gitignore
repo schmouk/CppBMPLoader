@@ -44,7 +44,9 @@ Debug
 docs
 
 # This project specifics
+.gitattributes
 archive
 cpp-bmp-loader
 create_ba_files
+scripts
 tests
